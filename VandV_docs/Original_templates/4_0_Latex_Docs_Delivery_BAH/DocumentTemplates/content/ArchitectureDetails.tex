@@ -1,0 +1,112 @@
+\subsection{\unclass Architecture}
+
+	\subsubsection{\unclass Architecture Selection Criteria}
+	\guidance{
+		\unclass TIMELINE: Should be finalized prior to \gls{srr}, and unless it's a brand new type of system, should be reasonably understood prior to kickoff.
+		
+		\unclass Based on the information presented at model kickoff and on the developer's research in the study phase, the developer should provide enough information in this section to support their proposal before \gls{srr}. Provide rationale for the specific \gls{tmap} architecture chosen (\gls{matlab}/Simulink, \gls{odessa}, \gls{c2}, etc.). From there additional details will be communicated on why specific version of \gls{odessa} architecture, \gls{c2}, or \gls{matlab}/Simulink were chosen for this model. If an existing \gls{tmap} model was selected as a baseline, explain the selection rationale.
+	}
+	
+	\subsubsection{\unclass Architecture Version}
+	\guidance{
+		\unclass TIMELINE: Should be finalized prior to \gls{srr}.
+		
+		\unclass Previous section focuses on the architecture chosen. This section focuses on which version of the architecture was chosen and why. A previous version may be chosen with justification and approval from \gls{ngic} \gls{cor}. 
+		
+	}
+	
+	\subsubsection{\unclass External Integration}
+	\guidance{
+		\unclass TIMELINE: Should be finalized prior to \gls{pdr}.
+		
+		\unclass Please include any specific decisions that were made due to integration requirements here. Things like timing updates may have been chosen due to limitations of \gls{itase}, include details on that here. This also may include requirements to interface with hardware, and it needs to be captured before the "Please reference the \gls{icd}" comment below. 
+		
+		\unclass This section should define the interfaces with other applications (\gls{itase}, Trajectory Generator, Xpatch, database, file format, network connection, etc.), Product Components, and users as applicable.  Include design constraints associated with interfaces.  Ensure that the external interfaces are documented. If this is to be integrated into \gls{itase}, include \gls{itase} \gls{api} and \gls{icd} discussion with any proposed modifications to the API. Include descriptions of architecture \gls{gui} uses and capabilities.
+		
+		\unclass If any third-party tools are \emph{required} for the model to function or to create input data for the model, describe them here.  If a third-party tool was used during development and/or testing to create input files, for output data processing, or for analysis, and the file format itself is the mandatory element and not that particular third party tool, explain that here.
+		
+	}
+	
+	\classlabelshort Please reference the \modelname\ \gls{icd} for more details on external interfaces and details on integration with other models or simulations. 
+	
+\subsection{\unclass Standards and Regulations}
+	
+	
+\subsubsection{\unclass Architecture Standards and Regulations}
+\guidance{
+	\unclass TIMELINE: Should be finalized prior to \gls{srr}.
+	
+	\unclass Identify any standards or regulations that may apply (e.g., Joint Technical Architecture Design, Airworthiness, \gls{itase} Standards, \gls{afsim} Standards, IEEE, etc.) beyond the architecture \gls{add}. If none, just state there are none required. 
+	
+	\unclass Leave text with reference to architecture document unless one does not exist. 
+}
+
+Please reference the \textcolor{red5}{[architecture name here]} \gls{add} for details on standards and regulations for the architecture. 
+
+\subsubsection{\unclass Model Standards and Regulations}
+	
+	\guidance{	\unclass TIMELINE: Should be finalized prior to \gls{srr}, and unless it's a brand new type of system, should be reasonably understood prior to kickoff.
+		\unclass This section identifies and outlines all relevant standards, regulatory frameworks, and compliance protocols
+		applicable to the development, execution, and distribution of the model. It provides references to any governing
+		military, industry, or organizational specifications which inform design constraints, performance benchmarks,
+		interface definitions, and testing methodologies. Where applicable, this section highlights adherence to documentation
+		standards, security classifications, data handling procedures, and model verification practices. The
+		intent is to ensure the model aligns with externally imposed technical, procedural, and legal expectations, and to
+		provide clarity for both users and developers on the guiding requirements that shape and constrain the model's
+		design and deployment.}
+	
+	\unclass This model and its associated documentation adhere to a defined set of technical, procedural, and security
+	standards to ensure both consistency in development and compliance with governing requirements. The following
+	subsections outline the guiding principles and regulations that have shaped this effort.
+	
+	\subsubsubsection{\unclass Controlled Unclassified Information Compliance}
+	
+	\unclass All model components and supporting documentation are developed in accordance with regulations governing
+	Controlled Unclassified Information. In particular, the protection, storage, transmission, and dissemination of
+	CUI material align with the requirements set forth by the National Archives and Records Administration (NARA)
+	and Department of Defense (DoD) CUI implementation guidelines. Access and distribution controls are applied
+	in accordance with marking, handling, and safeguarding procedures.
+	\subsubsubsection{\unclass NIST SP 800-171 Alignment}
+	\unclass As required for systems handling CUI within non-federal environments, this effort complies with the National
+	Institute of Standards and Technology (NIST) Special Publication 800-171, ``Protecting Controlled Unclassified
+	Information in Nonfederal Systems and Organizations.'' Applicable security requirements are followed, including
+	access control, audit and accountability, configuration management, identification and authentication, media
+	protection, and system and information integrity.
+	\subsubsubsection{\unclass C++ Development Standards}
+	\unclass Code development for this model adheres strictly to the Google C++ Style Guide, ensuring consistency,
+	readability, and maintainability throughout the codebase. All source files, class structures, function declarations,
+	and variable naming conventions reflect this guidance, and developers are expected to follow formatting,
+	exception handling, and memory management practices as outlined therein.
+	\subsubsubsection{\unclass Code Design Philosophy}
+	\unclass In addition to the structural guidance of the Google Style Guide, the model’s implementation philosophy
+	reflects the principles established by Bjarne Stroustrup, the creator of C++. These include strong emphasis on
+	type safety, abstraction, modularity, and clarity of intent. Code is written to be maintainable and extensible,
+	with careful consideration given to encapsulation, minimal coupling, and maximal cohesion, in line with modern
+	C++ best practices.
+	
+	\unclass All developers contributing to this model are expected to be familiar with these standards and to apply
+	them consistently across their contributions. Where deviations are necessary, justification and documentation
+	must be provided to preserve long-term integrity and traceability within the system.
+	
+	\subsubsection{\unclass Supported Software and Operating Systems}
+	
+	\guidance{	\unclass TIMELINE: Should be finalized prior to \gls{srr}, and unless it's a brand new type of system, should be reasonably understood prior to kickoff.
+		\unclass This section outlines the necessary prerequisites for executing the model effectively. It includes detailed
+		specifications related to operating system compatibility, minimum and recommended hardware configurations,
+		software dependencies, and any required input data formats. These requirements are essential for both proper
+		installation and reliable performance of the model. Where applicable, guidance is provided on storage considerations,
+		memory usage, processor requirements, and additional runtime environments (e.g., DLLs, drivers, or
+		middleware). The intent is to ensure that users and developers can prepare and verify host systems appropriately
+		prior to deployment.}
+	
+	\unclass The \modelname{} model and corresponding external simulation Dynamic Link Library
+	(DLL) will be compiled and tested in the following environment:
+	
+	\tableTwoNow{\unclasslabel}{\unclass Minimum Computer Spec Suggestions}{table1}{1in}{3in}{
+		Component & Specification\\
+		Processor & 13th Gen Intel(R) Core(TM) i7-1370PX @ 1.90 GHz\\
+		Cores & 14\\
+		Threads & 20\\
+		RAM & 32.0 GB (31.6 GB usable)\\
+	}
+	

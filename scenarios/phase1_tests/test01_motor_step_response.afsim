@@ -1,0 +1,111 @@
+# ==============================================================================
+# Test 01: Motor Step Response
+# ==============================================================================
+# Purpose: Validate the 50ms motor time constant in the 6DOF mover
+#
+# Method:
+#   - Hover at 50m altitude
+#   - The 6DOF mover internal motor dynamics should show ~150ms to reach 95%
+#   - Monitor RPM and power telemetry during hover stabilization
+#
+# Expected Results:
+#   - Motor RPM reaches steady state within 150-200ms of throttle changes
+#   - No oscillation or instability in thrust response
+#   - Smooth power consumption curve
+#
+# Key Metrics:
+#   - Motor time constant: ~50ms (95% response in 150ms)
+#   - Stable hover power: ~18kW
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME test01_motor_step_response
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing
+
+# Include the 6DOF platform with battery
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR FOR TELEMETRY
+# ==============================================================================
+platform_type T150_MOTOR_TEST_UAS T150_6DOF_UAS
+
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing/test01_motor_step_response.csv
+      csv_log_interval 0.1
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE - Motor Step Response Test
+# ==============================================================================
+platform t150_motor_test T150_MOTOR_TEST_UAS
+
+   route
+      # Start on ground
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Rapid climb to 50m (step input to motors)
+      position 35.00001n 120.0000w altitude 50 m agl speed 5 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  TEST 01: MOTOR STEP RESPONSE");
+   writeln("========================================");
+   writeln("Purpose: Validate 50ms motor time constant");
+   writeln("Method: Monitor power during takeoff step input");
+   writeln("Expected: 95% response in ~150ms");
+   writeln("========================================");
+end_execute
+
+execute at_time 1 sec absolute
+   writeln(">>> T=1s - Takeoff initiated (motor step input)");
+end_execute
+
+execute at_time 5 sec absolute
+   writeln(">>> T=5s - Should be climbing, motors at operating RPM");
+end_execute
+
+execute at_time 15 sec absolute
+   writeln(">>> T=15s - Approaching hover altitude");
+end_execute
+
+execute at_time 20 sec absolute
+   writeln(">>> T=20s - Should be in stable hover");
+end_execute
+
+execute at_time 30 sec absolute
+   writeln(">>> T=30s - Test complete");
+   writeln("========================================");
+   writeln("  CHECK: Review CSV for power response curve");
+   writeln("========================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 30 sec

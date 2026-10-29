@@ -1,0 +1,58 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 5.3 Propulsion Update Loop
+## Description: Per-timestep execution sequence for the PropulsionProcessor's
+##   Update() method. Shows: velocity/acceleration computation, required thrust
+##   calculation, ground effect evaluation, thrust distribution among motors,
+##   per-motor update loop (RPM lag, thrust, efficiency, thermal, health check),
+##   and final AuxData publication.
+
+  Update(simTime):
+    dt = simTime - mLastUpdateTime
+
+    Read platform velocity from mover state
+    Compute acceleration by finite differencing velocity
+    Compute forward speed, climb rate, bank angle estimate
+
+    Compute required thrust = ComputeRequiredThrust(simTime)
+      Accounts for weight, payload, acceleration demand
+
+    Compute ground effect factor from altitude AGL
+
+    DistributeThrust(totalThrust)
+      Divide among operational motors
+      Apply coaxial efficiency factor for lower rotors
+
+    FOR i = 0 to NUM_MOTORS-1:
+      UpdateMotor(i, dt)
+        Apply motor time constant (first-order lag on RPM)
+        Compute thrust, torque from RPM
+        Compute motor efficiency at operating point
+        Compute electrical current
+      UpdateMotorTemperature(i, dt, power)
+        Thermal model: dT/dt = (P_loss - cooling) / thermal_mass
+      CheckMotorHealth(i, simTime)
+        If temperature > limit: transition to OVERTEMP
+        If OVERTEMP persists: transition to FAILED
+
+    Sum total thrust, total power, system efficiency
+    Compute dynamic power from flight state (Phase 6)
+    Publish all state to AuxData
+    Write CSV row at configured interval
+
+## Suggested eraser.io prompt:
+## Create a flowchart for the PropulsionProcessor Update() method.
+## Steps in order:
+## 1. Compute dt (delta time)
+## 2. Read platform velocity, compute acceleration, forward speed, climb rate, bank angle
+## 3. ComputeRequiredThrust() - accounts for weight, payload, acceleration
+## 4. Compute ground effect factor from altitude AGL
+## 5. DistributeThrust() - divide among operational motors, apply coaxial factor
+## 6. Loop: FOR each motor (0 to 7):
+##    a. UpdateMotor() - motor time constant lag, thrust/torque from RPM, efficiency, current
+##    b. UpdateMotorTemperature() - thermal model: dT/dt = (P_loss - cooling) / thermal_mass
+##    c. CheckMotorHealth() - if temp > limit: OVERTEMP; if persists: FAILED
+## 7. Sum total thrust, power, efficiency
+## 8. Compute dynamic power from flight state
+## 9. Publish to AuxData, write CSV
+## Show the motor loop as a loop frame or repeated block.
+## Diagram type: Flowchart / Activity diagram

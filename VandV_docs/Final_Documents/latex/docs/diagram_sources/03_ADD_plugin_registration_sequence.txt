@@ -1,0 +1,59 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 3.3 Plugin Registration Pattern
+## Description: The two-level plugin registration sequence showing how AFSIM
+##   loads a shared library and invokes the registration chain:
+##   WsfPluginVersion -> WsfPluginSetup -> RegisterFeature -> RegisterExtension
+##   -> ApplicationExtension::ScenarioCreated -> ScenarioExtension::AddedToScenario
+##   -> AddCoreType (for either mover or processor types).
+##   This is the standard AFSIM plugin API contract followed by all 5 plugins.
+
+AFSIM Runtime loads shared library (.so / .dll)
+  |
+  +--> calls extern "C" WsfPluginVersion(version)
+  |      Sets major/minor version and ABI string
+  |      AFSIM verifies plugin API compatibility
+  |
+  +--> calls extern "C" WsfPluginSetup(application)
+         |
+         +--> Check if extension already registered
+         |
+         +--> application.RegisterFeature("plugin_name")
+         |
+         +--> application.RegisterExtension(
+         |      "extension_name",
+         |      make_unique<ApplicationExtension>())
+         |
+         +--> ApplicationExtension::ScenarioCreated(scenario)
+                |
+                +--> scenario.RegisterExtension(
+                       "extension_name",
+                       make_unique<ScenarioExtension>())
+                |
+                +--> ScenarioExtension::AddedToScenario()
+                       |
+                       +--> For Mover:
+                       |      WsfMoverTypes::Get(scenario).AddCoreType(
+                       |        "TYPE_NAME", make_unique<MoverClass>(scenario))
+                       |
+                       +--> For Processor:
+                              WsfProcessorTypes::Get(scenario).AddCoreType(
+                                "TYPE_NAME", make_unique<ProcessorClass>(scenario))
+
+## Suggested eraser.io prompt:
+## Create a sequence diagram showing the AFSIM plugin registration flow.
+## Participants: AFSIM Runtime, Shared Library (.dll/.so), WsfPluginVersion,
+## WsfPluginSetup, ApplicationExtension, ScenarioExtension, WsfMoverTypes/WsfProcessorTypes.
+## Flow:
+## 1. AFSIM Runtime loads the shared library
+## 2. AFSIM calls WsfPluginVersion(version) - plugin sets major/minor/ABI string,
+##    AFSIM verifies compatibility
+## 3. AFSIM calls WsfPluginSetup(application)
+## 4. Plugin checks if extension already registered
+## 5. Plugin calls application.RegisterFeature("plugin_name")
+## 6. Plugin calls application.RegisterExtension() with an ApplicationExtension
+## 7. When a scenario is created, ApplicationExtension::ScenarioCreated() fires
+## 8. Plugin registers a ScenarioExtension with the scenario
+## 9. ScenarioExtension::AddedToScenario() is called
+## 10. Plugin registers its type via AddCoreType (either mover or processor)
+## Show a decision branch at step 10 for Mover vs Processor registration.
+## Diagram type: Sequence diagram

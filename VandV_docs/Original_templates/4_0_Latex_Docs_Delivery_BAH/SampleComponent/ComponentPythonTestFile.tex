@@ -1,0 +1,82 @@
+%[BOTH]
+%\usepackage{tikz}
+\renewcommand\componentname{\textcolor{black}{\textbf{Sample Component Section}}}
+
+\subsection{\unclass \componentname\ Overview}  
+%%%%% BEGIN USER CONTENT %%%%%
+\guidance{
+
+TIMELINE: Should be filled in prior to \gls{pdr} with final edits by \gls{cdr}.
+
+\unclass\ In the context of this document, component refers to a functional block of code that is available within the software model that is representing a real-world capability or effect. In most cases, component refers to one of the blocks in the above functional diagram which is contained in the \gls{uam} document and/or \gls{uml} diagram contained within the \gls{add}. Note for most cases, if there is a block in the above \gls{uml} or block diagram, there should be a component (or multiple) component sections for each block. 
+
+\unclass\ Describe the purpose of component. This section will describe what the component is doing from a high level, and it will more than likely include a graphic describing the nature of the component. 
+
+\unclass For example, if the component is focused on the antenna. This may describe that it is a phased array antenna with 100 elements that is scanning in azimuth and elevation electrically and rotating mechanically at 6 rotations per minute. Be clear which pieces are the real system and which pieces are included within the model component.   
+
+\unclass In the above \gls{uml} example, there is a jammer processor which should be discussed as a component, and then individual components for each jamming mode (barrage, spot, etc.)
+}
+
+%This is a BOTH section
+%%%% END USER CONTENT %%%%%%
+%[/BOTH]
+
+%[UAM]
+\subsubsection{\unclass \componentname\ Functional Behavior}
+\guidance{
+
+TIMELINE: Should be filled in prior to \gls{pdr} with final edits by \gls{cdr}.
+
+\unclass\ This section is focused on the functional side of the component and what it is representing in the RF domain as well as any math or data behind the component. This section is expected to be more focused on the physics and engineering behind what is going on with the component. 
+
+\unclass Make sure to include the analytic background of the component to include detailing the algorithmic, mechanical/hardware, operational, or decision-making behavior(s) of the component. Examples of each of these include the following ideas:\\
+
+o	Algorithmic behavior can be considered as a behavior which can be described mathematically: Dwell Time Calculation,
+Signal Prioritization\\
+o	Mechanical/Hardware behavior can be considered as a behavior defined through physical properties: Constant rotation/translation rate, Constant gain presented, Constant bandwidth limitations, Maximum rotation/translation rate/distance\\
+o	Operation behavior can be considered as a behavior defined by a sequential series of events: radar signal processing sequences\\
+o	Decision-making behavior can be considered as a behavior defined by branching paths based on a condition: 	Dynamic mode switching,	Dynamic signal adjustment\\
+
+\unclass For example, if the component is focused on the antenna, this section may focus that the phased array is represented as a sum pattern of the elements and to capture the electrical steering is just pointing the sum pattern in that direction and applying a roll-off to the gain instead of steering it. It would include antenna patterns, measured beamwidths, and comparisons to measured data. 
+
+\unclass\ Please include high-level picture demonstrating the purpose of this component as a reference to walk through the code as necessary.}
+%%%% END USER CONTENT %%%%%%
+%This is a UAM section
+%[/UAM]
+
+%[ADD]
+\subsubsection{\unclass \componentname\ Code Structure}
+\guidance{
+
+TIMELINE: Should be finalized by \gls{cdr}.
+
+\unclass\ This section is focused on the code and use of the component within the model. Key information is which function(s) are associated with this component and data inputs and outputs that are coming from this component. 
+
+\unclass This section should describe all public interfaces to the component along with necessary pre-conditions of things external to the component and arguments passed to those interfaces for meaningful results.  The behavior of the interface should be detailed enough to enable a developer utilizing those interfaces to understand the expected outcome of a proper use of the interface such as changes in state of the component, modifications to arguments passed by reference or pointer to the interface, or return values.
+
+\unclass Include algorithms (pseudocode), \gls{uam} sequence diagrams, statechart diagrams etc. as applicable to convey the information (i.e., it may not be necessary to document algorithms such as accessors, mutators, and other simple algorithms). This section is focused on the computer science of the component details. 
+
+\unclass For example, if the component is focused on the antenna, this section may focus that the phased array is represented by using the 3D antenna lookup code that is native to the architecture and include specific details as requested above. 
+
+\unclass Additional examples include:\\
+1) If a component has a reference to the spdw\_inbox that is not passed as part of an interface function and assumes that there are \gls{spdw} there, this would be a precondition.\\
+2) If a list of items is passed by reference to an interface of the component which manipulates that list, that should be captured so the caller of the interface is aware.\\
+
+
+\unclass Do NOT include code snippets as it can change over time and currently trying to keep overhead document costs down. 
+}
+%This is an ADD section
+
+%[/ADD]
+
+%[UAM]
+\subsubsection{\unclass \componentname\ Assumptions, Limitations, and Gaps}
+\guidance{
+
+TIMELINE: Should be filled in prior to \gls{pdr} with final edits by \gls{cdr}.
+
+\unclass\ Capture any assumptions, limitations, gaps, or design decisions around this component that may impact analysis use or future re-use. 
+
+\unclass For the antenna example, this can include that due to how the steering is captured, that the broadening of the mainbeam and any sidelobe impacts will not be captured in the process. This can impact \gls{js} calculations or impacts of sidelobe jammers. 
+}
+%[/UAM]

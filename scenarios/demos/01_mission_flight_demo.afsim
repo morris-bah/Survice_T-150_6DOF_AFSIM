@@ -1,0 +1,390 @@
+# ==============================================================================
+# T-150 / TRV-150 Heavy-Lift UAS Flight Demonstration Scenario
+# ==============================================================================
+# Project: project005_t150_uas
+#
+# Mission Profile:
+#   1. Launch from Start, climb to 500m AGL
+#   2. Fly straight line (2km) to Point A
+#   3. Fly sawtooth/zigzag pattern (2km) to Point B
+#   4. Fly square wave pattern (2km) to Point C
+#   5. Fly sine wave pattern (2km) to Point D
+#   6. Fly prolate cycloid/loops pattern (2km) to Point E
+#   7. Return straight line to Landing Point (100m west of Start)
+#
+# Pattern Amplitude: 200m lateral displacement
+# Mission Altitude: 500m AGL
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME t150_flight_demo
+define_path_variable OUTPUT_DIR output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include platform definitions
+include ../../platforms/t150_platform.afsim
+
+# ==============================================================================
+# T-150 PLATFORM INSTANCE
+# ==============================================================================
+# Waypoints (using direct coordinates):
+#   Start: 35.0000N, 120.0000W
+#   Point A: 35.0180N, 120.0000W (2km North)
+#   Point B: 35.0180N, 119.9760W (2km East)
+#   Point C: 35.0000N, 119.9760W (2km South)
+#   Point D: 35.0000N, 120.0240W (2km West)
+#   Point E: 35.0180N, 120.0240W (2km North)
+#   Landing: 35.0000N, 120.0012W (100m West of Start)
+# ==============================================================================
+
+platform t150_drone T150_UAS
+
+   # Main flight route - built with all pattern waypoints
+   # NOTE: First waypoint IS the starting position (platform starts here)
+   route
+
+      # =========================================
+      # PHASE 1: Launch and Climb to Altitude
+      # =========================================
+      # First waypoint: Starting position on the ground (platform spawns here)
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Second waypoint: Climb to 500m AGL (slightly north to avoid coincident detection)
+      position 35.0001n 120.0000w altitude 500 m agl speed 5 m/s
+
+      # =========================================
+      # PHASE 2: Straight Line to Point A (2km North)
+      # =========================================
+      position 35.0180n 120.0000w altitude 500 m agl speed 15 m/s
+
+      # =========================================
+      # PHASE 3: Sawtooth/Zigzag Pattern to Point B (2km East)
+      # 8 zigzag segments with 200m amplitude
+      # =========================================
+      position 35.0198n 119.9970w altitude 500 m agl speed 18 m/s
+      position 35.0162n 119.9940w altitude 500 m agl speed 18 m/s
+      position 35.0198n 119.9910w altitude 500 m agl speed 18 m/s
+      position 35.0162n 119.9880w altitude 500 m agl speed 18 m/s
+      position 35.0198n 119.9850w altitude 500 m agl speed 18 m/s
+      position 35.0162n 119.9820w altitude 500 m agl speed 18 m/s
+      position 35.0198n 119.9790w altitude 500 m agl speed 18 m/s
+      # Arrive at Point B
+      position 35.0180n 119.9760w altitude 500 m agl speed 15 m/s
+
+      # =========================================
+      # PHASE 4: Square Wave Pattern to Point C (2km South)
+      # 6 square wave cycles with 200m amplitude
+      # =========================================
+      position 35.0162n 119.9738w altitude 500 m agl speed 10 m/s
+      position 35.0150n 119.9738w altitude 500 m agl speed 10 m/s
+      position 35.0150n 119.9782w altitude 500 m agl speed 10 m/s
+      position 35.0120n 119.9782w altitude 500 m agl speed 10 m/s
+      position 35.0120n 119.9738w altitude 500 m agl speed 10 m/s
+      position 35.0090n 119.9738w altitude 500 m agl speed 10 m/s
+      position 35.0090n 119.9782w altitude 500 m agl speed 10 m/s
+      position 35.0060n 119.9782w altitude 500 m agl speed 10 m/s
+      position 35.0060n 119.9738w altitude 500 m agl speed 10 m/s
+      position 35.0030n 119.9738w altitude 500 m agl speed 10 m/s
+      position 35.0030n 119.9782w altitude 500 m agl speed 10 m/s
+      # Arrive at Point C
+      position 35.0000n 119.9760w altitude 500 m agl speed 12 m/s
+
+      # =========================================
+      # PHASE 5: Sine Wave Pattern to Point D (2km West)
+      # Smooth sinusoidal path with 200m amplitude, 2 complete cycles
+      # =========================================
+      position 35.0016n 119.9790w altitude 500 m agl speed 12 m/s
+      position 35.0018n 119.9820w altitude 500 m agl speed 12 m/s
+      position 35.0009n 119.9850w altitude 500 m agl speed 12 m/s
+      position 34.9991n 119.9880w altitude 500 m agl speed 12 m/s
+      position 34.9982n 119.9910w altitude 500 m agl speed 12 m/s
+      position 34.9984n 119.9940w altitude 500 m agl speed 12 m/s
+      position 34.9995n 119.9970w altitude 500 m agl speed 12 m/s
+      position 35.0012n 120.0000w altitude 500 m agl speed 12 m/s
+      position 35.0018n 120.0030w altitude 500 m agl speed 12 m/s
+      position 35.0009n 120.0060w altitude 500 m agl speed 12 m/s
+      position 34.9991n 120.0090w altitude 500 m agl speed 12 m/s
+      position 34.9982n 120.0120w altitude 500 m agl speed 12 m/s
+      position 34.9984n 120.0150w altitude 500 m agl speed 12 m/s
+      position 34.9995n 120.0180w altitude 500 m agl speed 12 m/s
+      position 35.0005n 120.0210w altitude 500 m agl speed 12 m/s
+      # Arrive at Point D
+      position 35.0000n 120.0240w altitude 500 m agl speed 12 m/s
+
+      # =========================================
+      # PHASE 6: Prolate Cycloid (Loops) to Point E (2km North)
+      # 4 loops with ~100m radius
+      # =========================================
+      # Loop 1
+      position 35.0018n 120.0231w altitude 500 m agl speed 12 m/s
+      position 35.0036n 120.0222w altitude 500 m agl speed 12 m/s
+      position 35.0054n 120.0231w altitude 500 m agl speed 12 m/s
+      position 35.0054n 120.0249w altitude 500 m agl speed 12 m/s
+      position 35.0036n 120.0258w altitude 500 m agl speed 12 m/s
+      position 35.0027n 120.0249w altitude 500 m agl speed 12 m/s
+      position 35.0036n 120.0240w altitude 500 m agl speed 12 m/s
+
+      # Loop 2
+      position 35.0054n 120.0231w altitude 500 m agl speed 12 m/s
+      position 35.0072n 120.0222w altitude 500 m agl speed 12 m/s
+      position 35.0090n 120.0231w altitude 500 m agl speed 12 m/s
+      position 35.0090n 120.0249w altitude 500 m agl speed 12 m/s
+      position 35.0072n 120.0258w altitude 500 m agl speed 12 m/s
+      position 35.0063n 120.0249w altitude 500 m agl speed 12 m/s
+      position 35.0072n 120.0240w altitude 500 m agl speed 12 m/s
+
+      # Loop 3
+      position 35.0090n 120.0231w altitude 500 m agl speed 12 m/s
+      position 35.0108n 120.0222w altitude 500 m agl speed 12 m/s
+      position 35.0126n 120.0231w altitude 500 m agl speed 12 m/s
+      position 35.0126n 120.0249w altitude 500 m agl speed 12 m/s
+      position 35.0108n 120.0258w altitude 500 m agl speed 12 m/s
+      position 35.0099n 120.0249w altitude 500 m agl speed 12 m/s
+      position 35.0108n 120.0240w altitude 500 m agl speed 12 m/s
+
+      # Loop 4
+      position 35.0126n 120.0231w altitude 500 m agl speed 12 m/s
+      position 35.0144n 120.0222w altitude 500 m agl speed 12 m/s
+      position 35.0162n 120.0231w altitude 500 m agl speed 12 m/s
+      position 35.0162n 120.0249w altitude 500 m agl speed 12 m/s
+      position 35.0144n 120.0258w altitude 500 m agl speed 12 m/s
+      position 35.0135n 120.0249w altitude 500 m agl speed 12 m/s
+      position 35.0144n 120.0240w altitude 500 m agl speed 12 m/s
+
+      # Arrive at Point E
+      position 35.0162n 120.0240w altitude 500 m agl speed 15 m/s
+      position 35.0180n 120.0240w altitude 500 m agl speed 15 m/s
+
+      # =========================================
+      # PHASE 7: Return to Landing Point and Land
+      # Landing point is 100m west of start to avoid coincident waypoint
+      # =========================================
+      # Approach waypoint - at cruise altitude, 50m north of landing
+      position 35.00045n 120.0012w altitude 500 m agl speed 15 m/s
+
+      # Begin descent - 25m north, start slowing down
+      position 35.00022n 120.0012w altitude 100 m agl speed 5 m/s
+
+      # Final landing
+      position 35.0000n 120.0012w altitude 0 m agl speed 3 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# MISSION NOTIFICATIONS AND ENERGY TRACKING
+# ==============================================================================
+# Battery Energy Model (T-150 specs):
+#   Hover power: 18 kW
+#   Cruise power: 16-17 kW (speed dependent)
+#   Climb power: 22 kW
+#   Descent power: 12 kW
+#   Battery capacity: 7000 Wh
+# ==============================================================================
+
+# Scenario-level tracking variables
+script_variables
+   # Waypoint tracking for phase detection
+   int last_waypoint = 0;
+
+   # Energy tracking
+   double total_energy_wh = 0.0;
+   double phase_start_energy = 0.0;
+
+   # Phase boundaries (waypoint numbers)
+   # Phase 1: WP 0-1 (takeoff/climb)
+   # Phase 2: WP 1-2 (straight to A)
+   # Phase 3: WP 2-10 (sawtooth)
+   # Phase 4: WP 10-22 (square wave)
+   # Phase 5: WP 22-38 (sine wave)
+   # Phase 6: WP 38-67 (cycloid)
+   # Phase 7: WP 67-69 (return/land)
+end_script_variables
+
+# Mission start message
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  T-150 / TRV-150 Flight Demonstration");
+   writeln("  WITH BATTERY CONSUMPTION TRACKING");
+   writeln("========================================");
+   writeln("Mission Profile:");
+   writeln("  Phase 1: Takeoff - climb to 500m AGL");
+   writeln("  Phase 2: Straight flight 2km to Point A");
+   writeln("  Phase 3: Sawtooth pattern 2km to Point B");
+   writeln("  Phase 4: Square wave pattern 2km to Point C");
+   writeln("  Phase 5: Sine wave pattern 2km to Point D");
+   writeln("  Phase 6: Cycloid loops 2km to Point E");
+   writeln("  Phase 7: Return to landing point");
+   writeln("");
+   writeln("Battery: 7000 Wh capacity");
+   writeln("Power: Climb=22kW, Cruise=17kW, Descent=12kW");
+   writeln("========================================");
+end_execute
+
+# Phase 1 Complete: Takeoff/Climb
+# 500m climb at 5 m/s = 100 sec at 22 kW = 611 Wh
+execute at_time 110 sec absolute
+   double phase_energy = 611.0;
+   total_energy_wh = phase_energy;
+   double soc = ((7000.0 - total_energy_wh) / 7000.0) * 100.0;
+
+   writeln("");
+   writeln(">>> PHASE 1 COMPLETE: Takeoff/Climb");
+   writeln("    Distance: 500m vertical");
+   writeln("    Duration: ~100 sec @ 5 m/s climb");
+   writeln("    Power: 22 kW (climb)");
+   writeln("    Energy: ", (int)(phase_energy), " Wh");
+   writeln("    Total:  ", (int)(total_energy_wh), " Wh | SOC: ", (int)(soc), "%");
+end_execute
+
+# Phase 2 Complete: Straight Line to Point A
+# 2000m at 15 m/s = 133 sec at 17 kW = 630 Wh
+execute at_time 260 sec absolute
+   double phase_energy = 630.0;
+   total_energy_wh = 611.0 + phase_energy;
+   double soc = ((7000.0 - total_energy_wh) / 7000.0) * 100.0;
+
+   writeln("");
+   writeln(">>> PHASE 2 COMPLETE: Straight Line to Point A");
+   writeln("    Distance: 2.0 km");
+   writeln("    Duration: ~133 sec @ 15 m/s");
+   writeln("    Power: 17 kW (cruise)");
+   writeln("    Energy: ", (int)(phase_energy), " Wh");
+   writeln("    Total:  ", (int)(total_energy_wh), " Wh | SOC: ", (int)(soc), "%");
+end_execute
+
+# Phase 3 Complete: Sawtooth Pattern to Point B
+# ~3.15km path at 18 m/s = 175 sec at 17 kW = 830 Wh
+execute at_time 450 sec absolute
+   double phase_energy = 830.0;
+   total_energy_wh = 1241.0 + phase_energy;
+   double soc = ((7000.0 - total_energy_wh) / 7000.0) * 100.0;
+
+   writeln("");
+   writeln(">>> PHASE 3 COMPLETE: Sawtooth Pattern to Point B");
+   writeln("    Distance: ~3.15 km (zigzag path)");
+   writeln("    Duration: ~175 sec @ 18 m/s");
+   writeln("    Power: 17 kW (cruise + maneuvering)");
+   writeln("    Energy: ", (int)(phase_energy), " Wh");
+   writeln("    Total:  ", (int)(total_energy_wh), " Wh | SOC: ", (int)(soc), "%");
+end_execute
+
+# Phase 4 Complete: Square Wave Pattern to Point C
+# ~3.3km path at 10 m/s = 330 sec at 17.5 kW = 1604 Wh
+execute at_time 800 sec absolute
+   double phase_energy = 1604.0;
+   total_energy_wh = 2071.0 + phase_energy;
+   double soc = ((7000.0 - total_energy_wh) / 7000.0) * 100.0;
+
+   writeln("");
+   writeln(">>> PHASE 4 COMPLETE: Square Wave Pattern to Point C");
+   writeln("    Distance: ~3.3 km (square wave path)");
+   writeln("    Duration: ~330 sec @ 10 m/s");
+   writeln("    Power: 17.5 kW (high maneuvering)");
+   writeln("    Energy: ", (int)(phase_energy), " Wh");
+   writeln("    Total:  ", (int)(total_energy_wh), " Wh | SOC: ", (int)(soc), "%");
+end_execute
+
+# Phase 5 Complete: Sine Wave Pattern to Point D
+# ~2.7km path at 12 m/s = 225 sec at 16.5 kW = 1031 Wh
+execute at_time 1050 sec absolute
+   double phase_energy = 1031.0;
+   total_energy_wh = 3675.0 + phase_energy;
+   double soc = ((7000.0 - total_energy_wh) / 7000.0) * 100.0;
+
+   writeln("");
+   writeln(">>> PHASE 5 COMPLETE: Sine Wave Pattern to Point D");
+   writeln("    Distance: ~2.7 km (sine wave path)");
+   writeln("    Duration: ~225 sec @ 12 m/s");
+   writeln("    Power: 16.5 kW (smooth curves)");
+   writeln("    Energy: ", (int)(phase_energy), " Wh");
+   writeln("    Total:  ", (int)(total_energy_wh), " Wh | SOC: ", (int)(soc), "%");
+end_execute
+
+# Phase 6 Complete: Cycloid Loops to Point E
+# ~3.5km path at 12 m/s = 290 sec at 17 kW = 1369 Wh
+execute at_time 1360 sec absolute
+   double phase_energy = 1369.0;
+   total_energy_wh = 4706.0 + phase_energy;
+   double soc = ((7000.0 - total_energy_wh) / 7000.0) * 100.0;
+
+   writeln("");
+   writeln(">>> PHASE 6 COMPLETE: Cycloid Loops to Point E");
+   writeln("    Distance: ~3.5 km (looping path)");
+   writeln("    Duration: ~290 sec @ 12 m/s");
+   writeln("    Power: 17 kW (looping maneuvers)");
+   writeln("    Energy: ", (int)(phase_energy), " Wh");
+   writeln("    Total:  ", (int)(total_energy_wh), " Wh | SOC: ", (int)(soc), "%");
+end_execute
+
+# Phase 7 Complete: Return and Landing
+# ~2.83km return at 15 m/s = 189 sec at 17 kW = 893 Wh
+# 500m descent at 3 m/s = 167 sec at 12 kW = 556 Wh
+# Total = 1449 Wh
+execute at_time 1750 sec absolute
+   double phase_energy = 1449.0;
+   total_energy_wh = 6075.0 + phase_energy;
+   double remaining = 7000.0 - total_energy_wh;
+   double soc = (remaining / 7000.0) * 100.0;
+
+   writeln("");
+   writeln(">>> PHASE 7 COMPLETE: Return and Landing");
+   writeln("    Distance: ~2.83 km + 500m descent");
+   writeln("    Duration: ~356 sec (cruise + descent)");
+   writeln("    Power: 17 kW cruise, 12 kW descent");
+   writeln("    Energy: ", (int)(phase_energy), " Wh");
+   writeln("    Total:  ", (int)(total_energy_wh), " Wh | SOC: ", (int)(soc), "%");
+end_execute
+
+# Final Mission Summary
+execute at_time 1800 sec absolute
+   double total = 7524.0;
+   double remaining = 7000.0 - total;
+   double soc = (remaining / 7000.0) * 100.0;
+   if (soc < 0.0) { soc = 0.0; }
+
+   writeln("");
+   writeln("========================================");
+   writeln("  MISSION COMPLETE - BATTERY SUMMARY");
+   writeln("========================================");
+   writeln("");
+   writeln("Phase Energy Consumption:");
+   writeln("  Phase 1 (Takeoff):       611 Wh  (climb 500m)");
+   writeln("  Phase 2 (Straight):      630 Wh  (2.0 km @ 315 Wh/km)");
+   writeln("  Phase 3 (Sawtooth):      830 Wh  (3.15 km @ 263 Wh/km)");
+   writeln("  Phase 4 (Square Wave):  1604 Wh  (3.3 km @ 486 Wh/km)");
+   writeln("  Phase 5 (Sine Wave):    1031 Wh  (2.7 km @ 382 Wh/km)");
+   writeln("  Phase 6 (Cycloid):      1369 Wh  (3.5 km @ 391 Wh/km)");
+   writeln("  Phase 7 (Return/Land):  1449 Wh  (2.83 km + descent)");
+   writeln("  ----------------------------------------");
+   writeln("  TOTAL:                  7524 Wh");
+   writeln("");
+   writeln("Battery Status:");
+   writeln("  Capacity:  7000 Wh");
+   writeln("  Used:      7524 Wh");
+   writeln("  Deficit:    524 Wh (7.5% over capacity)");
+   writeln("");
+   writeln("Pattern Efficiency (Wh per straight-line km):");
+   writeln("  Straight Line:  315 Wh/km (baseline)");
+   writeln("  Sawtooth:       415 Wh/km (+32% vs baseline)");
+   writeln("  Square Wave:    802 Wh/km (+155% vs baseline)");
+   writeln("  Sine Wave:      516 Wh/km (+64% vs baseline)");
+   writeln("  Cycloid Loops:  685 Wh/km (+117% vs baseline)");
+   writeln("");
+   writeln("NOTE: Mission exceeds battery capacity by 7.5%");
+   writeln("      Reduce mission scope or optimize patterns");
+   writeln("========================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Simulation end time
+# Extended to allow for full landing sequence
+end_time 2400 sec

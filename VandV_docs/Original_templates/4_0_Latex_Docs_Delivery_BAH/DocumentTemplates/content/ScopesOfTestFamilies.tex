@@ -1,0 +1,32 @@
+\section{\unclass Model Testing}
+
+\subsection{\unclass Scopes of Test Cases}
+
+\unclass \tref{FamiliesScopes} summarizes each test case’s purpose and lists which components affect the outcome of the test.  \tref{FamiliesScopes} shows how this table would appear in OD5's TDD.
+
+\guidance{
+
+\unclass TIMELINE: Should be started by PDR and finalized at CDR.
+
+\unclass Each test case has its own row.  Briefly state the purpose of the test case.  List which components participate in the test.  
+
+Example: \unclass suppose “Test 3” ensures that the tracking logic calculations are correct.  Test 3 may use runtime position information from the model’s receiver, or it may use canned data imported from a file.  In the first case, the receiver would be listed as a dependent component because it has to work correctly for Test 3 to pass.  The receiver is not a dependent component in the second case because Test 3 would pass even if the receiver is broken.  One purpose of this column is to show whether Test 3 needs to be rerun if the receiver changes somehow later, after Test 3 was run the first time.}
+
+\tableThrNow{\unclasslabel}
+{\unclass System Testing Prerequisites and Scope}
+{FamiliesScopes}
+{c,1cm}{l,9cm}{c,3cm}
+{
+Test Case & Summary & {Dependent\\Components} \\
+1.1 & Verifies frequency, PRIs, and PWs of transmitted SPDWs & Radar Transmitter \\
+1.2 & Verifies that antenna patterns are correctly applied to received SPDWs & Antenna \\
+2.1 & Verifies coverage of each sector scan mode & ScanPattern \\
+3.1 & Verifies each radar mode returns the correct information & RadarMode \\
+3.2 & Verifies that tracking logic returns the correct information & {TrackManager\\ KalmanFilter} \\ 
+4.1 & Verifies that tracks are processed into correct POO and POI calculations & {KalmanFilter\\ TrackManager} \\ 
+5.1 & Verifies that the model correctly handles atmospheric loss and terrain data & {Environment (ext)\\SpdwManager\\CFAR} \\ 
+6.1 & Verifies that targets are correctly classified as ballistic or non-ballistic & {TrackManager\\KalmanFilter} \\ 
+6.2 & Verifies that up to five simultaneous targets are processed correctly & {TrackManager\\ KalmanFilter} \\ 
+7.1 & Verifies the waveform characteristics of every mode & SpdwManager \\
+9.1 & Verifies uplink and downlink with an external C2 & KalmanFilter \\
+}

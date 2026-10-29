@@ -1,0 +1,74 @@
+# ==============================================================================
+# T-150 / TRV-150 Heavy-Lift UAS Platform Type Definition
+# ==============================================================================
+# Malloy Aeronautics T-150 / SURVICE TRV-150 Tactical Resupply Vehicle
+#
+# This platform definition includes:
+# - T150_MOVER rotorcraft dynamics
+# - Radar cross section signature
+# - Basic visualization configuration
+#
+# Designed to be adaptable to other drone types by modifying parameters
+# ==============================================================================
+
+include t150_mover.afsim
+
+# ==============================================================================
+# T-150 RADAR CROSS SECTION (RCS) SIGNATURE
+# ==============================================================================
+# Estimated values for coaxial octocopter:
+#   - Airframe size: ~1.8m rotor span, ~0.6m body height
+#   - Configuration: 8 rotors on 4 arms, coaxial pairs
+#   - Materials: Composite/carbon fiber body, metal motor housings
+#   - No stealth design features
+#
+# RCS estimates (dBsm):
+#   - Nose-on (front): -5 dBsm (~0.32 m^2)
+#   - Broadside (side): 0 dBsm (~1.0 m^2)
+#   - Tail-on (rear): -3 dBsm (~0.5 m^2)
+#   - Top/bottom: 3 dBsm (~2.0 m^2) - largest due to rotor disk
+#
+# Note: Rotating rotors cause Doppler blade flash (not modeled here)
+# ==============================================================================
+# inline_table format: azimuth (rows) x elevation (columns) -> RCS in dBsm
+# Azimuth: 0=nose, 90=right, 180=tail, -90=left
+# Elevation: -90=below, 0=level, 90=above
+radar_signature T150_RADAR_SIG
+   state default
+      inline_table dbsm 9 5
+               -90.0  -30.0    0.0   30.0   90.0
+      -180.0     3.0   -1.0   -3.0   -1.0    3.0
+      -135.0     3.0    1.0   -1.0    1.0    3.0
+       -90.0     3.0    2.0    0.0    2.0    3.0
+       -45.0     3.0    1.0   -1.0    1.0    3.0
+         0.0     3.0   -3.0   -5.0   -3.0    3.0
+        45.0     3.0    1.0   -1.0    1.0    3.0
+        90.0     3.0    2.0    0.0    2.0    3.0
+       135.0     3.0    1.0   -1.0    1.0    3.0
+       180.0     3.0   -1.0   -3.0   -1.0    3.0
+      end_inline_table
+end_radar_signature
+
+# ==============================================================================
+# T-150 Platform Type Definition
+# ==============================================================================
+platform_type T150_UAS WSF_PLATFORM
+
+   side blue
+
+   # Using quadrotor 3D model for visualization
+   icon 4_rotor_good
+
+   # Category for identification
+   category air
+
+   # --------------------------------------------------------------------------
+   # MOVER - Uses the T150 rotorcraft mover defined in t150_mover.afsim
+   # --------------------------------------------------------------------------
+   mover T150_MOVER
+   end_mover
+
+   # Reference the radar signature defined above
+   radar_signature T150_RADAR_SIG
+
+end_platform_type

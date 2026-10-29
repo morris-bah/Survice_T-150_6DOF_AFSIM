@@ -1,0 +1,216 @@
+# ==============================================================================
+# T-150 UAS Payload Drop Test Scenario
+# ==============================================================================
+# Project: project005_t150_uas - Version 2.0
+#
+# This scenario tests the T150_WEAPON_PROCESSOR payload release functionality:
+# - Payload mass changes during flight
+# - Power consumption decrease after payload release
+# - Flight dynamics changes with reduced mass
+# - Multiple payload drops
+#
+# Copyright 2025 - Project 005 T-150 UAS Simulation
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME weapon_payload_drop_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include base platform definitions
+include ../../platforms/t150_platform.afsim
+
+# =============================================================================
+# Platform Type with Payload Release System (Supply Drops)
+# =============================================================================
+platform_type T150_SUPPLY_DROP T150_UAS
+
+    # Battery Processor
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          22000.0      # Higher power with payload
+        low_battery_warning    0.20
+        update_interval        0.1 sec
+    end_processor
+
+    # VRS Processor
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  4.0
+        vrs_speed_threshold    5.0
+        caution_margin         0.8
+        induced_velocity       9.0          # Higher induced velocity with cargo
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    # Propulsion Processor
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        update_interval        0.1 sec
+    end_processor
+
+    # Payload release system - 4 supply packages
+    processor PAYLOAD_SYSTEM T150_WEAPON_PROCESSOR
+        weapon_type        PAYLOAD_RELEASE
+        weapon_name        supply_dispenser
+        munition_mass      10.0           # 10 kg per supply package
+        magazine_capacity  4              # 4 packages total = 40 kg payload
+        release_time       1.0            # 1 second release sequence
+        mount_offset_x     0.0
+        mount_offset_y     0.0
+        mount_offset_z     0.4            # 40cm below CG
+        update_interval    0.1
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Platform Type with Heavy Cargo Drop
+# =============================================================================
+platform_type T150_HEAVY_DROP T150_UAS
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          28000.0      # Very high power with heavy cargo
+        low_battery_warning    0.25
+        update_interval        0.1 sec
+    end_processor
+
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  3.5          # Lower threshold with heavy load
+        vrs_speed_threshold    4.0
+        caution_margin         0.75
+        induced_velocity       10.0
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        update_interval        0.1 sec
+    end_processor
+
+    # Single heavy cargo release
+    processor PAYLOAD_SYSTEM T150_WEAPON_PROCESSOR
+        weapon_type        PAYLOAD_RELEASE
+        weapon_name        heavy_cargo
+        munition_mass      50.0           # 50 kg single cargo
+        magazine_capacity  1              # Single drop
+        release_time       2.0            # 2 second release
+        mount_offset_x     0.0
+        mount_offset_y     0.0
+        mount_offset_z     0.5
+        update_interval    0.1
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Test Platform Instances
+# =============================================================================
+
+# Test 1: Multi-point supply drop mission
+platform supply_mission T150_SUPPLY_DROP
+    route
+        # Launch and climb with full payload
+        position 39.7000n 84.1000w altitude 50 m agl speed 0 m/s
+        position 39.7000n 84.1000w altitude 150 m agl speed 3 m/s
+
+        # Fly to drop point 1
+        position 39.7030n 84.1000w altitude 150 m agl speed 10 m/s
+
+        # Hover for drop 1 (WEAPON_RELEASE_CMD = true)
+        position 39.7030n 84.1000w altitude 100 m agl speed 0 m/s
+
+        # Fly to drop point 2
+        position 39.7060n 84.0980w altitude 150 m agl speed 12 m/s
+
+        # Hover for drop 2
+        position 39.7060n 84.0980w altitude 100 m agl speed 0 m/s
+
+        # Fly to drop point 3
+        position 39.7090n 84.0960w altitude 150 m agl speed 12 m/s
+
+        # Hover for drop 3
+        position 39.7090n 84.0960w altitude 100 m agl speed 0 m/s
+
+        # Fly to drop point 4
+        position 39.7120n 84.0940w altitude 150 m agl speed 12 m/s
+
+        # Hover for drop 4
+        position 39.7120n 84.0940w altitude 100 m agl speed 0 m/s
+
+        # Return to base (should be faster/more efficient with no payload)
+        position 39.7000n 84.1000w altitude 150 m agl speed 15 m/s
+        position 39.7000n 84.1000w altitude 50 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# Test 2: Heavy cargo drop (observe dynamics change)
+platform heavy_drop T150_HEAVY_DROP
+    route
+        # Take off with heavy cargo - slow climb
+        position 39.7000n 84.0900w altitude 30 m agl speed 0 m/s
+        position 39.7000n 84.0900w altitude 100 m agl speed 2 m/s
+
+        # Cruise to drop zone - observe slow performance
+        position 39.7050n 84.0900w altitude 100 m agl speed 6 m/s
+
+        # Drop zone hover (release cargo here)
+        position 39.7050n 84.0900w altitude 80 m agl speed 0 m/s
+
+        # After drop - should see improved performance
+        position 39.7050n 84.0850w altitude 100 m agl speed 10 m/s
+
+        # Fast return (lighter aircraft)
+        position 39.7000n 84.0850w altitude 100 m agl speed 12 m/s
+        position 39.7000n 84.0850w altitude 30 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# =============================================================================
+# Simulation Notes
+# =============================================================================
+# To trigger payload release during simulation:
+# - Set platform's AuxData "WEAPON_RELEASE_CMD" = true at drop points
+# - The processor will:
+#   1. Enter RELEASING state for release_time duration
+#   2. Decrement munition count
+#   3. Update WEAPON_MASS and WEAPON_MASS_DELTA
+#   4. The 6DOF mover reads WEAPON_MASS_DELTA and adjusts aircraft mass
+#   5. Power consumption decreases with lower mass
+#
+# Observable effects:
+# - Before drop: Higher hover power, slower acceleration
+# - After drop: Lower hover power, faster acceleration
+# - With each drop: Incremental improvement in performance
+# =============================================================================
+
+# =============================================================================
+# Simulation output
+# =============================================================================
+event_pipe
+    file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+    use_preset default
+end_event_pipe
+
+# Extended simulation time for full mission
+end_time 300 sec

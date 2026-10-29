@@ -1,0 +1,48 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 3.8 Spline Navigation State Machine
+## Description: State machine for the Catmull-Rom spline navigation system.
+##   Governs transitions between APPROACHING, AT_WAYPOINT, ROTATING, and DEPARTING
+##   states. When a waypoint is reached, the behavior type (FLY_THROUGH, SLOW_PASS,
+##   or STOP_AND_HOVER) determines the transition path. STOP_AND_HOVER enters
+##   AT_WAYPOINT for a configured hover duration, then optionally ROTATING before
+##   DEPARTING. FLY_THROUGH and SLOW_PASS go directly to DEPARTING.
+
+Statechart: SplineNavState
+
+    +---> APPROACHING ---[reached P2]--->+
+    |         |                          |
+    |         |                   [check behavior]
+    |         |                     /    |     \
+    |         |            FLY_THROUGH SLOW   STOP_AND
+    |         |              |       _PASS    _HOVER
+    |         |              |         |         |
+    |         |              |         |         v
+    |         |              |         |    AT_WAYPOINT
+    |         |              |         |      |  [duration elapsed]
+    |         |              |         |      v
+    |         |              |         |    ROTATING
+    |         |              |         |      |  [heading achieved]
+    |         |              v         v      v
+    |         |              +----DEPARTING---+
+    |         |                     |
+    |         +-----[advance cache]-+
+    |                               |
+    +-------------------------------+
+
+## Suggested eraser.io prompt:
+## Create a state machine diagram for the Spline Navigation system in the
+## Rotorcraft6DOF_Mover.
+## States: APPROACHING, AT_WAYPOINT, ROTATING, DEPARTING
+## Transitions:
+## - APPROACHING -> decision point when waypoint P2 is reached
+## - Decision: check waypoint behavior type (FLY_THROUGH, SLOW_PASS, STOP_AND_HOVER)
+##   - FLY_THROUGH: goes directly to DEPARTING
+##   - SLOW_PASS: goes directly to DEPARTING
+##   - STOP_AND_HOVER: goes to AT_WAYPOINT
+## - AT_WAYPOINT -> ROTATING [when hover duration elapsed]
+## - ROTATING -> DEPARTING [when heading achieved]
+## - DEPARTING -> APPROACHING [advance waypoint cache, loop back]
+## Show the cyclic nature: DEPARTING always loops back to APPROACHING.
+## Use rounded rectangles for states, diamond for the behavior decision,
+## and labeled arrows for transitions.
+## Diagram type: State machine diagram

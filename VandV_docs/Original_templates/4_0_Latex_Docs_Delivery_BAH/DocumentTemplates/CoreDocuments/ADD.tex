@@ -1,0 +1,98 @@
+ %%% - - -   UNCLASSIFIED   - - - %%%
+
+\documentclass[11pt, letterpaper]{article}
+
+\newcommand{\thisdocument}{ADD}
+
+\usepackage{../format/NGICStyle}    % does everything
+\usepackage{../format/DurandalBib}    % contains bibliography info
+\usepackage{../format/NGICGlossary} % contains glossary info
+\usepackage{../values/ModelValues}      % sets classified values
+%\usepackage{../content/ChangeLog}      % sets classified values
+%%% document settings
+
+
+%% document paths
+\graphicspath{../images}
+\newcommand\csvpath{csv}
+
+\makeatletter
+\def\input@path{{content}}
+\makeatother
+
+% header and footer
+\chead{\documentlabel}
+\cfoot{\documentlabel\ \\ \thepage}
+
+% uncommenting this line globally supresses guidance notes in the PDF
+%\presetkeys{todonotes}{disable}{}
+
+%%% document start
+\begin{document}
+
+\pagenumbering{roman}
+
+\InDevelopmenttrue
+
+\ifInDevelopment
+	\draft
+	\linenumbers
+	\colorlet{ModelValueColor}{blue!50!cyan}
+\fi
+
+%% include sections
+
+\input{../content/ADD-FrontMatter}\pagebreak
+\tableofcontents\thispagestyle{fancy}\pagebreak
+\listoftables\thispagestyle{fancy}\pagebreak
+\listoffigures\thispagestyle{fancy}\pagebreak
+
+% arabic numbering and footer update
+\pagenumbering{arabic} 
+\cfoot{\classlabel \\ {Page \thepage\ of \pageref{LastPage}}}
+
+\input{../content/Introduction}
+
+\input{../content/SystemDescription}
+
+%\input{../content/SourcesAssumptionsLimitationsGaps.tex}
+
+\input{../content/ArchitectureDetails}
+
+\input{../content/ModelArchitectureDescription}
+
+%% fill component name here, so if documents are turned on or off, renew can be used as a command. 
+\newcommand\componentname{\textcolor{black}{\textbf{HOLD}}}  
+
+
+%%Indivdual component
+\input{../content/SampleComponentFile}
+
+%% Basic Setup and General Guide
+%\input{BasicSetupAndGeneralGuide}\pagebreak
+
+%% Analytic Outputs
+%\input{AnalyticOutputs}\pagebreak
+
+%\section{\classlabelshort\ Additional Resources} 
+\input{../content/References}\pagebreak
+
+%Decision Log
+%\ifInDevelopment
+%\input{../content/DecisionLog}\pagebreak
+%\fi
+
+% discretionary
+%\input{guide}
+
+%\input{guide}
+
+% glossary print function
+\doPrintGloss
+
+\doPrintBib%
+
+\newpage\label{mylastpage}
+\end{document}
+
+%%% - - -   UNCLASSIFIED   - - - %%%

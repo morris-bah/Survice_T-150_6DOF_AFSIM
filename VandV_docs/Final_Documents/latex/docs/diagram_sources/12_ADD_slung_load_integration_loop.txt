@@ -1,0 +1,67 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 7.2 Pendulum Integration Loop
+## Description: Per-timestep execution sequence for the SlungLoadProcessor's
+##   Update() method. Shows: state check, velocity/acceleration reading,
+##   pendulum dynamics integration (angular accelerations from gravity +
+##   aircraft acceleration + damping, semi-implicit Euler), cable tension
+##   computation, load position calculation, reaction force computation
+##   (Newton's 3rd law), resonance detection, and AuxData publication.
+
+  Update(simTime):
+    IF loadState is DETACHED or RELEASED:
+      return (no dynamics to compute)
+
+    dt = simTime - mLastUpdateTime
+
+    Read platform velocity from mover state
+    Compute aircraft acceleration by finite differencing velocity
+
+    UpdatePendulumDynamics(dt, accelX, accelY, accelZ)
+      Compute angular accelerations:
+        theta_x'' = -(g/L)*sin(theta_x) - (a_x/L)*cos(theta_x)
+                    - c*theta_x'
+        theta_y'' = -(g/L)*sin(theta_y) - (a_y/L)*cos(theta_y)
+                    - c*theta_y'
+      Integrate with semi-implicit Euler:
+        theta_x' += theta_x'' * dt
+        theta_y' += theta_y'' * dt
+        theta_x  += theta_x'  * dt
+        theta_y  += theta_y'  * dt
+
+    ComputeCableTension(accelZ)
+      T = m * sqrt((g + a_z)^2 + (L*theta_x'')^2
+          + (L*theta_y'')^2)
+
+    ComputeLoadPosition()
+      Convert swing angles to Cartesian offset from attach point
+
+    Compute reaction forces on aircraft (Newton's 3rd law):
+      F_x = -T * sin(theta_x)
+      F_y = -T * sin(theta_y)
+      F_z = -T * cos(theta_x) * cos(theta_y)
+
+    CheckResonance(dt)
+      Track zero crossings to measure swing frequency
+      Flag if swing angle exceeds resonance threshold
+
+    Publish all state to AuxData (forces, angles, tension, position)
+
+## Suggested eraser.io prompt:
+## Create a flowchart for the SlungLoadProcessor Update() method (pendulum
+## integration loop).
+## Start with a decision: Is loadState DETACHED or RELEASED?
+##   - Yes: Return (no dynamics to compute)
+##   - No: Continue
+## Steps:
+## 1. Compute dt
+## 2. Read platform velocity, compute aircraft acceleration
+## 3. UpdatePendulumDynamics() - compute angular accelerations using:
+##    theta_x'' = -(g/L)*sin(theta_x) - (a_x/L)*cos(theta_x) - c*theta_x'
+##    theta_y'' = -(g/L)*sin(theta_y) - (a_y/L)*cos(theta_y) - c*theta_y'
+##    Then semi-implicit Euler integration of angles and angular velocities
+## 4. ComputeCableTension() - T = m * sqrt((g+a_z)^2 + ...)
+## 5. ComputeLoadPosition() - swing angles to Cartesian offset
+## 6. Compute reaction forces (Newton's 3rd law): F_x, F_y, F_z
+## 7. CheckResonance() - track zero crossings, flag if exceeds threshold
+## 8. Publish all state to AuxData
+## Diagram type: Flowchart / Activity diagram

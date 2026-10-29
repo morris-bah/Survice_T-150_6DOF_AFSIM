@@ -1,0 +1,17 @@
+# Minimal test for battery processor registration
+
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+
+# Include 6DOF platform to trigger both plugins
+include ../../platforms/t150_6dof_platform.afsim
+
+platform_type TEST_PLATFORM WSF_PLATFORM
+   side blue
+   icon generic
+end_platform_type
+
+platform test_platform TEST_PLATFORM
+   position 35.0n 120.0w altitude 0 m agl
+end_platform
+
+end_time 10 sec

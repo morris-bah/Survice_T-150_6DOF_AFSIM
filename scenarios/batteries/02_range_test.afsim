@@ -1,0 +1,162 @@
+# ==============================================================================
+# Battery Range Test: Maximum Distance Flight
+# ==============================================================================
+# Tests maximum range by flying in a straight line until battery depletion.
+#
+# Route:
+#   - Start: 35.0000N, 120.0000W (ground level)
+#   - Climb to 350m AGL
+#   - Fly North at cruise speed until battery depleted
+#
+# The drone will fly toward a waypoint 100km away, but battery should
+# deplete before reaching it. The CSV output will show exactly how far
+# it traveled.
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME battery_range_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+
+# Include the 6DOF platform definition
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR
+# ==============================================================================
+platform_type T150_RANGE_TEST_UAS T150_6DOF_UAS
+
+   # Battery processor - reads power from 6DOF mover
+   # Tuned to match Malloy T-150 specs: 13 km (loaded) to 37.5 km (empty) range
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000    # Actual T-150 battery capacity
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      # Power model tuned to match Malloy range specs
+      motor_efficiency 0.37       # 37% - accounts for motor/ESC losses, coaxial interference
+      auxiliary_power_w 4000      # 4kW for avionics, 8x ESCs, cooling, radio, camera, etc.
+      use_velocity_power_model false  # CRITICAL: Trust 6DOF physics, don't override
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/battery_range_test.csv
+      csv_log_interval 1.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE
+# ==============================================================================
+platform t150_range_test T150_RANGE_TEST_UAS
+
+   route
+      # =========================================
+      # PHASE 1: Takeoff and Climb to 350m
+      # =========================================
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+      position 35.0001n 120.0000w altitude 350 m agl speed 5 m/s
+
+      # =========================================
+      # PHASE 2: Cruise North at 30 m/s
+      # Target: 100km North (0.9 deg latitude)
+      # Battery should deplete before reaching this
+      # =========================================
+      position 35.9000n 120.0000w altitude 350 m agl speed 30 m/s
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  BATTERY RANGE TEST: MAX DISTANCE");
+   writeln("========================================");
+   writeln("Route: Straight North at 350m AGL");
+   writeln("Speed: 30 m/s cruise");
+   writeln("Battery: 7000 Wh");
+   writeln("Flying until battery depleted...");
+   writeln("========================================");
+end_execute
+
+execute at_time 300 sec absolute
+   writeln(">>> T=5min - Range check");
+end_execute
+
+execute at_time 600 sec absolute
+   writeln(">>> T=10min - Range check");
+end_execute
+
+execute at_time 900 sec absolute
+   writeln(">>> T=15min - Range check");
+end_execute
+
+execute at_time 1200 sec absolute
+   writeln(">>> T=20min - Range check");
+end_execute
+
+execute at_time 1500 sec absolute
+   writeln(">>> T=25min - Range check");
+end_execute
+
+execute at_time 1800 sec absolute
+   writeln(">>> T=30min - Range check");
+end_execute
+
+execute at_time 2400 sec absolute
+   writeln(">>> T=40min - Range check");
+end_execute
+
+execute at_time 3000 sec absolute
+   writeln(">>> T=50min - Range check");
+end_execute
+
+execute at_time 3600 sec absolute
+   writeln(">>> T=60min - Range check (1 hour)");
+end_execute
+
+execute at_time 4200 sec absolute
+   writeln(">>> T=70min - Range check");
+end_execute
+
+execute at_time 4800 sec absolute
+   writeln(">>> T=80min - Range check");
+end_execute
+
+# ==============================================================================
+# BATTERY DEPLETION CHECK - End simulation when battery is empty
+# ==============================================================================
+execute at_interval_of 10 sec
+   WsfPlatform pf = WsfSimulation.FindPlatform("t150_range_test");
+   double soc = pf.AuxDataDouble("BATTERY_SOC");
+
+   if (soc <= 0.01)
+   {
+      writeln("========================================");
+      writeln("  BATTERY DEPLETED - SIMULATION ENDING");
+      writeln("========================================");
+      writeln("  Flight time: ", TIME_NOW, " seconds");
+      writeln("  Estimated range: ", (TIME_NOW * 30.0) / 1000.0, " km");
+      writeln("========================================");
+      WsfSimulation.Terminate();
+   }
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Maximum simulation time (safety limit)
+# Simulation will end early when battery depletes (see depletion check above)
+end_time 5400 sec

@@ -1,0 +1,28 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 4.3 Power Source Resolution
+## Description: Fallback chain for the Battery Processor's power source resolution.
+##   Shows the 4-level cascade: (1) configured power_source_key (default
+##   PROP_TOTAL_POWER), (2) 6dof_total_power from the 6DOF mover, (3)
+##   PROP_TOTAL_POWER from the propulsion processor, (4) static hover_power_w
+##   fallback. This ensures the battery works regardless of which plugins are loaded.
+
+  Read power from AuxData:
+    1. Try mPowerSourceKey (configurable, default "PROP_TOTAL_POWER")
+    2. If not found or zero, try "6dof_total_power" (from mover)
+    3. If not found or zero, try "PROP_TOTAL_POWER" (from propulsion)
+    4. If none available, use mHoverPowerW (static fallback)
+
+## Suggested eraser.io prompt:
+## Create a flowchart showing the Battery Processor's power source resolution
+## fallback chain.
+## Start: "Read Power from AuxData"
+## Step 1: Try configured power_source_key (default: "PROP_TOTAL_POWER")
+##   - Decision: Found and non-zero? Yes -> Use this value (end). No -> continue.
+## Step 2: Try "6dof_total_power" (from 6DOF Mover)
+##   - Decision: Found and non-zero? Yes -> Use this value (end). No -> continue.
+## Step 3: Try "PROP_TOTAL_POWER" (from Propulsion Processor)
+##   - Decision: Found and non-zero? Yes -> Use this value (end). No -> continue.
+## Step 4: Use mHoverPowerW (static fallback, always available)
+## Show as a vertical decision tree with diamonds and arrows.
+## Label: "Battery Processor Power Source Fallback Chain"
+## Diagram type: Flowchart / Decision tree

@@ -1,0 +1,68 @@
+%%% - - -   UNCLASSIFIED   - - - %%%
+
+\documentclass[11pt, letterpaper]{article}
+
+\newcommand{\thisdocument}{UAM}
+
+\usepackage{format/NGICStyle}        % does everything
+\usepackage{format/DurandalBib}      % contains bibliography info
+\usepackage{format/NGICGlossary}     % contains glossary info
+\usepackage{values/T150ModelValues}   % sets model values
+%%% document settings
+\usepackage{lineno}
+\usepackage{tikz}
+
+
+%% document paths
+\graphicspath{{images}}
+\newcommand\csvpath{csv}
+
+\makeatletter
+\def\input@path{{content}}
+\makeatother
+
+% header and footer
+\chead{\documentlabel}
+\cfoot{\documentlabel\ \\ \thepage}
+
+% uncommenting this line globally supresses guidance notes in the PDF
+\presetkeys{todonotes}{disable}{}
+
+%%% document start
+\begin{document}
+
+\pagenumbering{roman}
+
+
+\InDevelopmentfalse
+
+\ifInDevelopment
+	\draft
+	\linenumbers
+	\colorlet{ModelValueColor}{blue!50!cyan}
+\fi
+
+%% include sections
+
+% always
+
+\input{T150_UAM_FrontMatter}\pagebreak
+\tableofcontents\thispagestyle{fancy}\pagebreak
+\listoftables\thispagestyle{fancy}\pagebreak
+\listoffigures\thispagestyle{fancy}\pagebreak
+
+% arabic numbering and footer update
+\pagenumbering{arabic}
+\cfoot{\classlabel\ \\ {Page \thepage\ of \pageref{LastPage}}}
+
+\input{T150_UAM_Content}
+
+% glossary print function
+\doPrintGloss
+
+\doPrintBib%
+
+\newpage\label{mylastpage}
+\end{document}
+
+%%% - - -   UNCLASSIFIED   - - - %%%

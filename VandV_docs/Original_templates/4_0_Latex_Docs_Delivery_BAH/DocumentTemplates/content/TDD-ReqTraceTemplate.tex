@@ -1,0 +1,60 @@
+%\usepackage{tikz}
+%\renewcommand\componentname{\textcolor{black}{\textbf{System Tests Description}}}
+
+\section{\unclass Requirements Verification Traceability Matrix}\label{RTM}  
+
+\guidance{
+	
+	\unclass TIMELINE: Test plan should be near final draft (all tests planned out with behavior tested at a minimum) for PDR for review by NGIC and finalized by CDR.
+	
+	\unclass The test plan consists of the test framework and the linking of test cases to requirements.  Most requirements require testing and thus have an associated KPIs; some requirements can be confirmed by sbservation. 
+		
+	\unclass The table below should include all of the requirements and corresponding tests which will demonstrate that the requirement is met. The test coverage column should include "ST1" for system family test one. If a unit test covers that, then use "unit test" in that column with a unit test identifier. If unit tests are used to verify a requirement, then a section should be included in the TDD that describes it/them.  
+	
+	\unclass Test results/status will be updated for \gls{trr} and should include the following options as the text:
+	
+	\unclass Pass – The test case ran successfully as written \newline
+	\unclass Pass with C – Although a particular test step failed, the test case will be marked as pass with caveat because the deficiencies do not substantially impair the required  performance. \gls{ngic} \gls{tpoc} should be notified immediately if this is the expect result to gain concurrence. \newline
+	\unclass Fail – Unable to complete the test or a requirement could not be verified \newline
+	\unclass Pending – Step failed but needs analysis, after which, disposition is changed as identified above. This is only an option while in development for incremental updates at milestones. By \gls{fdr}, its should be one of the above options. \newline
+}
+
+\tableFouNow{\classlabel}
+{\unclass Requirements Verification Traceability Matrix}
+{TraceMatrix}
+{l,2cm}{l,8cm}{1,3cm}{1,2cm}
+{
+	Requirement & Description & Test Coverage & Test Result / Status \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 3: General System Model \\
+	3.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 4: Antenna Parameters	 \\
+	4.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 5: RF Performance Parameters - Frequency, Range, Power		 \\
+	5.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 6: Timing and Scheduler		 \\
+	6.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 7: Modes and Logic		 \\
+	7.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 8: Sensors and Weapon Accuracy	 \\
+	8.1 & N/A & N/A & N/A  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 9: Environment and Geometric Nuances		 \\
+	9.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 10: Target Classes and Target Quantity		 \\
+	10.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 11: Digital Signal Processing and Waveforms		 \\
+	11.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 12: Electromagnetic Attack (EA) Capability			 \\
+	12.1 & Description & UT1 & Passed  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 13: Electromagnetic Protection (EP) Capability			 \\
+	13.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 14: Tactics, Techniques, and Procedures			 \\
+	14.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 15: Propagation			 \\
+	15.1 & Description & ST1 & Not Tested  \\
+	\SetCell[c=4,r=1]{bg=altGray,l} 16: Model Outputs 			 \\
+	16.1 & Description & ST1 & Not Tested  \\
+	
+}
+
+%%%%% END USER CONTENT %%%%%
+

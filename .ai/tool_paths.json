@@ -1,0 +1,26 @@
+{
+  "afsim_install": "C:/afsim/AFSIM-2.2505.2",
+  "afsim_source": "C:/afsim/afsim2.2505.2_source",
+  "library": "C:/afsim/.library",
+  "projects_root": "C:/afsim_projects",
+  "python": "C:/Program Files/Python312/python",
+  "python_wsl": "python3.12",
+
+  "distilled_context": "C:/afsim/.library/ai_context_distilled",
+  "search_tools": "C:/afsim/.library/tools",
+  "indexes": "C:/afsim/.library/indexes",
+
+  "afsim_bin": "C:/afsim/AFSIM-2.2505.2/bin",
+  "afsim_include": "C:/afsim/AFSIM-2.2505.2/include",
+  "afsim_cmake": "C:/afsim/AFSIM-2.2505.2/lib/cmake/afsim",
+  "afsim_demos": "C:/afsim/AFSIM-2.2505.2/demos",
+  "afsim_docs": "C:/afsim/AFSIM-2.2505.2/documentation/html/docs",
+  "afsim_learn": "C:/afsim/AFSIM-2.2505.2/learn",
+
+  "project_root": "C:/Users/1049163084121002.CIV/Projects/afsim_projects/project005_t150_uas",
+  "plugins_dir": "plugins",
+  "scenarios_dir": "scenarios",
+  "platforms_dir": "platforms",
+  "build_script": "./ngic_afsim_build.sh",
+  "install_script": "./ngic_afsim_install.sh"
+}

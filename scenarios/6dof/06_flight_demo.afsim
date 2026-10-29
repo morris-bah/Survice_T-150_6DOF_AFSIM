@@ -1,0 +1,174 @@
+# ==============================================================================
+# T-150 6DOF Physics Flight Demonstration
+# ==============================================================================
+# Tests 6DOF Newtonian physics mover through complex flight patterns:
+#   1. Launch from ground, climb to 100m AGL
+#   2. Fly straight line to Point A
+#   3. Fly sawtooth/zigzag pattern to Point B
+#   4. Fly square wave pattern to Point C
+#   5. Fly sine wave pattern to Point D
+#   6. Fly prolate cycloid/loops to Point E
+#   7. Return to landing point
+#
+# Pattern Amplitude: 50m lateral displacement (scaled for 6DOF dynamics)
+# Mission Altitude: 100m AGL (lower for better visualization)
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME t150_6dof_flight_demo
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+
+# Include the 6DOF platform definition
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# T-150 6DOF PLATFORM INSTANCE
+# ==============================================================================
+# Waypoints scaled for 6DOF dynamics (500m segments instead of 2km):
+#   Start: 35.0000N, 120.0000W
+#   Point A: 35.0045N, 120.0000W (500m North)
+#   Point B: 35.0045N, 119.9940W (500m East)
+#   Point C: 35.0000N, 119.9940W (500m South)
+#   Point D: 35.0000N, 120.0060W (500m West)
+#   Point E: 35.0045N, 120.0060W (500m North)
+#   Landing: 35.0000N, 120.0003W (30m West of Start)
+# ==============================================================================
+
+platform t150_6dof_demo T150_6DOF_UAS
+
+   route
+
+      # =========================================
+      # PHASE 1: Launch and Climb to Altitude
+      # =========================================
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+      position 35.0001n 120.0000w altitude 100 m agl speed 3 m/s
+
+      # =========================================
+      # PHASE 2: Straight Line to Point A (500m North)
+      # =========================================
+      position 35.0045n 120.0000w altitude 100 m agl speed 8 m/s
+
+      # =========================================
+      # PHASE 3: Sawtooth/Zigzag Pattern to Point B (500m East)
+      # 4 zigzag segments with 50m amplitude
+      # =========================================
+      position 35.0049n 119.9985w altitude 100 m agl speed 8 m/s
+      position 35.0041n 119.9970w altitude 100 m agl speed 8 m/s
+      position 35.0049n 119.9955w altitude 100 m agl speed 8 m/s
+      position 35.0041n 119.9940w altitude 100 m agl speed 8 m/s
+      # Arrive at Point B
+      position 35.0045n 119.9940w altitude 100 m agl speed 8 m/s
+
+      # =========================================
+      # PHASE 4: Square Wave Pattern to Point C (500m South)
+      # 3 square wave cycles with 50m amplitude
+      # =========================================
+      position 35.0041n 119.9936w altitude 100 m agl speed 6 m/s
+      position 35.0030n 119.9936w altitude 100 m agl speed 6 m/s
+      position 35.0030n 119.9944w altitude 100 m agl speed 6 m/s
+      position 35.0020n 119.9944w altitude 100 m agl speed 6 m/s
+      position 35.0020n 119.9936w altitude 100 m agl speed 6 m/s
+      position 35.0010n 119.9936w altitude 100 m agl speed 6 m/s
+      position 35.0010n 119.9944w altitude 100 m agl speed 6 m/s
+      # Arrive at Point C
+      position 35.0000n 119.9940w altitude 100 m agl speed 6 m/s
+
+      # =========================================
+      # PHASE 5: Sine Wave Pattern to Point D (500m West)
+      # Smooth sinusoidal path with 50m amplitude
+      # =========================================
+      position 35.0004n 119.9955w altitude 100 m agl speed 6 m/s
+      position 35.0005n 119.9970w altitude 100 m agl speed 6 m/s
+      position 35.0002n 119.9985w altitude 100 m agl speed 6 m/s
+      position 34.9998n 120.0000w altitude 100 m agl speed 6 m/s
+      position 34.9996n 120.0015w altitude 100 m agl speed 6 m/s
+      position 34.9998n 120.0030w altitude 100 m agl speed 6 m/s
+      position 35.0002n 120.0045w altitude 100 m agl speed 6 m/s
+      # Arrive at Point D
+      position 35.0000n 120.0060w altitude 100 m agl speed 6 m/s
+
+      # =========================================
+      # PHASE 6: Prolate Cycloid (Loops) to Point E (500m North)
+      # 2 loops with ~25m radius
+      # =========================================
+      # Loop 1
+      position 35.0005n 120.0057w altitude 100 m agl speed 6 m/s
+      position 35.0012n 120.0054w altitude 100 m agl speed 6 m/s
+      position 35.0018n 120.0057w altitude 100 m agl speed 6 m/s
+      position 35.0018n 120.0063w altitude 100 m agl speed 6 m/s
+      position 35.0012n 120.0066w altitude 100 m agl speed 6 m/s
+      position 35.0008n 120.0063w altitude 100 m agl speed 6 m/s
+      position 35.0012n 120.0060w altitude 100 m agl speed 6 m/s
+
+      # Loop 2
+      position 35.0018n 120.0057w altitude 100 m agl speed 6 m/s
+      position 35.0025n 120.0054w altitude 100 m agl speed 6 m/s
+      position 35.0032n 120.0057w altitude 100 m agl speed 6 m/s
+      position 35.0032n 120.0063w altitude 100 m agl speed 6 m/s
+      position 35.0025n 120.0066w altitude 100 m agl speed 6 m/s
+      position 35.0020n 120.0063w altitude 100 m agl speed 6 m/s
+      position 35.0025n 120.0060w altitude 100 m agl speed 6 m/s
+
+      # Arrive at Point E
+      position 35.0038n 120.0060w altitude 100 m agl speed 6 m/s
+      position 35.0045n 120.0060w altitude 100 m agl speed 8 m/s
+
+      # =========================================
+      # PHASE 7: Return to Landing Point
+      # =========================================
+      position 35.0002n 120.0003w altitude 100 m agl speed 8 m/s
+      position 35.0001n 120.0003w altitude 20 m agl speed 3 m/s
+      position 35.0000n 120.0003w altitude 0 m agl speed 2 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  T-150 6DOF FLIGHT DEMONSTRATION");
+   writeln("========================================");
+   writeln("Testing Newtonian 6DOF physics through:");
+   writeln("  Phase 1: Takeoff - climb to 100m AGL");
+   writeln("  Phase 2: Straight flight to Point A");
+   writeln("  Phase 3: Sawtooth pattern to Point B");
+   writeln("  Phase 4: Square wave pattern to Point C");
+   writeln("  Phase 5: Sine wave pattern to Point D");
+   writeln("  Phase 6: Cycloid loops to Point E");
+   writeln("  Phase 7: Return and landing");
+   writeln("========================================");
+end_execute
+
+execute at_time 60 sec absolute
+   writeln(">>> T=60s - Should be climbing/cruising");
+end_execute
+
+execute at_time 120 sec absolute
+   writeln(">>> T=120s - In flight patterns");
+end_execute
+
+execute at_time 240 sec absolute
+   writeln(">>> T=240s - Continuing patterns");
+end_execute
+
+execute at_time 360 sec absolute
+   writeln(">>> T=360s - Should be returning");
+end_execute
+
+execute at_time 480 sec absolute
+   writeln(">>> T=480s - Landing sequence");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 900 sec

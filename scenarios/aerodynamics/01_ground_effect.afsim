@@ -1,0 +1,119 @@
+# ==============================================================================
+# T-150 UAS Ground Effect Test Scenario
+#
+# Tests the Phase 4 ground effect model at various altitudes.
+# Ground effect parameters:
+# - Rotor diameter: 0.76m (30" props)
+# - Ground effect max: ~1 rotor diameter altitude
+# - Max thrust boost: 1.3 (30% at ground level)
+#
+# Look for propulsion processor log output showing:
+# - PROP_ALTITUDE_AGL: current altitude
+# - PROP_GROUND_EFFECT: ground effect factor (1.0 = no effect, up to 1.3 near ground)
+# ==============================================================================
+
+include ../../platforms/t150_platform.afsim
+
+# ==============================================================================
+# Ground Effect Test Platform Type
+# ==============================================================================
+platform_type T150_GE_TEST T150_UAS
+
+   # Battery Processor
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh    7000.0
+      initial_soc            1.0
+      hover_power_w          18000.0
+      low_battery_warning    0.20
+      nominal_voltage        46.8
+      full_charge_voltage    54.6
+      cutoff_voltage         39.0
+      internal_resistance    0.025
+      use_dynamic_power      true
+      update_interval        1.0 sec
+   end_processor
+
+   # Propulsion Processor - Ground effect will use defaults (enabled by default)
+   processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+      motor_count            8
+      kv_rating              100
+      max_power_per_motor    3500
+      propeller_diameter     0.76
+      coaxial_efficiency     0.85
+      motor_thermal_limit    150
+      nominal_voltage        46.8
+      peak_motor_efficiency  0.92
+      ambient_temperature    25
+      update_interval        1.0 sec
+   end_processor
+
+   # VRS Processor
+   processor VRS_MONITOR T150_VRS_PROCESSOR
+      vrs_descent_threshold  4.0
+      vrs_speed_threshold    5.0
+      induced_velocity       8.0
+      coaxial_factor         0.85
+      update_interval        1.0 sec
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# Test Platform Instance - Flight profile to test ground effect
+# ==============================================================================
+platform t150_ge_test T150_GE_TEST
+   route
+      # Start at ground level (0.5m AGL) - should show ground effect ~1.15
+      position 35.0000n 120.0000w altitude 0.5 m agl speed 0 m/s
+
+      # Rise slowly to test ground effect at various heights
+      position 35.0002n 120.0000w altitude 1.0 m agl speed 1 m/s
+
+      position 35.0004n 120.0000w altitude 2.0 m agl speed 1 m/s
+
+      position 35.0006n 120.0000w altitude 5.0 m agl speed 2 m/s
+
+      position 35.0010n 120.0000w altitude 10.0 m agl speed 3 m/s
+
+      position 35.0015n 120.0000w altitude 20.0 m agl speed 5 m/s
+
+      # Descend back down
+      position 35.0020n 120.0000w altitude 5.0 m agl speed 2 m/s
+
+      position 35.0025n 120.0000w altitude 1.0 m agl speed 1 m/s
+
+   end_route
+end_platform
+
+# ==============================================================================
+# Simulation Control
+# ==============================================================================
+end_time 120 sec
+
+# ==============================================================================
+# Simple Status Output
+# ==============================================================================
+execute at_time 0 sec absolute
+   writeln("");
+   writeln("==============================================");
+   writeln("T-150 Ground Effect Test Starting");
+   writeln("Rotor diameter: 0.76m (30in)");
+   writeln("Ground effect active below: ~0.76m AGL");
+   writeln("Max ground effect boost: 1.3 (30%)");
+   writeln("==============================================");
+   writeln("");
+   writeln("Look for PROP_GROUND_EFFECT and PROP_ALTITUDE_AGL in aux data.");
+   writeln("");
+end_execute
+
+execute at_time 115 sec absolute
+   writeln("");
+   writeln("==============================================");
+   writeln("Ground Effect Test Complete");
+   writeln("");
+   writeln("EXPECTED BEHAVIOR:");
+   writeln("  - At 0.5m AGL: Ground effect ~1.1-1.2");
+   writeln("  - At 0.76m AGL: Ground effect ~1.0 (edge)");
+   writeln("  - Above 0.76m: No ground effect (1.0)");
+   writeln("==============================================");
+end_execute

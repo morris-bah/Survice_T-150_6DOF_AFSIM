@@ -1,0 +1,197 @@
+# ==============================================================================
+# Ground-Based Air Surveillance Radar System
+# ==============================================================================
+#
+# Modeled after typical short-range air defense (SHORAD) surveillance radars
+# optimized for detecting low-altitude, slow-moving targets like UAS.
+#
+# Example systems this could represent:
+# - AN/TPS-80 G/ATOR (Ground/Air Task Oriented Radar)
+# - AN/MPQ-64 Sentinel
+# - Thales Ground Master 200
+# - Similar C-UAS detection radars
+#
+# ==============================================================================
+
+# ==============================================================================
+# ANTENNA PATTERN - Surveillance antenna
+# ==============================================================================
+antenna_pattern SURVEILLANCE_RADAR_ANTENNA WSF_ANTENNA_PATTERN_RECTANGULAR
+   peak_gain           34 dB           # Typical for medium-range surveillance
+   minimum_gain       -20 dB
+   azimuth_beamwidth    2.0 deg        # Narrow for good angular resolution
+   elevation_beamwidth 20.0 deg        # Wide to cover altitude range
+end_antenna_pattern
+
+# ==============================================================================
+# PENCIL BEAM ANTENNA - For tracking mode
+# ==============================================================================
+antenna_pattern TRACKING_RADAR_ANTENNA WSF_ANTENNA_PATTERN_RECTANGULAR
+   peak_gain           38 dB           # Higher gain for tracking
+   minimum_gain       -15 dB
+   azimuth_beamwidth    1.5 deg
+   elevation_beamwidth  1.5 deg
+end_antenna_pattern
+
+# ==============================================================================
+# KALMAN FILTER - Track estimation
+# ==============================================================================
+filter SURVEILLANCE_RADAR_FILTER WSF_KALMAN_FILTER
+   range_measurement_sigma        10.0 m
+   bearing_measurement_sigma       0.5 deg
+   elevation_measurement_sigma     1.0 deg
+
+   # Process noise for maneuvering UAS targets
+   process_noise_sigmas_XYZ  10 10 5
+end_filter
+
+# ==============================================================================
+# MAIN SURVEILLANCE RADAR SENSOR
+# ==============================================================================
+# S-Band (2-4 GHz) radar optimized for detecting small UAS
+# ==============================================================================
+sensor GROUND_SURVEILLANCE_RADAR WSF_RADAR_SENSOR
+
+   # Detection range for 1 m^2 target (0 dBsm)
+   # T-150 has ~+6 dBsm typical, so detection range will be extended
+   one_m2_detect_range           40 km
+
+   maximum_range                 60 km
+   minimum_range                100 m
+
+   # Full 360 degree rotating surveillance
+   frame_time                     4.0 sec
+
+   scan_mode                      azimuth
+   azimuth_scan_limits         -180.0 deg 180.0 deg
+   elevation_scan_limits         -5.0 deg 30.0 deg
+
+   # Transmitter
+   transmitter
+      antenna_pattern            SURVEILLANCE_RADAR_ANTENNA
+      power                      25 kW
+      frequency                  3000 MHz     # S-band
+      pulse_width                1.0e-6 sec
+      pulse_repetition_frequency 1000 Hz
+   end_transmitter
+
+   # Receiver
+   receiver
+      antenna_pattern            SURVEILLANCE_RADAR_ANTENNA
+      bandwidth                  1.0 MHz
+      noise_figure               3.0 dB
+   end_receiver
+
+   # Measurement errors
+   azimuth_error_sigma          0.5 deg
+   elevation_error_sigma        1.0 deg
+   range_error_sigma           10.0 m
+
+   # Track Management
+   filter SURVEILLANCE_RADAR_FILTER
+   end_filter
+
+   hits_to_establish_track   2 3          # 2 hits in 3 scans to establish
+   hits_to_maintain_track    1 3          # 1 hit in 3 scans to maintain
+
+   # Output Reports
+   reports_range
+   reports_bearing
+   reports_elevation
+   reports_location
+
+end_sensor
+
+# ==============================================================================
+# X-BAND TRACKING RADAR - Higher resolution for confirmed tracks
+# ==============================================================================
+sensor GROUND_TRACKING_RADAR WSF_RADAR_SENSOR
+
+   one_m2_detect_range           25 km
+   maximum_range                 40 km
+   minimum_range                 50 m
+
+   frame_time                     0.5 sec    # Fast update for tracking
+
+   scan_mode                      azimuth_and_elevation
+   azimuth_scan_limits           -5.0 deg 5.0 deg
+   elevation_scan_limits         -5.0 deg 5.0 deg
+
+   transmitter
+      antenna_pattern            TRACKING_RADAR_ANTENNA
+      power                      10 kW
+      frequency                  9500 MHz    # X-band
+      pulse_width                0.5e-6 sec
+      pulse_repetition_frequency 2000 Hz
+   end_transmitter
+
+   receiver
+      antenna_pattern            TRACKING_RADAR_ANTENNA
+      bandwidth                  2.0 MHz
+      noise_figure               4.0 dB
+   end_receiver
+
+   azimuth_error_sigma          0.3 deg
+   elevation_error_sigma        0.3 deg
+   range_error_sigma            5.0 m
+
+   filter SURVEILLANCE_RADAR_FILTER
+   end_filter
+
+   hits_to_establish_track   1 2
+   hits_to_maintain_track    1 2
+
+   reports_range
+   reports_bearing
+   reports_elevation
+   reports_location
+
+end_sensor
+
+# ==============================================================================
+# C-UAS SPECIALIZED RADAR - Optimized for small drone detection
+# ==============================================================================
+# Higher frequency, optimized for detecting small RCS targets
+# ==============================================================================
+sensor CUAS_DETECTION_RADAR WSF_RADAR_SENSOR
+
+   one_m2_detect_range           15 km      # Shorter range but better for small targets
+   maximum_range                 20 km
+   minimum_range                 25 m
+
+   frame_time                     2.0 sec   # Faster scan rate
+
+   scan_mode                      azimuth
+   azimuth_scan_limits         -180.0 deg 180.0 deg
+   elevation_scan_limits         -5.0 deg 45.0 deg
+
+   transmitter
+      antenna_pattern            SURVEILLANCE_RADAR_ANTENNA
+      power                       5 kW
+      frequency                 15000 MHz   # Ku-band - better for small targets
+      pulse_width                0.25e-6 sec
+      pulse_repetition_frequency 4000 Hz
+   end_transmitter
+
+   receiver
+      antenna_pattern            SURVEILLANCE_RADAR_ANTENNA
+      bandwidth                  4.0 MHz
+      noise_figure               5.0 dB
+   end_receiver
+
+   azimuth_error_sigma          0.5 deg
+   elevation_error_sigma        1.0 deg
+   range_error_sigma           10.0 m
+
+   filter SURVEILLANCE_RADAR_FILTER
+   end_filter
+
+   hits_to_establish_track   2 4
+   hits_to_maintain_track    1 4
+
+   reports_range
+   reports_bearing
+   reports_elevation
+   reports_location
+
+end_sensor

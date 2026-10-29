@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650" width="900" height="650">
+  <defs>
+    <style>
+      .title { font: bold 18px sans-serif; }
+      .subtitle { font: 14px sans-serif; }
+      .box-title { font: bold 12px sans-serif; fill: white; }
+      .box-text { font: 10px sans-serif; fill: white; }
+      .auxdata-title { font: bold 11px sans-serif; }
+      .auxdata-text { font: 9px monospace; }
+      .legend-text { font: 10px sans-serif; }
+      .arrow-label { font: italic 9px sans-serif; }
+    </style>
+    <!-- Arrow marker -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4A90D9"/>
+    </marker>
+    <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#50C878"/>
+    </marker>
+    <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#FFB347"/>
+    </marker>
+    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#FF6B6B"/>
+    </marker>
+    <marker id="arrowhead-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#DDA0DD"/>
+    </marker>
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="650" fill="#f8f9fa"/>
+
+  <!-- AFSIM Frame -->
+  <rect x="20" y="40" width="860" height="590" rx="10" ry="10"
+        fill="#e8e8e8" stroke="#666" stroke-width="2" opacity="0.5"/>
+  <text x="450" y="30" class="title" text-anchor="middle">T-150 UAS Plugin Interaction Architecture</text>
+  <text x="450" y="55" class="subtitle" text-anchor="middle" fill="#666">AFSIM Simulation Engine</text>
+
+  <!-- 6DOF Mover Box (top center) -->
+  <rect x="300" y="80" width="300" height="120" rx="8" ry="8"
+        fill="#4A90D9" stroke="#2C5F8A" stroke-width="2" filter="url(#shadow)"/>
+  <text x="450" y="105" class="box-title" text-anchor="middle">ROTORCRAFT_6DOF_MOVER</text>
+  <text x="450" y="125" class="box-text" text-anchor="middle">(Physics Engine)</text>
+  <line x1="320" y1="135" x2="580" y2="135" stroke="white" stroke-opacity="0.3"/>
+  <text x="450" y="155" class="box-text" text-anchor="middle">• Rigid Body 6DOF  • 8 Rotor Models</text>
+  <text x="450" y="175" class="box-text" text-anchor="middle">• Flight Controllers  • Quaternion Attitude</text>
+  <text x="450" y="195" class="box-text" text-anchor="middle">• Newton-Euler Dynamics</text>
+
+  <!-- AuxData Input Layer -->
+  <rect x="50" y="240" width="800" height="60" rx="6" ry="6"
+        fill="#F0E68C" stroke="#B8860B" stroke-width="2"/>
+  <text x="450" y="265" class="auxdata-title" text-anchor="middle">PLATFORM AUXDATA (Input Layer)</text>
+  <text x="450" y="285" class="auxdata-text" text-anchor="middle">6dof_total_power | 6dof_vel_d | 6dof_vel_n | 6dof_vel_e | Platform Altitude | Platform Acceleration</text>
+
+  <!-- Arrow from 6DOF to AuxData -->
+  <line x1="450" y1="200" x2="450" y2="235" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="520" y="220" class="arrow-label">6dof_* outputs</text>
+
+  <!-- Processor Boxes -->
+  <!-- Battery Processor -->
+  <rect x="50" y="350" width="180" height="140" rx="8" ry="8"
+        fill="#50C878" stroke="#228B22" stroke-width="2" filter="url(#shadow)"/>
+  <text x="140" y="375" class="box-title" text-anchor="middle">BATTERY</text>
+  <text x="140" y="395" class="box-title" text-anchor="middle">PROCESSOR</text>
+  <line x1="70" y1="405" x2="210" y2="405" stroke="white" stroke-opacity="0.3"/>
+  <text x="140" y="425" class="box-text" text-anchor="middle">• Li-Ion Chemistry</text>
+  <text x="140" y="445" class="box-text" text-anchor="middle">• Voltage Sag Model</text>
+  <text x="140" y="465" class="box-text" text-anchor="middle">• SOC Tracking</text>
+  <text x="140" y="485" class="box-text" text-anchor="middle">• Quadratic Solution</text>
+
+  <!-- Propulsion Processor -->
+  <rect x="260" y="350" width="180" height="140" rx="8" ry="8"
+        fill="#FFB347" stroke="#CC7722" stroke-width="2" filter="url(#shadow)"/>
+  <text x="350" y="375" class="box-title" text-anchor="middle">PROPULSION</text>
+  <text x="350" y="395" class="box-title" text-anchor="middle">PROCESSOR</text>
+  <line x1="280" y1="405" x2="420" y2="405" stroke="white" stroke-opacity="0.3"/>
+  <text x="350" y="425" class="box-text" text-anchor="middle">• Motor Thermal</text>
+  <text x="350" y="445" class="box-text" text-anchor="middle">• Ground Effect</text>
+  <text x="350" y="465" class="box-text" text-anchor="middle">• Payload Mass</text>
+  <text x="350" y="485" class="box-text" text-anchor="middle">• Thrust Margin</text>
+
+  <!-- VRS Processor -->
+  <rect x="470" y="350" width="180" height="140" rx="8" ry="8"
+        fill="#FF6B6B" stroke="#8B0000" stroke-width="2" filter="url(#shadow)"/>
+  <text x="560" y="375" class="box-title" text-anchor="middle">VRS</text>
+  <text x="560" y="395" class="box-title" text-anchor="middle">PROCESSOR</text>
+  <line x1="490" y1="405" x2="630" y2="405" stroke="white" stroke-opacity="0.3"/>
+  <text x="560" y="425" class="box-text" text-anchor="middle">• Descent Monitor</text>
+  <text x="560" y="445" class="box-text" text-anchor="middle">• 5-State Machine</text>
+  <text x="560" y="465" class="box-text" text-anchor="middle">• Lift Degradation</text>
+  <text x="560" y="485" class="box-text" text-anchor="middle">• Control Factor</text>
+
+  <!-- Slung Load Processor -->
+  <rect x="680" y="350" width="180" height="140" rx="8" ry="8"
+        fill="#DDA0DD" stroke="#8B008B" stroke-width="2" filter="url(#shadow)"/>
+  <text x="770" y="375" class="box-title" text-anchor="middle">SLUNG LOAD</text>
+  <text x="770" y="395" class="box-title" text-anchor="middle">PROCESSOR</text>
+  <line x1="700" y1="405" x2="840" y2="405" stroke="white" stroke-opacity="0.3"/>
+  <text x="770" y="425" class="box-text" text-anchor="middle">• Pendulum Dynamics</text>
+  <text x="770" y="445" class="box-text" text-anchor="middle">• Cable Tension</text>
+  <text x="770" y="465" class="box-text" text-anchor="middle">• Resonance Detect</text>
+  <text x="770" y="485" class="box-text" text-anchor="middle">• 50 Hz Update</text>
+
+  <!-- Arrows from AuxData to Processors -->
+  <line x1="140" y1="300" x2="140" y2="345" stroke="#50C878" stroke-width="2" marker-end="url(#arrowhead-green)"/>
+  <line x1="350" y1="300" x2="350" y2="345" stroke="#FFB347" stroke-width="2" marker-end="url(#arrowhead-orange)"/>
+  <line x1="560" y1="300" x2="560" y2="345" stroke="#FF6B6B" stroke-width="2" marker-end="url(#arrowhead-red)"/>
+  <line x1="770" y1="300" x2="770" y2="345" stroke="#DDA0DD" stroke-width="2" marker-end="url(#arrowhead-purple)"/>
+
+  <!-- Data labels on input arrows -->
+  <text x="145" y="325" class="arrow-label" fill="#228B22">power</text>
+  <text x="355" y="325" class="arrow-label" fill="#CC7722">altitude</text>
+  <text x="565" y="325" class="arrow-label" fill="#8B0000">velocity</text>
+  <text x="775" y="325" class="arrow-label" fill="#8B008B">accel</text>
+
+  <!-- AuxData Output Layer -->
+  <rect x="50" y="530" width="800" height="60" rx="6" ry="6"
+        fill="#F0E68C" stroke="#B8860B" stroke-width="2"/>
+  <text x="450" y="555" class="auxdata-title" text-anchor="middle">AUXDATA OUTPUTS (Available to Scenario Scripts)</text>
+  <text x="450" y="575" class="auxdata-text" text-anchor="middle">BATTERY_SOC | PROP_TOTAL_POWER | VRS_MARGIN | SLUNG_TENSION | + 50 more keys</text>
+
+  <!-- Arrows from Processors to Output AuxData -->
+  <line x1="140" y1="490" x2="140" y2="525" stroke="#50C878" stroke-width="2" marker-end="url(#arrowhead-green)"/>
+  <line x1="350" y1="490" x2="350" y2="525" stroke="#FFB347" stroke-width="2" marker-end="url(#arrowhead-orange)"/>
+  <line x1="560" y1="490" x2="560" y2="525" stroke="#FF6B6B" stroke-width="2" marker-end="url(#arrowhead-red)"/>
+  <line x1="770" y1="490" x2="770" y2="525" stroke="#DDA0DD" stroke-width="2" marker-end="url(#arrowhead-purple)"/>
+
+  <!-- Legend -->
+  <rect x="30" y="600" width="840" height="35" rx="5" ry="5" fill="white" stroke="#ccc"/>
+  <rect x="40" y="610" width="15" height="15" fill="#4A90D9" rx="2"/>
+  <text x="60" y="622" class="legend-text">6DOF Mover</text>
+  <rect x="150" y="610" width="15" height="15" fill="#50C878" rx="2"/>
+  <text x="170" y="622" class="legend-text">Battery</text>
+  <rect x="240" y="610" width="15" height="15" fill="#FFB347" rx="2"/>
+  <text x="260" y="622" class="legend-text">Propulsion</text>
+  <rect x="350" y="610" width="15" height="15" fill="#FF6B6B" rx="2"/>
+  <text x="370" y="622" class="legend-text">VRS</text>
+  <rect x="420" y="610" width="15" height="15" fill="#DDA0DD" rx="2"/>
+  <text x="440" y="622" class="legend-text">Slung Load</text>
+  <rect x="530" y="610" width="15" height="15" fill="#F0E68C" rx="2"/>
+  <text x="550" y="622" class="legend-text">AuxData Layer</text>
+  <text x="680" y="622" class="legend-text" fill="#666">Update: 10-50 Hz</text>
+  <text x="800" y="622" class="legend-text" fill="#666">Jan 2026</text>
+
+</svg>

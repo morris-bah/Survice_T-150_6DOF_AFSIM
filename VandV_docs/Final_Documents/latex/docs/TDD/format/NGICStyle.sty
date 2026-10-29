@@ -1,0 +1,1123 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{format/NGICStyle}
+
+%%%  -  -  T H E  -  P A C K A G E  -  L I S T  -  -  %%%
+
+\usepackage[utf8]{inputenc}
+\usepackage[letterpaper,             % margins and pagestyle
+    left = 0.75in,
+    right = 0.75in,
+    top= 0.85in,
+    bottom= 0.85in]{geometry}
+\usepackage[explicit]{titlesec}      % formatting section titles
+\usepackage{afterpage}               % blank page functions
+\usepackage{multirow}                % combining table rows/columns
+\usepackage[table]{xcolor}           % table colors
+\usepackage{soul,color,colortbl}     % extended colors
+\usepackage{fancyhdr}                % fancy headers/footers
+\usepackage{graphicx}                % importing of figures
+\usepackage{animate}                 % makes gifs possible
+\usepackage{makecell}                % multi-line cell wrapping
+\usepackage{enumitem}                % more control over bulleted lists
+\usepackage[labelfont=bf,            % captions, changes default formatting
+        textfont=bf,
+        skip=-10pt]{caption}
+\usepackage{subcaption}              % caption type
+\usepackage{array}                   % longtable extra functionality
+\usepackage{amssymb}                 % standard math formatting library
+\usepackage[page]{totalcount}        % page counting
+\usepackage{verbatim}                % code format multi-line comments
+\usepackage{amsmath}                 % standard math library
+\usepackage{mdframed}                % used to wrap images
+\usepackage{float}                   % header float
+\usepackage{ninecolors}              % more color options
+\usepackage{csquotes}                % allows users to add quotation marks
+\usepackage{lastpage}                % for labeling page numbers/last page
+\usepackage{rotating}
+\usepackage{tabularray}              % longtblr table types, which are an alternative to tabular tables
+    \UseTblrLibrary{booktabs}
+    \UseTblrLibrary{diagbox}
+\usepackage[l3]{csvsimple}           % import csv files into tables
+\usepackage{longtable}               % formatting allowances for tabular tables
+\usepackage{tabularx}                % granular table control
+\usepackage{xstring}				 % substrings for component splitting
+\usepackage{lipsum}                  % test text
+\usepackage{calc}                    % formatting width of environments
+\usepackage{listings}                % code formatting
+\usepackage{tcolorbox}               % fill box for code
+\usepackage{soul}                    % highlight
+\usepackage{draftwatermark}          % watermark
+
+\usepackage{xfp}                     % allows values to be calculated during build
+\usepackage{pdflscape}               % landscape pages
+\usepackage{everypage}               % landscape headers
+
+\usepackage{setspace}                % line spacing
+\usepackage[T1]{fontenc}             % fonts
+\usepackage{lmodern}                 % the only valuable font
+
+% ALK---------added
+\usepackage{todonotes}				 % todo notes and inline guidance boxes
+\usepackage{lineno}
+\usepackage{todonotes}
+% ALK--------- end added
+
+% < - - - ! DO NOT MOVE THESE ! - - - >
+\usepackage{tocloft}
+\usepackage[bookmarksnumbered,pdfview=Fit]{hyperref}
+\usepackage{bookmark}
+% < - - - ! I AM DEAD SERIOUS ! - - - >
+
+
+%% stop warnings
+\hfuzz=2000pt
+\vfuzz=2000pt
+\pretolerance=20000
+\tolerance=20000
+\hbadness=19999
+\vbadness=19999
+\emergencystretch=30pt
+
+%%% - - -  DOCUMENT CONSTANT APPLICABLES  - - - %%%
+
+%% i like nice fonts
+\renewcommand{\rmdefault}{lmss}
+\renewcommand{\sfdefault}{lmss}
+\renewcommand{\ttdefault}{lmss}
+
+%% no indent, it's just more consistent
+\setlength{\parindent}{0pt}
+
+%% custom color definitions
+\definecolor{function}{HTML}{BF6C00}
+\definecolor{input}{HTML}{444141}
+\definecolor{return}{HTML}{0056F5}
+\definecolor{filecolor}{HTML}{CE84AD}
+
+%% Setup hyperlinks
+\hypersetup{
+    colorlinks=true,
+    linkcolor=input,
+    filecolor=filecolor,
+    urlcolor=return,
+}
+
+%% Header and footer settings
+\renewcommand{\headrulewidth}{0pt}     % Remove header underline
+\pagestyle{fancy}                     % Fancy header settings
+\lhead{}
+\rhead{}
+\setlength{\headheight}{14pt}         % Make header larger
+
+\setlength{\parskip}{1em}
+
+%%% ! ! ! DEFINING SECTION SETTINGS ! ! ! 
+
+% 4sections
+\makeatletter
+\renewcommand{\paragraph}
+    {\@startsection{paragraph}       % counter
+    {4}                              % level
+    {0ex}                            % indent
+    {3.25ex \@plus 1ex \@minus .2ex} % beforeskip
+    {1pt}                            % afterskip
+    {\normalfont\normalsize\bfseries}}
+\makeatother
+\stepcounter{tocdepth}
+\newcommand{\subsubsubsection}{\paragraph}
+
+% 5sections
+\makeatletter
+\renewcommand{\subparagraph}
+    {\@startsection{subparagraph}    % counter
+    {5}                              % level
+    {0ex}                            % indent
+    {3.25ex \@plus 1ex \@minus .2ex} % beforeskip
+    {1pt}                            % afterskip
+    {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\makeatletter
+\providecommand*{\toclevel@subparagraph}{5}
+\makeatother
+
+\stepcounter{secnumdepth}
+\setcounter{secnumdepth}{5}
+
+\newcommand{\subsubsubsubsection}{\subparagraph}
+
+% 6sections
+\makeatletter
+\newcounter{subsubparagraph}[subparagraph]
+\renewcommand\thesubsubparagraph{\thesubparagraph.\@arabic\c@subsubparagraph}
+\newcommand\subsubparagraph{
+    \@startsection{subsubparagraph}      % counter
+        {6}                              % level
+        {0ex}                            % indent
+        {3.25ex \@plus 1ex \@minus .2ex} % beforeskip
+        {1pt}                            % afterskip
+        {\normalfont\normalsize\bfseries}}
+\newcommand\l@subsubparagraph{\@dottedtocline{6}{10em}{5em}}
+\newcommand{\subsubparagraphmark}[1]{}
+\makeatother
+
+\makeatletter
+\providecommand*{\toclevel@subsubparagraph}{6}
+\makeatother
+
+\stepcounter{secnumdepth}
+\setcounter{secnumdepth}{6}
+
+\newcommand{\subsubsubsubsubsection}{\subsubparagraph}
+
+% 7sections
+\makeatletter
+\newcounter{subsubsubparagraph}[subsubparagraph]
+\renewcommand\thesubsubsubparagraph{\thesubsubparagraph.\@arabic\c@subsubsubparagraph}
+\newcommand\subsubsubparagraph{
+    \@startsection{subsubsubparagraph}   % counter
+        {6}                              % level
+        {0ex}                            % indent
+        {3.25ex \@plus 1ex \@minus .2ex} % beforeskip
+        {1pt}                            % afterskip
+        {\normalfont\normalsize\bfseries}}
+\newcommand\l@subsubsubparagraph{\@dottedtocline{6}{10em}{5em}}
+\newcommand{\subsubsubparagraphmark}[1]{}
+\makeatother
+
+\stepcounter{secnumdepth}
+\setcounter{secnumdepth}{7}
+
+\makeatletter
+\providecommand*{\toclevel@subsubsubparagraph}{7}
+\makeatother
+
+\newcommand{\subsubsubsubsubsubsection}{\subsubsubparagraph}
+
+% 8sections
+\makeatletter
+\newcounter{subsubsubsubparagraph}[subsubsubparagraph]
+\renewcommand\thesubsubsubsubparagraph{\thesubsubsubparagraph.\@arabic\c@subsubsubsubparagraph}
+\newcommand\subsubsubsubparagraph{
+    \@startsection{subsubsubsubparagraph} % counter
+        {6}                               % level
+        {0ex}                             % indent
+        {3.25ex \@plus 1ex \@minus .2ex}  % beforeskip
+        {1pt}                             % afterskip
+        {\normalfont\normalsize\bfseries}}
+\newcommand\l@subsubsubsubparagraph{\@dottedtocline{6}{10em}{5em}}
+\newcommand{\subsubsubsubparagraphmark}[1]{}
+\makeatother
+
+\stepcounter{secnumdepth}
+\setcounter{secnumdepth}{8}
+
+\makeatletter
+\providecommand*{\toclevel@subsubsubsubparagraph}{8}
+\makeatother
+
+\newcommand{\subsubsubsubsubsubsubsection}{\subsubsubsubparagraph}
+
+% 9sections
+\makeatletter
+\newcounter{subsubsubsubsubparagraph}[subsubsubsubparagraph]
+\renewcommand\thesubsubsubsubsubparagraph{\thesubsubsubsubparagraph.\@arabic\c@subsubsubsubsubparagraph}
+\newcommand\subsubsubsubsubparagraph{
+    \@startsection{subsubsubsubsubparagraph} % counter
+    {6}                                      % level
+    {0ex}                                    % indent
+    {3.25ex \@plus 1ex \@minus .2ex}         % beforeskip
+    {1pt}                                    % afterskip
+    {\normalfont\normalsize\bfseries}}
+\newcommand\l@subsubsubsubsubparagraph{\@dottedtocline{6}{10em}{5em}}
+\newcommand{\subsubsubsubsubparagraphmark}[1]{}
+\makeatother
+
+\stepcounter{secnumdepth}
+\setcounter{secnumdepth}{9}
+
+\makeatletter
+\providecommand*{\toclevel@subsubsubsubsubparagraph}{9}
+\makeatother
+
+\newcommand{\subsubsubsubsubsubsubsubsection}{\subsubsubsubsubparagraph}
+
+% quicker/better labeled section commands
+\newcommand{\sectionone}[1]{\section{\unclass #1}\label{sec:#1}}
+\newcommand{\sectiontwo}[1]{\subsection{\unclass #1}\label{sec:#1}}
+\newcommand{\sectionthr}[1]{\subsubsection{\unclass #1}\label{sec:#1}}
+\newcommand{\sectionfou}[1]{\paragraph{\unclass #1}\label{sec:#1}}
+\newcommand{\sectionfiv}[1]{\subparagraph{\unclass #1}\label{sec:#1}}
+\newcommand{\sectionsix}[1]{\subsubparagraph{\unclass #1}\label{sec:#1}}
+\newcommand{\sectionsev}[1]{\subsubsubparagraph{\unclass #1}\label{sec:#1}}
+\newcommand{\sectioneig}[1]{\subsubsubsubparagraph{\unclass #1}\label{sec:#1}}
+\newcommand{\sectionnin}[1]{\subsubsubsubsubparagraph{\unclass #1}\label{sec:#1}}
+
+%% TABLE OF CONTENTS STYLE
+
+\setlength{\cftbeforesecskip}{12pt}
+\renewcommand{\cftsecfont}{\fontfamily{lmss}\bfseries\Large}
+\setlength{\cftbeforesubsecskip}{12pt}
+\renewcommand{\cftsubsecfont}{\fontfamily{lmss}\bfseries\large}
+\setlength{\cftbeforesubsubsecskip}{6pt}
+\renewcommand{\cftsubsubsecfont}{\fontfamily{lmss}}
+\renewcommand{\cftparafont}{\fontfamily{lmss}}
+\renewcommand{\cftsubparafont}{\fontfamily{lmss}\itshape}
+
+\renewcommand\contentsname{\textbf{\hfill\unclass Table of Contents\thispagestyle{fancy}\hfill}}   % toc
+\renewcommand{\listtablename}{\textbf{\hfill\unclass List of Tables\thispagestyle{fancy}\hfill}}   % lot
+\renewcommand{\listfigurename}{\textbf{\hfill\unclass List of Figures\thispagestyle{fancy}\hfill}} % lof
+
+% table of contents depth
+\setcounter{tocdepth}{4}
+
+% change autoref names
+\def\sectionautorefname{Section}
+\def\subsectionautorefname{Section}
+\def\subsubsectionautorefname{Section}
+\def\paragraphautorefname{Section}
+\def\subparagraphautorefname{Section}
+\def\subsubparagraphautorefname{Section}
+\def\subsubsubparagraphautorefname{Section}
+\def\subsubsubsubparagraphautorefname{Section}
+
+% better aimed hyperlinking
+\hypersetup{
+    pdfstartview={XYZ null null 1},
+    pdfcenterwindow=true
+}
+
+% better ref commands
+\newcommand{\hyperscn}[2]{\hyperref[sec:#1]{\textbf{#2}}}
+\newcommand{\altscn}[1]{\hyperref[sec:#1]{\textbf{#1}}}
+\newcommand{\scn}[1]{\autoref{sec:#1}}
+\newcommand{\pic}[1]{\autoref{fig:#1}}
+\newcommand{\tab}[1]{\autoref{tab:#1}}
+\newcommand{\equ}[1]{\autoref{eq:#1}}
+\newcommand{\cod}[1]{\autoref{lst:#1}}
+
+%% watermark style
+
+% default
+\SetWatermarkText{}
+
+% draft
+\newcommand\draft{
+    \SetWatermarkText{DRAFT}
+    \SetWatermarkAngle{45}
+    \DraftwatermarkOptions{color=codeGry!50}
+    \DraftwatermarkOptions{fontsize=1.5in}
+}
+
+% confidential
+\newcommand\confidential{
+    \SetWatermarkText{CONFIDENTIAL}
+    \SetWatermarkAngle{45}
+    \DraftwatermarkOptions{color=codeRed!50}
+    \DraftwatermarkOptions{fontsize=1in}
+}
+
+
+%% BULLET STYLES
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{\textopenbullet}
+\renewcommand{\labelitemiii}{$\centerdot$}
+\renewcommand{\labelitemiv}{\tiny$\blacksquare$}
+
+
+%% CODE VERBATIM STYLE
+\renewcommand\lstlistingname{Source}
+
+\definecolor{codeRed}{HTML}{fa3f68}
+\definecolor{codeYel}{HTML}{ffd256}
+\definecolor{codeGrn}{HTML}{47c97f}
+\definecolor{codeBlu}{HTML}{53bce9}
+\definecolor{codeGry}{HTML}{a1a1a1}
+\definecolor{codeBgc}{HTML}{1f1f1f}
+\definecolor{codeFgc}{HTML}{cccccc}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor   = \color{codeBgc},
+    commentstyle      = \color{codeGrn}\ttfamily,
+    keywordstyle      = \color{codeRed}\ttfamily,
+    identifierstyle   = \color{codeBlu}\ttfamily,
+    numberstyle       = \color{codeFgc}\ttfamily\tiny,
+    stringstyle       = \color{codeYel}\ttfamily,
+    basicstyle        = \color{codeFgc}\ttfamily\scriptsize,
+    frame             = none,
+    showlines         = true,
+    breakatwhitespace = false,
+    breaklines        = true,
+    captionpos        = t,
+    keepspaces        = true,
+    numbers           = left,
+    numbersep         = 5pt,
+    showspaces        = false,
+    showstringspaces  = false,
+    showtabs          = false,
+    tabsize           = 4,
+    xleftmargin       = 10pt,
+    fontadjust        = true,
+}
+
+% define a tcolorbox environment for code
+\newtcolorbox{codebox}{
+    colback=codeBgc, % background color
+    boxrule=0.5pt,   % frame width
+    arc=0pt,         % corner round
+    left=5pt,        % padding on left side
+    right=5pt,       % padding on right side
+    top=-5pt,        % padding on top
+    bottom=-5pt,     % padding on bottom
+}
+
+\lstset{style=mystyle}
+
+
+%%% - - - ALWAYS ON MACROS - - - %%%
+
+\definecolor{TableBlue}{RGB}{14,117,188} % define NGIC Blue for table usage
+\colorlet{altGray}{gray!30!white}
+\colorlet{altGra2}{gray!50!white}
+
+\newcommand\myemptypage{\newpage\mbox{}\newpage} % blankpage macro
+\renewcommand*{\arraystretch}{1.5}
+\newcommand{\fref}[1]{\hyperref[fig:#1]{\textbf{Figure~\ref{fig:#1}}}}   % standard way for in-text references to reference Figures
+\newcommand{\tref}[1]{\hyperref[tab:#1]{\textbf{Table~\ref{tab:#1}}}}    % standard way for in-text references to reference Tables
+\newcommand{\eref}[1]{\hyperref[eqn:#1]{\textbf{Equation~\ref{eqn:#1}}}} % standard way for in-text references to reference Equations
+\newcommand{\enumref}[1]{\hyperref[eqn:#1]{\textbf{\ref{eqn:#1}}}} % Refer to an Equation by number only (for KPI reference table)
+
+
+\newcommand{\programFont}[1]{\fontfamily{phv}\selectfont #1}            % add text that the reader is meant to enter as a command somewhere
+
+%% classification
+\newcommand\unclasslabel{\textcolor{black}{\textbf{UNCLASSIFIED}}}
+\newcommand\cuilabel{\textcolor{black}{\textbf{CONTROLLED UNCLASSIFIED INTELLIGENCE}}}
+\newcommand\natolabel{\textcolor{black}{\textbf{UNCLASSIFIED//FOUO/REL TO USA, FIN, SWE, FVEY, NATO}}}
+\newcommand\nofornlabel{\textcolor{red5}{\textbf{SECRET//NOFORN}}}
+\newcommand\fveylabel{\textcolor{red5}{\textbf{SECRET//REL TO USA, FVEY}}}
+\newcommand\deuacgulabel{\textcolor{red5}{\textbf{SECRET//REL TO USA, DEU, ACGU}}}
+\newcommand\acgulabel{\textcolor{red5}{\textbf{SECRET//REL TO USA, ACGU}}}
+
+% Result flags esp. for test result narratives
+
+\newcommand{\PASS}{\textcolor{green5}{\textbf{PASS}}}
+\newcommand{\FAIL}{\textcolor{red5}{\textbf{FAIL}}}
+\definecolor{textorange}{HTML}{ED872D}
+\newcommand{\PENDING}{\textcolor{textorange}{\textbf{PENDING}}}
+\newcommand{\DEFERRED}{\textcolor{violet4}{\textbf{DEFERRED}}}
+	
+
+%% portion/bullet classification
+\newcommand\unclass{{(U)~}}
+\newcommand\cui{{(CUI)~}}
+\newcommand\nato{{(U//FOUO/REL TO USA, FIN, SWE, FVEY, NATO)~}}
+\newcommand\noforn{{(S//NF)~}}
+\newcommand\fvey{{(S//REL TO USA, FVEY)~}}
+\newcommand\deuacgu{{(S//REL TO USA, DEU, ACGU)~}}
+\newcommand\acgu{{(S//REL TO USA, ACGU)~}}
+\newcommand{\srel}{{(S//REL)~}}
+
+%% create header/footer, defaults to maximum level set in the document
+\chead{\classlabel}
+\cfoot{\classlabel\ \\ \thepage}
+
+%% remove the header/footer for landscape images
+\fancypagestyle{clear}{
+    \fancyhf{}
+    \fancyfoot[C]{}
+    \fancyhead[C]{}
+    \renewcommand{\headrulewidth}{0pt}
+    \renewcommand{\footrulewidth}{0pt}
+}
+
+\newcommand{\note}[1]{\textbf{\color{red}{\unclass #1}}}
+
+%% custom color highlight command
+\newcommand{\hlc}[2][yellow]{{
+    \colorlet{foo}{#1}
+    \sethlcolor{foo}\hspace{-.5em}\hl{#2}\hspace{-.3em}}
+}
+
+%% guidance inline notes
+\newcommand{\guidance}[1]{
+	\todo[
+	inline,
+	backgroundcolor=orange!10!white,
+	linecolor=gray,
+	]
+	{\small #1}
+}
+
+%% template explanation inline notes
+\newcommand{\templateexplain}[1]{
+	\todo[
+	inline,
+	backgroundcolor=magenta!20!white,
+	linecolor=gray,
+	]
+	{\small \textbf{JMC:} #1}
+}
+
+
+%%% define envs
+
+%% figure dimensions
+\newdimen{\outlinethickness}
+\setlength{\outlinethickness}{1.25pt}
+
+% define code env
+\newcommand{\doMyCode}[7]{
+    \begin{center}
+        \vbox{\center\unclass \cod{#3}: #3\vspace{.05in}
+        \fbox{\parbox{6.5in}{
+            #2\hfill\vspace{-.5em}
+            \begin{codebox}
+                \lstinputlisting[language=#1,{caption=[\unclass #3]},label={lst:#3},mathescape=#4,firstline=#5,lastline=#6]{code/#7}
+            \end{codebox}
+            \vspace{-.5em}\hfill#2
+        }}}
+    \end{center}
+}
+
+% define figure env
+\newcommand{\doMyFigure}[5]{
+    \begin{figure}[H]\begin{center}
+        \fbox{\parbox{#1}{
+        {\vspace{.25em}\hspace{.25em}}\raggedright#2\vspace{.25em}
+        
+        \centering\includegraphics[width=#1-.5em]{#3}\vspace{1em}
+        \caption{#4}
+        \label{fig:#5}
+        \raggedleft#2{\vspace{.25em}\hspace{.25em}}
+        }}
+    \end{center}\end{figure}
+    \vspace{-.25in}
+}
+
+% define fast figure env
+\newcommand{\figHere}[2]{
+    \begin{figure}[H]\begin{center}
+        \fbox{\parbox{\textwidth-1em}{
+        {\vspace{.25em}\hspace{.25em}}\raggedright\unclasslabel\vspace{.25em}
+        
+        \centering\includegraphics[width=\textwidth-1.5em]{#2}\vspace{1em}
+        \caption{#1}
+        \label{fig:#1}
+        \raggedleft\unclasslabel{\vspace{.25em}\hspace{.25em}}
+        }}
+    \end{center}\end{figure}
+    \vspace{-.25in}
+}
+
+% define multi figure env
+\newcommand{\doMyFigures}[3]{
+    \begin{figure}[H]\begin{center}
+        \fbox{\parbox{\linewidth}{
+        {\vspace{.25em}\hspace{.25em}}\raggedright#1\vspace{1em}\\
+        #3
+        \vspace{1.5em}
+        \caption{\unclass #2}
+        \label{fig:#2}
+        \raggedleft#1{\vspace{.25em}\hspace{.25em}}
+        }}
+    \end{center}\end{figure}
+}
+
+% define multi figure env
+\newcommand{\picHere}[2]{
+    \begin{subfigure}{.48\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{#2}
+        \caption{\unclass #1}
+        \label{fig:#1}
+    \end{subfigure}
+}
+
+% define landscape figure env
+\newcommand{\doMyFigureLS}[5]{
+    \newgeometry{left=1cm, right=1cm, top=1cm, bottom=1cm}
+    \begin{landscape}
+    \thispagestyle{clear}
+        \begin{center}
+            \classlabel
+        \begin{figure}[H]
+            \fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{ % change here
+            {\vspace{.5em}\hspace{.5em}}\raggedright#2\vspace{1em}
+            
+            \centering\includegraphics[width=#1]{#3}\vspace{1em}
+            \caption{#4}\vspace{1em}
+            \label{fig:#5}
+            \raggedleft#2{\vspace{.5em}\hspace{.5em}}
+            }}
+        \end{figure}
+            \vspace*{\fill}
+            \vbox{\classlabel\ \\ \footnotesize{Page \thepage\ of \pageref{LastPage}}}
+        \end{center}
+    \end{landscape}
+    \restoregeometry
+}
+
+% define gif env
+\newcommand{\doMyGif}[8]{
+    \begin{figure}[H]\begin{center}
+        \fbox{\parbox{#1}{
+        {\vspace{.5em}\hspace{.5em}}\raggedright#2\vspace{1em}
+        
+        \centering\animategraphics[width=#1-4em,autoplay,loop,controls]{#6}{#3}{#4}{#5}\vspace{1em}
+        \caption{#7}\vspace{1em}
+        \label{fig:#8}
+        \raggedleft#2{\vspace{.5em}\hspace{.5em}}
+        }}
+    \end{center}\end{figure}
+}
+
+% equation env
+\newcommand{\doMyEquation}[4]{
+    \vspace{.75em}
+    \vbox{\centering
+        \begin{mdframed}[linewidth=1pt, linecolor=black, userdefinedwidth=\textwidth]
+        \hspace{-.5em}\raggedright#1\\      	
+        \begin{equation}\label{eqn:#3}
+            #4
+        \end{equation}\vspace{1em}
+        
+        \centering\textbf{\unclass #2}
+        
+        \raggedleft#1\hspace{-.5em}
+    \end{mdframed}}
+}
+
+% subequations env
+\newcommand{\doMySubequations}[4]{
+    \vspace{.75em}
+    \vbox{\centering\textbf{\unclass #2}\vspace{.25em}\\
+        \begin{mdframed}[linewidth=1pt, linecolor=black, userdefinedwidth=\textwidth]
+        \hspace{-.5em}\raggedright#1
+        \begin{subequations}\label{eqn:#3}
+        \begin{align}
+            #4
+        \end{align}
+        \end{subequations}
+        \raggedleft#1\hspace{-.5em}
+    \end{mdframed}}
+}
+
+% define landscape env
+\newcommand{\LSHere}[1]{
+    \newgeometry{left=1cm, right=1cm, top=1cm, bottom=1cm}
+    \begin{landscape}
+    \thispagestyle{clear}
+        \begin{center}
+            \classlabel
+            \vspace{-.1in}
+            #1
+            \vspace*{\fill}
+            \vbox{\classlabel\ \\ \footnotesize{Page \thepage\ of \pageref{LastPage}}}
+        \end{center}
+    \end{landscape}
+    \restoregeometry
+}
+
+
+%%% - - -  C U S T O M  -  T A B L E  -  E N V I S  - - - %%%
+
+\newcommand{\lineup}[1]{
+    \begin{tblr}
+        {
+            colspec={Q[r,1.3in,font=\bfseries]@{ >> }Q[l,4.875in,font=\small]},
+        }
+        #1
+    \end{tblr}
+}
+
+\newcommand{\tableOneNow}[5]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|},
+                hline{1-Z}={.5pt},
+                cell{1}{1}={c=1}{halign=l},
+                cell{Z}{1}={c=1}{halign=r},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                rowhead=2,
+                rowfoot=1,
+            }
+            #1\\
+            #5
+            #1\\
+        \end{longtblr}
+    \end{center}
+}
+
+\newcommand{\togglOneNow}[5]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|},
+                row{odd}={bg=altGray,fg=black},
+                row{even}={bg=altGra2,fg=black},
+                cell{1}{1}={c=1}{halign=l},
+                cell{Z}{1}={c=1}{halign=r},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                hline{3}={.5pt},
+                hline{Y}={.5pt},
+                rowhead=2,
+                rowfoot=1,
+            }                 \hline
+            \SetRow{white}#1\\\hline
+            #5
+            \SetRow{white}#1\\\hline
+        \end{longtblr}
+    \end{center}
+
+}
+
+\newcommand{\tableTwoNow}[6]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|Q[valign=m,#5]|},
+                hline{1-Z}={.5pt},
+                cell{1}{1}={c=2}{halign=l},
+                cell{Z}{1}={c=2}{halign=r},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                rowhead=2,
+                rowfoot=1,
+            }
+            #1 &\\
+            #6
+            #1 &\\
+        \end{longtblr}
+    \end{center}
+
+}
+
+\newcommand{\togglTwoNow}[6]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|Q[valign=m,#5]|},
+                row{odd}={bg=altGray,fg=black},
+                row{even}={bg=altGra2,fg=black},
+                cell{1}{1}={c=2}{halign=l,bg=white,fg=black},
+                cell{Z}{1}={c=2}{halign=r,bg=white,fg=black},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                hline{3}={.5pt},
+                hline{Y}={.5pt},
+                rowhead=2,
+                rowfoot=1,
+            }   \hline
+            #1\\\hline
+            #6
+            #1\\\hline
+        \end{longtblr}
+    \end{center}
+
+}
+
+\newcommand{\tableThrNow}[7]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|Q[valign=m,#5]|Q[valign=m,#6]|},
+                hline{1-Z}={.5pt},
+                cell{1}{1}={c=3}{halign=l},
+                cell{Z}{1}={c=3}{halign=r},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                rowhead=2,
+                rowfoot=1,
+            }
+            #1\\
+            #7
+            #1\\
+        \end{longtblr}
+    \end{center}
+    
+}
+
+\newcommand{\togglThrNow}[7]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|Q[valign=m,#5]|Q[valign=m,#6]|},
+                row{odd}={bg=altGray,fg=black},
+                row{even}={bg=altGra2,fg=black},
+                cell{1}{1}={c=3}{halign=l,bg=white,fg=black},
+                cell{Z}{1}={c=3}{halign=r,bg=white,fg=black},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                hline{3}={.5pt},
+                hline{Y}={.5pt},
+                rowhead=2,
+                rowfoot=1,
+            }   \hline
+            #1\\\hline
+            #7
+            #1\\\hline
+        \end{longtblr}
+    \end{center}
+
+}
+
+\newcommand{\tableFouNow}[8]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|Q[valign=m,#5]|Q[valign=m,#6]|Q[valign=m,#7]|},
+                hline{1-Z}={.5pt},
+                cell{1}{1}={c=4}{halign=l},
+                cell{Z}{1}={c=4}{halign=r},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                rowhead=2,
+                rowfoot=1,
+            }
+            #1 & & &\\
+            #8
+            #1 & & &\\
+        \end{longtblr}
+    \end{center}
+}
+
+\newcommand{\togglFouNow}[8]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|Q[valign=m,#5]|Q[valign=m,#6]|Q[valign=m,#7]|},
+                row{odd}={bg=altGray,fg=black},
+                row{even}={bg=altGra2,fg=black},
+                cell{1}{1}={c=4}{halign=l,bg=white,fg=black},
+                cell{Z}{1}={c=4}{halign=r,bg=white,fg=black},
+                row{2}={bg=TableBlue, fg=white, halign=c},
+                hline{3}={.5pt},
+                hline{Y}={.5pt},
+                rowhead=2,
+                rowfoot=1,
+            }   \hline
+            #1\\\hline
+            #8
+            #1\\\hline
+        \end{longtblr}
+    \end{center}
+}
+
+\newcommand{\tableFivNow}[9]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|Q[valign=m,#5]|Q[valign=m,#6]|Q[valign=m,#7]|Q[valign=m,#8]|},
+                hline{1-Z}={.5pt},
+                cell{1}{1}={c=5}{halign=l},
+                cell{Z}{1}={c=5}{halign=r},
+                row{2}={bg=TableBlue, fg=white, halign=c},
+                rowhead=2,
+                rowfoot=1,
+            }
+            #1\\
+            #9
+            #1\\
+        \end{longtblr}
+    \end{center}
+}
+
+\newcommand{\togglFivNow}[9]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|Q[valign=m,#4]|Q[valign=m,#5]|Q[valign=m,#6]|Q[valign=m,#7]|Q[valign=m,#8]|},
+                row{odd}={bg=altGray,fg=black},
+                row{even}={bg=altGra2,fg=black},
+                cell{1}{1}={c=5}{halign=l,bg=white,fg=black},
+                cell{Z}{1}={c=5}{halign=r,bg=white,fg=black},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                hline{3}={.5pt},
+                hline{Y}={.5pt},
+                rowhead=2,
+                rowfoot=1,
+            }   \hline
+            #1\\\hline
+            #9
+            #1\\\hline
+        \end{longtblr}
+    \end{center}
+}
+
+\newcommand{\systemTable}[8]{
+    \begin{center} % spec
+        \begin{longtblr}
+            [
+                caption={#2},
+                label={tab:#3},
+            ]{
+                colspec={|X[#4,fg=codeBgc,valign=m]|X[#5,fg=codeRed,valign=m,font=\bfseries]|X[#6,fg=codeBgc,valign=m,font=\bfseries]|X[#7,fg=TableBlue,valign=m,font=\bfseries]|},
+                row{odd}={bg=altGray},
+                row{even}={bg=altGra2},
+                row{2}={bg=TableBlue,fg=white,halign=c},
+                cell{2-Y}{1}={halign=c},
+                cell{1}{1}={c=4}{halign=l,bg=white,fg=black},
+                cell{Z}{1}={c=4}{halign=r,bg=white,fg=black},
+                rowhead=2,
+                rowfoot=1,
+            }   \hline
+            #1\\\hline
+            #8  \hline
+            #1\\\hline
+        \end{longtblr}
+    \end{center}
+}
+\newcommand{\functionTable}[6]{
+	\begin{center}
+			\begin{longtblr}
+					[
+					caption={\unclass #2},
+					label={tab:#2},
+					]{
+							colspec={|Q[c,2in, valign=m]|Q[l,4.5in, valign=m]|},
+							hline{1-Z}={.5pt},
+							cell{1}{1}={c=2}{halign=l,bg=white,fg=black,font=\textrm\normalsize},
+							cell{Z}{1}={c=2}{halign=r,bg=white,fg=black,font=\textrm\normalsize},
+							cell{2}{1}={c=2}{bg=TableBlue, fg=white, halign=c},
+							cell{3}{1}={c=2}{halign=c},
+							rowhead=2,
+							rowfoot=1,
+						}
+					#1 &\\
+					#3 &\\
+					#4 \\
+					\SetRow{altGra2}Parameters  & \centering Description\\
+					#5
+					\SetRow{altGra2}Return & \centering Description\\
+					#6
+					#1 &\\
+				\end{longtblr}
+		\end{center}
+}
+
+%\newcommand{\functionTable}[5][\unclasslabel]{
+%	\begin{center}
+%		\begin{longtblr}
+%			[
+%			caption={\unclass #2},
+%			label={tab:#2},
+%			]{
+%				colspec={|Q[c,2in, valign=m]|Q[l,4.5in, valign=m]|},
+%				hline{1-Z}={.5pt},
+%				cell{1}{1}={c=2}{halign=l,bg=white,fg=black,font=\textrm\normalsize},
+%				cell{Z}{1}={c=2}{halign=r,bg=white,fg=black,font=\textrm\normalsize},
+%				cell{2}{1}={c=2}{bg=durandal, fg=codeFgc, halign=c},
+%				rowhead=2,
+%				rowfoot=1,
+%			}
+%			#1 &\\
+%			#3 &\\
+%			\SetRow{altGra2}Parameters  & \centering Description\\
+%			#4
+%			\SetRow{altGra2}Return & \centering Description\\
+%			#5
+%			#1 &\\
+%		\end{longtblr}
+%	\end{center}
+%}
+%\newcommand{\functionTable}[5]{
+%    \begin{center} % spec
+%        \begin{longtblr}
+%            [
+%                caption={#2},
+%                label={tab:#3},
+%            ]{
+%                colspec={|X[c,2in, valign=m]|X[l,4.5in, valign=m]|},
+%                hline{1-Z}={.5pt},
+%                cell{1}{1}={c=2}{halign=l},
+%                cell{Z}{1}={c=2}{halign=r},
+%                cell{2}{1}={c=2}{bg=TableBlue, fg=white, halign=c},
+%                rowhead=2,
+%                rowfoot=1,
+%            }
+%            #1 &\\
+%            #3 &\\
+%            \SetRow{altGra2}Parameters  & \centering Description\\
+%            #4
+%            \SetRow{altGra2}Return & \centering Description\\
+%            #5
+%            #1                       &\\
+%        \end{longtblr}
+%    \end{center}
+%}
+
+\newcommand{\decisionLog}[5]{
+    \begin{table}[H]
+
+        \caption{\unclass #3 -- #2}\vspace{.2in}
+        \label{tab:#2}
+        
+        \centering
+        \begin{tblr}{
+            colspec={|X[c,.35in]X[l,6.15in]|},
+            row{even}={bg=altGray,fg=black},
+            row{odd}={bg=altGra2,fg=black},
+            cell{1}{1}={c=2}{bg=white,halign=l},
+            row{2,6}={bg=TableBlue,fg=white,halign=c},
+            cell{2,6}{1}={c=2}{halign=c},
+            cell{Y}{1}={bg=TableBlue},
+            cell{Y}{2}={bg=white,halign=l},
+            cell{Z}{1}={c=2}{bg=white,halign=r},
+            hline{1-3,6,Y-Z}={.5pt},
+            hline{7}={1}{.5pt,TableBlue,leftpos=-.005},
+            hline{7}={2}{.5pt,black},
+            vline{2}={1}{3-5}{dashed},
+            vline{2}={2}{3-5}{dashed},
+            vline{2}={7}{solid},
+            }
+                   #1         \\
+            Action Identifiers\\
+            Title &#2         \\
+            Date  &#3         \\
+            Type  &#4         \\
+            Brief             \\
+                  &#5         \\
+                   #1         \\
+        \end{tblr}
+
+    \end{table}
+}
+
+\newcommand{\AutoInputTable}[3]{
+    \begin{center}
+        \begin{longtblr}[
+            caption={\unclass #2},
+            label={tab:#2},
+            ]
+            {
+                colspec={|X[1.25in,l,valign=m,font=\small]|X[3in,l,valign=m,font=\small]|X[2.25in,l,valign=m,font=\small]|},
+                row{odd}={bg=altGray},
+                row{even}={bg=altGra2},
+                cell{1}{1}={c=3}{halign=l,bg=white,fg=black},
+                cell{Z}{1}={c=3}{halign=r,bg=white,fg=black},
+                rowhead=2,
+                rowfoot=1,
+            }   \hline
+            #1\\\hline
+            \SetRow{bg=TableBlue,fg=white,font=\bfseries\normalsize}
+                Parameter & Description & Input Value\\
+            #3  \hline
+            #1\\\hline
+        \end{longtblr}
+    \end{center}
+}
+
+\newcommand{\AutoOutputTable}[3]{
+    \begin{center}
+        \begin{longtblr}[
+            caption={\unclass #2},
+            label={tab:#2},
+            ]
+            {
+                colspec={|X[5.5in,l,valign=m,font=\small]X[1in,c,valign=m,font=\small]|},
+                row{odd}={bg=altGray},
+                row{even}={bg=altGra2},
+                hline{1-3,Y-Z}=.5pt,
+                cell{1}{1}={c=2}{halign=l,bg=white,fg=black},
+                cell{Z}{1}={c=2}{halign=r,bg=white,fg=black},
+                rowhead=2,
+                rowfoot=1,
+            }
+            #1\\
+            \SetRow{bg=TableBlue,fg=white,font=\bfseries\normalsize}
+                System Name & \footnotesize Entity Number\\
+            #3
+            #1\\
+        \end{longtblr}
+    \end{center}
+}
+
+\newcommand{\AutoResultTable}[6]{
+    \begin{center}
+        \begin{longtblr}
+            [
+            caption={\unclass #2},
+            label={tab:#2},
+            ]
+            {
+                colspec={|X[c,.3in,font=\small]|X[c,2.4in,font=\small]|X[l,2.4in,font=\small]|X[c,1in,font=\small\bfseries]|},
+                hline{1-Z}={0.5pt},
+                cell{1}{1}={c=4}{halign=l},
+                row{2}={c,bg=TableBlue,fg=white,font=\bfseries},
+                cell{W}{1}={c=2}{bg=TableBlue,fg=white,halign=c,font=\bfseries},
+                cell{W}{3}={c=2}{bg=TableBlue,fg=white,halign=c,font=\bfseries},
+                cell{X}{1}={c=2}{halign=l,2.7in},
+                cell{X}{3}={c=2}{halign=l,3.4in,font=\itshape},
+                cell{Y}{1}={c=4}{halign=c},
+                cell{Z}{1}={c=4}{halign=r},
+                rowhead=2,
+                rowfoot=1,
+            }
+            #1\\
+            Step & Description & Expected Results & Disposition\\
+            #4
+            Actual Results & & Comments\\
+            #5 & & #6\\
+            Test Case Disposition: \textbf{#3}\\
+            #1\\
+        \end{longtblr}
+    \end{center}
+}
+
+\newif\ifInDevelopment
+
+
+% Param 1: Overall table classification (long label)
+% Param 2: \textcasename classification (short label)
+% Param 3: Table rows for Step & Description & Expected Results & Disposition
+% Param 4: Actual Results
+% Param 5: Comments
+% Param 6: Overal disposition
+\newcommand{\ResultNarrativeTable}[6]{
+	\tableFouNow{#1}{#2\testcasename{} Results Narrative Table}{tab:\testcasename{}ResNarr}
+	{c,0.1\textwidth}{l,0.3\textwidth}{l,0.3\textwidth}{c,0.1\textwidth}
+	{
+		Step~\# & Description & Expected Results & Disposition \\
+		#3
+		\SetCell[r=1,c=2]{c,TableBlue,fg=white,0.4\textwidth}Actual Results &&
+		\SetCell[r=1,c=2]{c,TableBlue,fg=white,0.4\textwidth}Comments \\
+		\SetCell[r=1,c=2]{l,0.4\textwidth} #4 && \SetCell[r=1,c=2]{l,0.4\textwidth} #5 \\
+		\SetCell[r=1,c=4]{c,0.4\textwidth}\textbf{Test Case Disposition:~}#6 \\
+	}
+}
+
+
+% command for splitting component files.  Wrap content for a particular document or documents in this command.  Designate for multiple documents with a comma-separated list instead of nesting multiple instances of this command. Tags are case-sensitive: UAM ADD ICD TDD
+% \ContentFor{UAM}{...}
+% \ContentFor{UAM,ADD}{...}
+% Since the final brace is likely to be far away, add a comment to it to help find the command
+\newcommand{\ContentFor}[2]{
+	\IfSubStr{#1}{\thisdocument}{#2}{}
+}

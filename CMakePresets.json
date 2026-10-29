@@ -1,0 +1,55 @@
+{
+  "version": 5,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "windows-release",
+      "displayName": "Windows x64 Release (Conan, VS 2026)",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "toolset": "v145",
+      "binaryDir": "${sourceDir}/build/windows-release",
+      "toolchainFile": "${sourceDir}/build/windows-release/conan_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Release",
+        "CMAKE_INSTALL_PREFIX": "C:/code/AFSIM/AFSIM"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-release",
+      "displayName": "Build all six plugins (no installation)",
+      "configurePreset": "windows-release",
+      "configuration": "Release",
+      "targets": ["ALL_BUILD"]
+    },
+    {
+      "name": "windows-install",
+      "displayName": "Build and install plugins into AFSIM",
+      "configurePreset": "windows-release",
+      "configuration": "Release",
+      "targets": ["INSTALL"]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "windows-installed",
+      "displayName": "Verify installed DLLs and AFSIM plugin loading",
+      "configurePreset": "windows-release",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

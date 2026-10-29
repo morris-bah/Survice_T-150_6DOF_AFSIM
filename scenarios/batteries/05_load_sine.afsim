@@ -1,0 +1,255 @@
+# ==============================================================================
+# Battery Test: Sine Wave Pattern - TIME-BASED
+# ==============================================================================
+# Tests battery consumption for continuous sinusoidal S-curves over a fixed
+# 500 second cruise phase. This pattern requires sustained banking throughout.
+#
+# Test Design:
+#   - Climb to 350m AGL (~70 seconds)
+#   - Fly sine wave pattern for 500 seconds at 30 m/s
+#   - Descend and land (~60 seconds)
+#
+# Pattern: Continuous smooth S-curves with 300m amplitude, 800m wavelength
+# This maintains continuous banking at 15-25 degrees throughout.
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME battery_test_sine
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+
+# Include the 6DOF mover definition
+include ../../platforms/t150_6dof_mover.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR
+# ==============================================================================
+platform_type T150_BATTERY_TEST_UAS WSF_PLATFORM
+
+   side blue
+   icon 4_rotor_good
+   category air
+
+   # 6DOF physics-based mover
+   mover T150_6DOF_MOVER
+   end_mover
+
+   # Battery processor - reads power from 6DOF mover
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/battery_test_sine_battery.csv
+      csv_log_interval 1.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE
+# ==============================================================================
+platform t150_battery_test T150_BATTERY_TEST_UAS
+
+   route
+      # =========================================
+      # PHASE 1: Takeoff and Climb to 350m
+      # =========================================
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+      position 35.0001n 120.0000w altitude 350 m agl speed 5 m/s
+
+      # =========================================
+      # PHASE 2: Sine Wave Pattern for 500 seconds
+      # Wavelength: 800m (0.0072 deg lat) = ~27s per wave at 30 m/s
+      # Amplitude: 300m (0.0027 deg lon)
+      # 500s / 27s = ~19 waves needed
+      # 8 waypoints per wave for smooth curve
+      # sin(0)=0, sin(45)=0.707, sin(90)=1, sin(135)=0.707, etc.
+      # =========================================
+
+      # Wave 1
+      position 35.0010n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0019n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0028n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0037n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0046n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0055n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0064n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0073n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 2
+      position 35.0082n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0091n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0100n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0109n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0118n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0127n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0136n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0145n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 3
+      position 35.0154n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0163n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0172n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0181n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0190n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0199n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0208n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0217n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 4
+      position 35.0226n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0235n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0244n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0253n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0262n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0271n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0280n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0289n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 5
+      position 35.0298n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0307n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0316n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0325n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0334n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0343n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0352n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0361n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 6
+      position 35.0370n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0379n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0388n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0397n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0406n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0415n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0424n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0433n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 7
+      position 35.0442n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0451n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0460n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0469n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0478n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0487n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0496n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0505n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 8
+      position 35.0514n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0523n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0532n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0541n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0550n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0559n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0568n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0577n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 9
+      position 35.0586n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0595n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0604n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0613n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0622n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0631n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0640n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0649n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 10
+      position 35.0658n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0667n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0676n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0685n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0694n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0703n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0712n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0721n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 11-12 (continuing pattern)
+      position 35.0730n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0739n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0748n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0757n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0766n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0775n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0784n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0793n 120.0000w altitude 350 m agl speed 30 m/s
+
+      position 35.0802n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0811n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0820n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0829n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0838n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0847n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0856n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0865n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # Wave 13-14
+      position 35.0874n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0883n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0892n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0901n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.0910n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0919n 120.0027w altitude 350 m agl speed 30 m/s
+      position 35.0928n 120.0019w altitude 350 m agl speed 30 m/s
+      position 35.0937n 120.0000w altitude 350 m agl speed 30 m/s
+
+      position 35.0946n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0955n 119.9973w altitude 350 m agl speed 30 m/s
+      position 35.0964n 119.9981w altitude 350 m agl speed 30 m/s
+      position 35.0973n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # =========================================
+      # PHASE 3: Descent and Landing
+      # =========================================
+      position 35.0980n 120.0000w altitude 50 m agl speed 5 m/s
+      position 35.0985n 120.0000w altitude 0 m agl speed 2 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  BATTERY TEST: SINE WAVE (TIMED)");
+   writeln("========================================");
+   writeln("Test Design: 500 second cruise phase");
+   writeln("Pattern: Continuous S-curves");
+   writeln("Speed: 30 m/s cruise");
+   writeln("Expected: HIGHEST power consumption");
+   writeln("========================================");
+end_execute
+
+execute at_time 70 sec absolute
+   writeln(">>> T=70s - Reached cruise altitude, beginning 500s cruise phase");
+end_execute
+
+execute at_time 320 sec absolute
+   writeln(">>> T=320s - Mid-cruise (250s into cruise phase)");
+end_execute
+
+execute at_time 570 sec absolute
+   writeln(">>> T=570s - End of 500s cruise phase, beginning descent");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Total time: ~70s climb + 500s cruise + 60s descent + buffer
+end_time 680 sec

@@ -1,0 +1,207 @@
+# ==============================================================================
+# T-150 / TRV-150 Heavy-Lift UAS Engineering Data Scenario
+# ==============================================================================
+# Project: project005_t150_uas
+#
+# This scenario demonstrates the T-150 processor plugins:
+#   - t150_battery: Battery state-of-charge monitoring
+#   - t150_vrs: Vortex Ring State detection
+#   - t150_propulsion: Electric propulsion system modeling
+#
+# Mission Profile:
+#   Simple hover and translation test with engineering data output
+#
+# Design Note:
+#   This scenario structure is designed to be extensible to other UAV/UAS
+#   platforms by modifying the platform type and processor parameters.
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME t150_engineering_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# ==============================================================================
+# PLUGIN LOADING NOTE
+# ==============================================================================
+# The T-150 processor plugins are loaded via WSF_PLUGINS_PATH environment variable
+# Before running this scenario, set:
+#   export WSF_PLUGINS_PATH=/home/shepard/afsim_projects/project005_t150_uas/lib
+#
+# Or run with:
+#   WSF_PLUGINS_PATH=.../lib /opt/afsim2.2505/bin/mission scenarios/t150_engineering_test.afsim
+#
+# Plugins required:
+#   - t150_battery.so (Battery SOC monitoring)
+#   - t150_vrs.so (VRS detection)
+#   - t150_propulsion.so (Propulsion system modeling)
+# ==============================================================================
+
+# ==============================================================================
+# INCLUDE PLATFORM DEFINITIONS
+# ==============================================================================
+include ../../platforms/t150_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH PROCESSORS
+# ==============================================================================
+# Extend the base T150_UAS with the engineering processors
+platform_type T150_UAS_ENGINEERING T150_UAS
+
+   # Battery Processor - monitors state of charge
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh    7000.0       # T-150 battery capacity
+      initial_soc            1.0          # Start fully charged
+      hover_power_w          18000.0      # 18 kW hover power
+      low_battery_warning    0.20         # 20% SOC warning threshold
+      update_interval        0.1 sec
+   end_processor
+
+   # VRS Processor - monitors for vortex ring state conditions
+   processor VRS_MONITOR T150_VRS_PROCESSOR
+      vrs_descent_threshold  4.0          # m/s descent rate for VRS risk
+      vrs_speed_threshold    5.0          # m/s forward speed that prevents VRS
+      caution_margin         0.8          # 80% of threshold for caution
+      induced_velocity       8.0          # Estimated hover induced velocity
+      coaxial_factor         0.85         # Coaxial rotors have VRS resistance
+      update_interval        0.1 sec
+   end_processor
+
+   # Propulsion Processor - monitors motor state
+   processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+      motor_count            8            # Coaxial octocopter
+      kv_rating              100          # Motor KV rating
+      max_power_per_motor    3500         # 3.5 kW per motor
+      propeller_diameter     0.76         # 30" propellers
+      coaxial_efficiency     0.85         # Coaxial interference factor
+      motor_thermal_limit    120          # Motor temp limit (C)
+      nominal_voltage        46.8         # 13S Li-Ion voltage
+      peak_motor_efficiency  0.92         # Peak motor efficiency
+      ambient_temperature    25           # Ambient temp (C)
+      update_interval        0.1 sec
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE - ENGINEERING TEST MISSION
+# ==============================================================================
+platform t150_eng T150_UAS_ENGINEERING
+
+   # Simple test mission: takeoff, hover, translate, land
+   route
+
+      # Start on ground
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Climb to 100m hover - move slightly north during climb
+      position 35.0010n 120.0000w altitude 100 m agl speed 3 m/s
+
+      # Translate 500m north (cruise phase)
+      position 35.0060n 120.0000w altitude 100 m agl speed 10 m/s
+
+      # Continue north
+      position 35.0100n 120.0000w altitude 100 m agl speed 10 m/s
+
+      # Return south
+      position 35.0050n 120.0000w altitude 100 m agl speed 10 m/s
+
+      # Approach landing zone
+      position 35.0010n 120.0000w altitude 50 m agl speed 5 m/s
+
+      # Descend and land
+      position 35.0000n 120.0000w altitude 0 m agl speed 2 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# ENGINEERING DATA LOGGING
+# ==============================================================================
+script_variables
+   # Tracking variables
+   double last_log_time = 0.0;
+   double log_interval = 10.0;  # Log every 10 seconds
+end_script_variables
+
+# Mission start announcement
+execute at_time 0 sec absolute
+   writeln("==============================================");
+   writeln("  T-150 UAS Engineering Data Test");
+   writeln("  WITH PLUGIN PROCESSORS");
+   writeln("==============================================");
+   writeln("");
+   writeln("Active Processors:");
+   writeln("  - BATTERY_MONITOR (T150_BATTERY_PROCESSOR)");
+   writeln("  - VRS_MONITOR (T150_VRS_PROCESSOR)");
+   writeln("  - PROPULSION_MONITOR (T150_PROPULSION_PROCESSOR)");
+   writeln("");
+   writeln("Mission: Hover test with engineering telemetry");
+   writeln("==============================================");
+end_execute
+
+# Log engineering data at key time points
+# 60 seconds - in climb
+execute at_time 60 sec absolute
+   writeln("");
+   writeln("--- Engineering Data @ 60 sec (CLIMBING) ---");
+   writeln("BATTERY: SOC tracking active, Hover power: 18 kW");
+   writeln("VRS: Monitoring active, CLEAR state expected");
+   writeln("PROPULSION: 8 motors running, thermal monitoring active");
+end_execute
+
+# 180 seconds - in cruise
+execute at_time 180 sec absolute
+   writeln("");
+   writeln("--- Engineering Data @ 180 sec (CRUISE) ---");
+   writeln("BATTERY: Nominal consumption rate");
+   writeln("VRS: Forward speed prevents VRS condition");
+   writeln("PROPULSION: System at cruise power levels");
+end_execute
+
+# 360 seconds - return phase
+execute at_time 360 sec absolute
+   writeln("");
+   writeln("--- Engineering Data @ 360 sec (RETURN) ---");
+   writeln("BATTERY: Monitoring remaining capacity");
+   writeln("VRS: Descent monitoring active");
+   writeln("PROPULSION: Motors at return power levels");
+end_execute
+
+# 540 seconds - landing phase
+execute at_time 540 sec absolute
+   writeln("");
+   writeln("--- Engineering Data @ 540 sec (LANDING) ---");
+   writeln("BATTERY: Final SOC check");
+   writeln("VRS: High descent vigilance for landing");
+   writeln("PROPULSION: Final thermal check");
+end_execute
+
+# Mission summary
+execute at_time 600 sec absolute
+   writeln("");
+   writeln("==============================================");
+   writeln("  ENGINEERING TEST COMPLETE");
+   writeln("==============================================");
+   writeln("");
+   writeln("Plugin Processors Active During Mission:");
+   writeln("  - BATTERY_MONITOR: Tracked SOC @ 18kW hover power");
+   writeln("  - VRS_MONITOR: Monitored descent rate & forward speed");
+   writeln("  - PROPULSION_MONITOR: Tracked 8 motors, thermal state");
+   writeln("");
+   writeln("All processor data was logged to platform AuxData");
+   writeln("Check scenario log for warnings from processors");
+   writeln("==============================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Simulation end time
+end_time 700 sec

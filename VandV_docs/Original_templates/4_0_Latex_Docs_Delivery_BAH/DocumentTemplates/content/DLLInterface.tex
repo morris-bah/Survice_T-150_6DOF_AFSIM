@@ -1,0 +1,66 @@
+
+%[ADD]
+\section{\unclass Model External Simulation Interface}  
+\unclass This section describes the functions and corresponding structures of the external simulation interfaces that
+are specific to the \modelname{} \gls{dll}. For information regarding the behavior of the model itself, please see the \modelname{} \gls{uam}.
+
+
+\subsection{\unclass Model DLL Functions}  
+\guidance{
+	\unclass TIMELINE: The table should be \modelname{} finalized by CDR. It should include the intended functions accessed through the DLL.
+}
+\tableOneNow{\unclasslabel}{\unclass \gls{dll} Functions}{table1}{5in}{
+	Function \\
+	Example: InitFxn() \\
+	GetTxGain \\
+	GetRxGain \\
+	... \\
+}
+	
+\subsubsection{\unclass  EXAMPLE Init\modelname{}System}  
+
+\guidance{
+\unclass TIMELINE: Each of the model's external frameworks, including all wrapper functions and structs, should be built and documented by \gls{pdr}. Final state of those should exist by \gls{cdr}. 
+
+\classlabelshort The \modelname{} initialization function. Prepares the \modelname{} for use.
+
+%function name: %	void Init\modelname\System(const std::string& init xml)\\
+\tableFouNow{\unclasslabel}{\unclass Function call name here }{table1}{1in}{2in}{1in}{2in}{
+	Input Parameter & Description & Output Parameter & Description\\
+	const std::string & Full path to ODESSA scenario file &
+	Void & - \\
+	%\SetCell[c=4]{c} Function call name here \\
+}
+\unclass Create a new section using this format for each function listed in DLL Functions Table.
+
+}
+
+\subsection{\unclass Model DLL Structs}
+	
+\guidance{
+	\unclass TIMELINE: The table should be populated by \gls{srr} and finalized by \gls{cdr}.  It should include the intended data structures accessed and used through the \gls{dll}. 
+}
+
+\tableOneNow{\unclasslabel}{\unclass \gls{dll} Structs}{icdfunction1}{5in}{
+	Structure \\
+	Example: ModelExports() \\
+	ModelImports \\
+	... \\
+}
+
+\subsubsection{\unclass  EXAMPLE \modelname{}Outputs}  
+
+\guidance{
+	\unclass TIMELINE: Each of the descriptor sections should exist by \gls{pdr}. Final state of those should exist by \gls{cdr}.
+}
+	
+	\classlabelshort The \modelname{} output data structure.
+	
+	%function name: %	void Init\modelname\System(const std::string& init xml)\\
+	\tableFouNow{\unclasslabel}{\unclass Struct name here }{icdstruct1}{1in}{2in}{1in}{2in}{
+		Input Parameter & Description & Output Parameter & Description\\
+		void & - &
+		const std::string & Full path to ODESSA scenario file \\
+		%\SetCell[c=4]{c} Function call name here \\
+	}
+	\unclass Create a new section using this format for each function.

@@ -1,0 +1,198 @@
+# ==============================================================================
+# T-150 UAS Slung Load Dynamics Test Scenario
+# ==============================================================================
+# Project: project005_t150_uas
+#
+# This scenario tests the T150_SLUNG_LOAD_PROCESSOR for the T-150 UAS.
+# Validates:
+# - Pendulum dynamics (2-DOF swing)
+# - Cable tension calculation
+# - Resonance detection
+# - Force coupling to aircraft
+#
+# Copyright 2025 - Project 005 T-150 UAS Simulation
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME slung_load_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include base platform definitions
+include ../../platforms/t150_platform.afsim
+
+# =============================================================================
+# Platform Type with Slung Load (Standard Cargo)
+# =============================================================================
+platform_type T150_SLUNG_CARGO T150_UAS
+
+    # Battery Processor
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          20000.0       # Higher power with slung load
+        low_battery_warning    0.20
+        update_interval        0.1 sec
+    end_processor
+
+    # VRS Processor
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  4.0
+        vrs_speed_threshold    5.0
+        caution_margin         0.8
+        induced_velocity       9.0           # Higher induced velocity with cargo
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    # Propulsion Processor
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        update_interval        0.1 sec
+    end_processor
+
+    # Slung load processor - main test subject
+    processor SLUNG_LOAD T150_SLUNG_LOAD_PROCESSOR
+        load_mass          15.0        # 15 kg slung load
+        cable_length       8.0         # 8 meter cable
+        cable_damping      0.08        # Light air damping
+        attach_point_x     0.0         # Centered under CG
+        attach_point_y     0.0
+        attach_point_z     0.3         # 30cm below CG
+        max_cable_tension  2000.0      # 2000 N max tension
+        resonance_threshold 20.0       # 20 degree warning threshold
+        update_interval    0.02        # 50 Hz dynamics update
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Heavy Load Platform (stress test)
+# =============================================================================
+platform_type T150_HEAVY_CARGO T150_UAS
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          25000.0       # Even higher power with heavy load
+        low_battery_warning    0.25
+        update_interval        0.1 sec
+    end_processor
+
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  3.5           # Lower threshold for heavy load
+        vrs_speed_threshold    4.0
+        caution_margin         0.75
+        induced_velocity       10.0
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        update_interval        0.1 sec
+    end_processor
+
+    # Heavy slung load - tests tension limits
+    processor SLUNG_LOAD T150_SLUNG_LOAD_PROCESSOR
+        load_mass          35.0        # 35 kg heavy load
+        cable_length       5.0         # Shorter cable
+        cable_damping      0.1         # More damping
+        attach_point_x     0.0
+        attach_point_y     0.0
+        attach_point_z     0.3
+        max_cable_tension  3500.0      # Higher limit for heavy load
+        resonance_threshold 15.0       # Tighter threshold
+        update_interval    0.02
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Test Platform Instance - Standard cargo flight
+# =============================================================================
+platform t150_cargo1 T150_SLUNG_CARGO
+
+    route
+        # Start position
+        position 39.7000n 84.1000w altitude 50 m agl speed 0 m/s
+
+        # Take off and climb with load
+        position 39.7005n 84.1000w altitude 150 m agl speed 5 m/s
+
+        # Cruise with load (load should be stable)
+        position 39.7020n 84.1000w altitude 150 m agl speed 10 m/s
+
+        # Gentle turn (should induce pendulum swing)
+        position 39.7020n 84.0980w altitude 150 m agl speed 8 m/s
+
+        # Decelerate (load swings forward)
+        position 39.7020n 84.0960w altitude 150 m agl speed 3 m/s
+
+        # Accelerate (load swings back)
+        position 39.7030n 84.0960w altitude 150 m agl speed 12 m/s
+
+        # Descend
+        position 39.7030n 84.0940w altitude 100 m agl speed 6 m/s
+
+        # Hold position
+        position 39.7030n 84.0930w altitude 100 m agl speed 3 m/s stop
+
+    end_route
+
+end_platform
+
+# =============================================================================
+# Test Platform Instance - Heavy load flight
+# =============================================================================
+platform t150_cargo2 T150_HEAVY_CARGO
+
+    route
+        # Start position
+        position 39.7000n 84.1050w altitude 50 m agl speed 0 m/s
+
+        # Climb with heavy load
+        position 39.7005n 84.1050w altitude 120 m agl speed 3 m/s
+
+        # Slow cruise with heavy load
+        position 39.7010n 84.1050w altitude 120 m agl speed 6 m/s
+
+        # Gentle maneuvers
+        position 39.7010n 84.1030w altitude 120 m agl speed 5 m/s
+
+        # Rapid acceleration (test tension spike)
+        position 39.7020n 84.1030w altitude 120 m agl speed 10 m/s
+
+        # Emergency deceleration (load swing test)
+        position 39.7020n 84.1010w altitude 120 m agl speed 2 m/s stop
+
+    end_route
+
+end_platform
+
+# =============================================================================
+# Simulation output
+# =============================================================================
+event_pipe
+    file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+    use_preset default
+end_event_pipe
+
+# Extended simulation time
+end_time 180 sec

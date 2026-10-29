@@ -1,0 +1,196 @@
+
+\renewcommand\componentname{Sample Component}
+
+
+\ContentFor{UAM,ADD}{
+
+\subsection{\unclass \componentname\ Overview}  
+%%%%% BEGIN USER CONTENT %%%%%
+\guidance{
+
+\unclass TIMELINE: Should be populated prior to \gls{pdr} and finalized by \gls{cdr}.
+
+\unclass\ In the context of this document, component refers to a functional block of code that is available within the software model that is representing a real-world capability or effect. In most cases, component refers to one of the blocks in the block diagram which is contained in the \gls{uam} document and/or the code flow diagram contained within the \gls{add}. Note for most cases, if there is a block in the code flow or block diagram, there should be a component (or multiple) section for each block. 
+
+\unclass Describe the purpose of the Product Component and the rationale for developing, reusing, or refactoring the Product Component.  For Product Components that will be reused or refactored, provide a reference to the existing design if applicable.
+
+}  % ends \guidance
+
+} % ends \ContentFor{UAM,ADD}
+
+\ContentFor{UAM}{
+
+\guidance{
+
+\unclass In the \gls{uml} example, there is a jammer processor which should be discussed as a component, and then individual components for each jamming mode (barrage, spot, etc.)
+
+
+EXAMPLE: This component can be instantiated multiple times to represent multiple antennas in the array, and the specific positioning of the individual antenna is specified in the input\_param\_struct." ... One of the input parameters allows the developer to configure the antenna as a receiver or a transmitter. 
+
+This component returns a gain\_struct relative to the antenna boresight, the pedestal component (described in section y.x) is responsible for providing the physical pointing direction, so the gain in a particular direction at any particular time in the simulation is calculated by taking the outputs from X and Y and interpolating...
+
+This component cannot interact directly with an external sim, and so does not have a function described in the ICD. However, for deep dive analysis of the system model, the telemetry\_struct can be logged.
+} % ends guidance
+
+\subsubsection{\unclass \componentname\ Functional Behavior}
+\guidance{
+
+\unclass TIMELINE: Should be finalized prior to \gls{pdr} with final edits by \gls{cdr}.
+
+\unclass This section is focused on the functional side of the component and what it is representing in the RF domain as well as any math or data behind the component. This section is expected to be more focused on the physics and engineering behind what is going on with the component. If data is coming from a connected component, please include a transition statement explaining the connection between these components. Example could be the previous component describes the detection logic, and then this component describes the track filter. Connect this to the previous component by referencing the measured data from the detector is used in the track filter, etc. 
+
+\unclass Make sure to include the analytic background of the component to include detailing the algorithmic, mechanical/hardware, operational, or decision-making behavior(s) of the component. Examples of each of these include the following ideas:\\
+
+o	\unclass Algorithmic behavior can be considered as a behavior which can be described mathematically: Dwell Time Calculation,
+Signal Prioritization\\
+o	\unclass Mechanical/Hardware behavior can be considered as a behavior defined through physical properties: Constant rotation/translation rate, Constant gain presented, Constant bandwidth limitations, Maximum rotation/translation rate/distance\\
+o	\unclass Operation behavior can be considered as a behavior defined by a sequential series of events: radar signal processing sequences\\
+o	\unclass Decision-making behavior can be considered as a behavior defined by branching paths based on a condition: 	Dynamic mode switching,	Dynamic signal adjustment\\
+
+\unclass For example, if the component is focused on the antenna, this section may focus that the phased array is represented as a sum pattern of the elements and to capture the electrical steering is just pointing the sum pattern in that direction and applying a roll-off to the gain instead of steering it. It would include antenna patterns, measured beamwidths, and comparisons to measured data. 
+
+\unclass\ Please include high-level picture demonstrating the purpose of this component as a reference to walk through the code as necessary.
+
+\unclass EXAMPLE: The Example Antenna Ones are arranged in a rectangle with two horizontal rows of eight. The Example
+Antenna Ones are fastened onto a metal ground plane to reflect their transmissions and amplify the jamming
+signal strength. \fref{antennaone} displays the diagram of the Example Antenna One array and its antenna pattern, and
+its parameters are described in \tref{antennaonetable}.
+
+\unclass EXAMPLE: For receiving, the system contains two AESA phased array antennas
+to allow the system to analyze threat signals and react accordingly. The antenna parameters for the AESA
+antennas can be seen above in \tref{antennatwotable}, and the Three Dimensional (3D) radiation pattern for the antennas can
+be seen in \fref{antennatwo}.
+} %end \ guidance
+
+\doMyFigure{2.75in}{\unclasslabel}{../images/placeholder}{\unclass Antenna One Pattern}{antennaone}
+
+
+
+\tableTwoNow{\unclasslabel}{\unclass Antenna One Parameters}{antennaonetable}{2in}{2in}{
+	Parameter & Value  \\
+	Feed Width & XXX \\
+	Feed Height & XXX \\
+	Peak Gain & XXX \\
+	Minimum Frequency & XXX \\
+	Maximum Frequency & XXX \\
+}
+
+\doMyFigure{2.75in}{\unclasslabel}{../images/placeholder}{\unclass Antenna Two Pattern}{antennatwo}
+
+
+\tableTwoNow{\unclasslabel}{\unclass Antenna Two Parameters}{antennatwotable}{2in}{2in}{
+	Parameter & Value  \\
+	Feed Width & XXX \\
+	Feed Height & XXX \\
+	Peak Gain & XXX \\
+	Minimum Frequency & XXX \\
+	Maximum Frequency & XXX \\
+}
+
+\subsubsection{\unclass Sample Component Formulas, Equations}
+
+\guidance{
+\unclass TIMELINE: This section should be started by PDR, and finalized by CDR.
+
+\unclass Describe here any important calculations performed by this Component. If an equation is important to more than one Component, describe it once in its primary Component and use a cross-reference to refer to the discussion from other Component files.  Be sure to discuss any connection between formulas and \gls{kpi} that is stated in the overall \gls{kpi} summary of the Model Description above.  Cite sources for lesser-known equations, formulas, and processes; this needn't be an intel source, it could be a textbook.
+
+} % ends \guidance
+
+\unclass Received Power is a \gls{kpi} for the Receiver.  \eref{radarrange} is the calculation used by the ReceivorProcessor in the ReceivedPower method.
+
+\doMyEquation{\unclasslabel}{The Radar Range Equation}{radarrange}{
+	P_r=\frac{P_tG_tG_r\lambda^2\sigma}{\left(4\pi\right)^3R_t^2R_r^2L}
+}
+
+\subsubsection{\unclass \componentname{} Key Performance Indicators}
+
+\guidance{\unclass TIMELINE: This should be filled in by PDR and finalized at CDR.
+	\unclass REQUIREMENT: Describe here, in detail, those KPIs that appeared in the overall KPI table in the Model Description above that relate to this component.  Figures are encouraged.
+
+\unclass EXAMPLE: Because \gls{odessa} cannot process IQ data, a part of this feature is limited to be represented as an approximation, as denoted in \eref{radarrange}. 
+
+\unclass EXAMPLE: Since there is an intel gap about the receiver processing, and we assume that it has an internal processing receive gain of 30 dBW after several discussions with the analysts, which is applied after an \gls{spdw} is received and propagated in \eref{radarrange}.
+
+} % ends guidance
+
+\subsubsection{\unclass \componentname{} Parameters}
+
+\guidance{\unclass Copy the parameters table, but only those rows that are applicable to this component}
+
+\begin{center}
+	\begin{longtblr}
+		[
+		caption={\unclass Model Parameters},
+		label={tab:ParameterTable},
+		]{
+			colspec={|Q[valign=m,l,1in]|Q[valign=m,l,1.5in]|Q[valign=m,l,1in]|Q[valign=m,c,0.75in]|Q[valign=m,c,0.625in]|Q[valign=m,c,0.7in]|},
+			cell{1}{1}={c=6}{halign=l,bg=white,fg=black},
+			cell{Z}{1}={c=6}{halign=r,bg=white,fg=black},
+			row{2}={bg=TableBlue,fg=white,halign=c},
+			hline{3}={.5pt},
+			hline{Y}={.5pt},
+			rowhead=2,
+			rowfoot=1,
+		}   \hline
+		\unclasslabel \\\hline
+	Variable & Description & Default and Classification & Component & User Tunable? & Source Number \\
+	OperationalBW & Frequency range the system operates over & \unclass 100-200MHz & Receiver & No & 2 \\ \hline
+	Frequency & Center frequency of the system & \unclass 110MHz & Receiver & \gls{gui} & 1 \\
+		\unclasslabel \\\hline
+	\end{longtblr}
+\end{center}
+
+
+
+
+}  % ends \ContentFor{UAM}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\ContentFor{ADD}{
+	
+
+\subsubsection{\unclass \componentname{} Code Structure}
+\guidance{
+
+\unclass TIMELINE: Should be populated by PDR and finalized by CDR.
+
+\unclass\ This section is focused on the code and use of the component within the model. Key information is which function(s) are associated with this component and data inputs and outputs that are coming from this component.  Be careful not to conflate the component functionality description appropriate in the ADD with the system model details that are appropriate in the UAM.
+
+\unclass This section should describe all public interfaces to the component along with necessary pre-conditions of things external to the component and arguments passed to those interfaces for meaningful results.  The behavior of the interface should be detailed enough to enable a developer utilizing those interfaces to understand the expected outcome of a proper use of the interface such as changes in state of the component, modifications to arguments passed by reference or pointer to the interface, or return values.
+
+\unclass Include algorithms (pseudocode), \gls{uam} sequence diagrams, statechart diagrams etc. as applicable to convey the information (i.e., it may not be necessary to document algorithms such as accessors, mutators, and other simple algorithms). If an equation is described in the UAM, the pseudocode should be described here.  This section is focused on the computer science of the component details. 
+
+\unclass Do NOT include code snippets as it can change over time and currently trying to keep overhead document costs down. 
+
+\unclass EXAMPLE: This component can be instantiated multiple times to represent multiple antennas in the array, and the specific positioning of the individual antenna is specified in the input\_param\_struct." ... "One of the input parameters allows the developer to configure the antenna as a receiver or a transmitter." 
+
+\unclass EXAMPLE: "This component returns a gain\_struct relative to the antenna boresite, the pedastal component (described in section y.x) is responsible for providing the physical pointing direction, so the gain in a particular direction at any particular time in the simulation is calculated by taking the outputs from X and Y and interpolating..."
+
+\unclass EXAMPLE: If a component has a reference to the spdw\_inbox that is not passed as part of an interface function and assumes that there are \gls{spdw} there, this would be a precondition.
+
+\unclass EXAMPLE: If a list of items is passed by reference to an interface of the component which manipulates that list, that should be captured so the caller of the interface is aware.
+\unclass EXAMPLE: This component cannot interact directly with an external sim, and so does not have a function described in the ICD. However, for deep dive analysis of the system model, the telemetry\_struct can be logged.
+
+} % ends \ContentFor{ADD}
+
+} % ends \guidance
+
+\ContentFor{UAM}{
+
+\subsubsection{\unclass \componentname\ Assumptions, Limitations, and Gaps}
+\guidance{
+	
+	\unclass TIMELINE: Should be finalized prior to \gls{pdr} with final edits by \gls{cdr}.
+	
+	\unclass Capture any assumptions, limitations, gaps, or design decisions around this component that may impact analysis use or future re-use---especially those that are related to how the model was programmed vs how it behaves.
+	
+	\unclass Be careful not to conflate the component ALG description appropriate in the ADD with the system model ALG details that are appropriate in the UAM.
+	
+	\unclass For the antenna example, this can include that due to how the steering is captured, that the broadening of the mainbeam and any sidelobe impacts will not be captured in the process. This can impact \gls{js} calculations or impacts of sidelobe jammers. 
+	
+}  % ends \guidance
+
+}  % ends \ContentFor{UAM}
+

@@ -1,0 +1,109 @@
+%[BOTH]
+\renewcommand\componentname{\textcolor{black}{\textbf{Early Warning Component }}}
+
+\subsection{\unclass \componentname Overview}
+\guidance{
+	THIS IS INCLUDED IN BOTH UAM AND ADD.
+}
+%%%%% BEGIN USER CONTENT %%%%%
+\classlabelshort At a high level, this component of the \gls{odessa} model connects the functionality for the \gls{ewr} path to include the pedestal, antenna, RIF, angle measurement, Doppler filtering, and detection queue to send to the \modelname Computer component.
+
+\classlabelshort Specifically, \gls{ewr} path of the \modelname is a passive receiver focused on detection of emissions within the operational frequency band of the system from \frequency. The \gls{ewr} is rotating at \EwrRotationRateRpm in order to quickly detect fast-moving targets such as missiles. While no targets are actively being jammed, the system is continuously listening for emissions.
+
+\unclass If an emission is detected, it will be passed to the jammer to detect and automatically jam through a separate receiver/transmitter, and the \gls{ewr} will continue to rotate and listen. While the jammer is emitting, the \gls{ewr} will be blanked and unable to receive any emissions to avoid destroying components. See limitations below.
+
+\unclass At a high level, this component connects the functionality for the \gls{ewr} path to include the pedestal, antenna, RIF, angle measurement, Doppler filtering, and detection queue to send to the Computer component.
+%%%% END USER CONTENT %%%%%%
+%[/BOTH]
+
+%[UAM]
+\subsubsection{\unclass \componentname Functional Behavior}
+%%%%% BEGIN USER CONTENT %%%%%
+\guidance{
+	THIS IS INCLUDED IN ONLY UAM.
+}
+\unclass Attempts were made to make the \gls{ewr} path as configurable as possible to enable future intel updates to further refine. Many inputs will be driven through a "Super User" input capability with a CSV file. Those parameters are contained below:
+
+%\tableTwoNow{\unclass Jammer Inputs}{table1}{1in}{3in}{
+	\tableTwoNow{\classlabel}{\unclass\ EWR Inputs}{table1}{3in}{3in}{
+		Input Name & Default \\
+		EwrBandwidthHz & \operationalBW \\
+		EwrCenterFrequencyHz & \centerFrequency \\
+		EwrNumberDopplerBins & \ewrDopplerBins \\
+		SnrThresholdDb & \SnrThresholdDb \\
+		NoiseFigureDb & \NoiseFigureDb \\
+		ReceiverNoiseFigureDb & \ReceiverNoiseFigureDb \\
+		TransmitLossDb & \TransmitLossDb \\
+		EwrPeakGainDbi & \PeakGaindBi \\
+		MonopulseAzimuthMeasurement & \monopulseAzimuthMeasurement \\
+
+	}
+
+\unclass There is limited information on the processing time of the system, but we have a rotation rate and an expected azimuth beamwidth of the system. Since the system is not scanning in elevation, we can treat each azimuth position as a discrete dwell processing time for the system. The system does have monopulse processing capability, so it is expected the system will listen at smaller angle increments than the beamwidth resolution of \azimuthBeamwidthDeg. We are assuming that the angle step will be 30 percent of the total beamwidth giving a step size of \monopulseAzimuthMeasurement.
+
+\unclass Using this information a dwell time can be calculated using the following equations:
+
+\doMyEquation{\unclasslabel}{Determine Azimuth Steps}{
+	azimuthSteps = 360/\monopulseAzimuthMeasurement }
+\doMyEquation{\unclasslabel}{Determine Rotation Per Second}{
+	rotationTimeS = 60/\EwrRotationRateRpm }
+\doMyEquation{\unclasslabel}{Determine Dwell Time}{
+	dwellTime = rotationTimeS/azimuthSteps = \EwrDwellTime}
+
+
+\doMyFigure{4in}{\unclasslabel}{../images/ewrDwellTime.png}{\unclass EWR Dwell Time}{EWRDwell}
+
+\classlabelshort \pic{EWRDwell} demonstrates the dwell time impacts based on the beamwidth, 30\% beamwidth step size, and rotation rate. For \azimuthBeamwidthDeg, step size of \monopulseAzimuthMeasurement, and  \EwrRotationRateRpm, the dwell time is \EwrDwellTime for the system. In order to support integration with future models which update at a slower rate than the dwell time, as well as concerns for meeting the real time requirement for the model, the decision was made to process all of the potential emissions within a full 360 degree rotation, and then time tag the SPDW's with the appropriate received time as if the \gls{ewr} had rotated.
+
+\doMyFigure{4in}{\unclasslabel}{../images/EWRTimingProcessing}{\unclass Timing Use Case}{TimingCase1}
+
+\unclass Using the figure shown in \pic{TimingCase1}, we can step through an example where the \gls{ewr} is starting at an initial pointing angle, and there are six missiles in the scenario. In this example, we are assuming all missiles are within the operating band of the system and the signals are sufficient to be detected. All six of the \gls{spdw} will be processed, and then tagged with the appropriate time tag shown below in \pic{TimingCase2}.
+
+%\figHere{Timing Tagged}{../images/EWRTimingProcessing2}
+\doMyFigure{5in}{\unclasslabel}{../images/EWRTimingProcessing2}{\unclass Timing Tagged}{TimingCase2}
+
+\unclass Using the Previous example, if the jammer is cued to missile 3 to start jamming, then the \gls{ewr} will be blanked to receiving signal which is shown visually in \pic{EWRBlanked} where the blue boxes represent where the \gls{ewr} was blanked.
+
+\doMyFigure{5in}{\unclasslabel}{../images/EWRSystemBlanked}{\unclass Timing Blanked}{EWRBlanked}
+%\figHere{EWR Blanking}{../images/EWRSystemBlanked}
+ In this case, the emissions from Missile 6 and Missile 2 are missed while the \gls{ewr} is blanked.
+
+%[/UAM]
+
+%[ADD]
+
+\subsubsection{\unclass \componentname Code Structure}
+\guidance{
+	THIS IS INCLUDED IN ONLY ADD.
+}
+%%%%% BEGIN USER CONTENT %%%%%
+
+\doMyFigure{6.5in}{\unclasslabel}{../images/OJ12_EWR_UML}{\unclass \modelname\ \gls{ewr} UML}{EWRUML}
+
+\unclass The \gls{ewr} component contains the geometry conditions for the vehicle and records those states, initializes the modes (standby mode and listening mode), and creates the \gls{ewr} processor.
+
+\unclass The processor manages the timing and modes of the system to account for the antenna psuedo-rotation process (more details below) and whether the system is in listening mode (EarlyWarningListening) or blanked during jamming (EarlyWarningStandby).
+
+\unclass The EarlyWarningListening.cpp contains the functions for managing the spdw\_inbox for detections, managing the timing to verify the beam would be pointed at the entity when the signal arrives, processing signals through the \gls{rif}, calculating the angle measurement error, and applying the Doppler filter measurement.
+
+\unclass The EarlyWarningStandby.cpp is used when the \gls{ewr} is blanked during jammer emission periods. While the \gls{ewr} continues to "spin," no signals will be processed during the blanking period.
+
+%\doMyCode{C++}{\unclasslabel}{Example Code Snippet}{true}{70}{74}{SystemParametersUnclassified_OJ12.h}
+%%%% END USER CONTENT %%%%%%
+%[/ADD]
+
+%[BOTH]
+\subsubsection{\unclass \componentname Unique Design Characteristics and Decisions}
+\guidance{
+	THIS IS INCLUDED IN ONLY UAM and is now "Assumptions, Limitations, and Gaps". 
+}
+%%%%% BEGIN USER CONTENT %%%%%
+\unclass It was decided to configure the code to have a single entity with a single entity controller, since the \gls{ewr} and jammer are on a single truck. Then having two components will enable the two receiver paths and represent the \gls{ewr} and jammer functions. This was based on discussions with the \gls{odessa} architecture lead.
+
+\unclass In order to enable processing a full rotation, the antenna will be represented as an psuedo-omni antenna pattern. This will be discussed more in the antenna section.
+
+\unclass While the \gls{ewr} is blanked, it may result in missed emissions in other angles for the \gls{ewr}, and this will be captured after the signals have been processed through the \gls{rif} in the code.
+
+%[/BOTH]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

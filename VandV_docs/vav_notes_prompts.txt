@@ -1,0 +1,32 @@
+In the VandV_docs folder, you will find 4 sub-folders:
+Original_templates
+Version1and2
+support_documents
+Milestone_docs
+
+
+In the sub-folders, 'Version1and2' and 'Original_templates'
+
+'Original_templates' contains the 4 documents original templates(in pdf) that we want to produce with this project.
+--Additionally, there is a some sample latex frameworks that have been provide to us in the past that allowed for clearer formula display and pdf conversion. these maybe used as reference also.
+
+'Version1and2' contain previous attempts to create these documents.  
+
+In the 'support_documents' and 'Milestone_docs'
+
+'support_documents' contains overaching guidance on building models and simulation and how they have to meet standards
+
+'Milestone_docs' contain previous milestone check list from contracted software development to create models and simulations for us.
+
+
+
+We need to evaluate and analyze the T150 AFSIM plugin project in this folder and create the 4 documents assocaited with VandV for this project.  You will need to incorporate all facets of formating, font, spacing, and structure to ensure the final product matches the template as closely as possible.
+
+Additionally you will need to create and cite any validated references throughout these final documents with any applicablity to the 500061p.pdf and MIL_STD_3022.pdf as well as any of the other supporting documents.
+
+You may reference pervious version (in 'Version1and2') but with some recent changes and additions to the projects code and testing, essentially all documents will need to be re-built and updated.
+
+In addition you will find full documentation and demos for AFSIM in C:\afsim\AFSIM-2.2505.2+lts-x64-windows as well as full AFSIM source code in C:\afsim\afsim2.2505.2_source
+Please utilize these to provide any fully developed UML structures, or pipeline code function as well as understanding of how the plugins we built work within the environment that AFSIM enables.
+
+Think hard on these tasks and ask me any questions that you need help clarifying any direction or choices you need.  

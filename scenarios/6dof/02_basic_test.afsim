@@ -1,0 +1,49 @@
+# ==============================================================================
+# T-150 6DOF Mover Basic Test
+# ==============================================================================
+# Minimal test for the physics-based 6DOF mover.
+#
+# Plugin required: rotorcraft_6dof.so
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME t150_6dof_basic_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include the 6DOF platform definition
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# T-150 6DOF PLATFORM INSTANCE
+# ==============================================================================
+
+platform t150_6dof_drone T150_6DOF_UAS
+   position 35.0000n 120.0000w altitude 50 m msl
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  T-150 6DOF BASIC TEST");
+   writeln("========================================");
+end_execute
+
+execute at_time 10 sec absolute
+   writeln(">>> 10s mark");
+end_execute
+
+execute at_time 20 sec absolute
+   writeln("========================================");
+   writeln("  TEST COMPLETE");
+   writeln("========================================");
+end_execute
+
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 25 sec

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 500" width="700" height="500">
+  <defs>
+    <style>
+      .title { font: bold 16px sans-serif; }
+      .node-text { font: bold 11px sans-serif; fill: white; }
+      .node-subtext { font: 9px sans-serif; fill: white; }
+      .flow-label { font: italic 9px sans-serif; }
+      .auxdata-label { font: 10px sans-serif; }
+      .legend-text { font: 9px sans-serif; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#50C878"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#FFB347"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#FF6B6B"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#DDA0DD"/>
+    </marker>
+    <filter id="glow">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#4A90D9" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="500" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="350" y="30" class="title" text-anchor="middle">T-150 Plugin Data Flow Diagram</text>
+
+  <!-- 6DOF Mover (Central Hub) -->
+  <circle cx="350" cy="120" r="55" fill="#4A90D9" stroke="#2C5F8A" stroke-width="3" filter="url(#glow)"/>
+  <text x="350" y="115" class="node-text" text-anchor="middle">6DOF MOVER</text>
+  <text x="350" y="130" class="node-subtext" text-anchor="middle">(Physics Engine)</text>
+  <text x="350" y="145" class="node-subtext" text-anchor="middle">20 Hz</text>
+
+  <!-- Processor Nodes -->
+  <!-- Battery -->
+  <circle cx="120" cy="300" r="45" fill="#50C878" stroke="#228B22" stroke-width="2"/>
+  <text x="120" y="295" class="node-text" text-anchor="middle">BATTERY</text>
+  <text x="120" y="310" class="node-subtext" text-anchor="middle">10 Hz</text>
+
+  <!-- Propulsion -->
+  <circle cx="280" cy="300" r="45" fill="#FFB347" stroke="#CC7722" stroke-width="2"/>
+  <text x="280" y="295" class="node-text" text-anchor="middle">PROPULSION</text>
+  <text x="280" y="310" class="node-subtext" text-anchor="middle">10 Hz</text>
+
+  <!-- VRS -->
+  <circle cx="420" cy="300" r="45" fill="#FF6B6B" stroke="#8B0000" stroke-width="2"/>
+  <text x="420" y="300" class="node-text" text-anchor="middle">VRS</text>
+  <text x="420" y="315" class="node-subtext" text-anchor="middle">10 Hz</text>
+
+  <!-- Slung Load -->
+  <circle cx="580" cy="300" r="45" fill="#DDA0DD" stroke="#8B008B" stroke-width="2"/>
+  <text x="580" y="295" class="node-text" text-anchor="middle">SLUNG</text>
+  <text x="580" y="310" class="node-subtext" text-anchor="middle">50 Hz</text>
+
+  <!-- Data Flow Arrows from 6DOF to Processors -->
+  <!-- To Battery -->
+  <path d="M 305 155 Q 200 200 140 255" fill="none" stroke="#50C878" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="195" y="195" class="flow-label" fill="#228B22">power</text>
+  <text x="185" y="210" class="flow-label" fill="#228B22">6dof_total_power</text>
+
+  <!-- To Propulsion -->
+  <path d="M 330 170 Q 300 220 285 255" fill="none" stroke="#FFB347" stroke-width="2" marker-end="url(#arrow-orange)"/>
+  <text x="290" y="215" class="flow-label" fill="#CC7722">altitude</text>
+
+  <!-- To VRS -->
+  <path d="M 370 170 Q 400 220 415 255" fill="none" stroke="#FF6B6B" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <text x="400" y="215" class="flow-label" fill="#8B0000">velocity</text>
+  <text x="400" y="230" class="flow-label" fill="#8B0000">6dof_vel_*</text>
+
+  <!-- To Slung Load -->
+  <path d="M 395 155 Q 500 200 560 255" fill="none" stroke="#DDA0DD" stroke-width="2" marker-end="url(#arrow-purple)"/>
+  <text x="505" y="195" class="flow-label" fill="#8B008B">acceleration</text>
+
+  <!-- AuxData Output Box -->
+  <rect x="80" y="380" width="540" height="40" rx="5" ry="5" fill="#F0E68C" stroke="#B8860B" stroke-width="2"/>
+  <text x="350" y="405" class="auxdata-label" text-anchor="middle">AuxData Outputs: SOC, Voltage, Power, Temp, VRS_Margin, Tension...</text>
+
+  <!-- Arrows to AuxData -->
+  <line x1="120" y1="345" x2="120" y2="375" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="280" y1="345" x2="280" y2="375" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="420" y1="345" x2="420" y2="375" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="580" y1="345" x2="580" y2="375" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Script Consumer Box -->
+  <rect x="200" y="440" width="300" height="35" rx="5" ry="5" fill="#B8D4E3" stroke="#6B8E9F" stroke-width="2"/>
+  <text x="350" y="463" class="auxdata-label" text-anchor="middle">Scenario Scripts (read any AuxData value)</text>
+
+  <!-- Arrow to Scripts -->
+  <line x1="350" y1="420" x2="350" y2="438" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Key Data Types Legend -->
+  <rect x="20" y="60" width="130" height="100" rx="5" ry="5" fill="white" stroke="#ddd"/>
+  <text x="30" y="80" class="legend-text" font-weight="bold">Key Data Types:</text>
+  <text x="30" y="100" class="legend-text">• power (W)</text>
+  <text x="30" y="115" class="legend-text">• velocity (m/s)</text>
+  <text x="30" y="130" class="legend-text">• altitude (m)</text>
+  <text x="30" y="145" class="legend-text">• acceleration (m/s²)</text>
+
+  <!-- Legend -->
+  <rect x="550" y="60" width="130" height="100" rx="5" ry="5" fill="white" stroke="#ddd"/>
+  <text x="560" y="80" class="legend-text" font-weight="bold">Components:</text>
+  <circle cx="570" cy="95" r="8" fill="#4A90D9"/>
+  <text x="585" y="99" class="legend-text">6DOF Mover</text>
+  <circle cx="570" cy="115" r="8" fill="#50C878"/>
+  <text x="585" y="119" class="legend-text">Processors</text>
+  <rect x="562" y="130" width="16" height="12" rx="2" fill="#F0E68C" stroke="#B8860B"/>
+  <text x="585" y="140" class="legend-text">AuxData</text>
+
+</svg>

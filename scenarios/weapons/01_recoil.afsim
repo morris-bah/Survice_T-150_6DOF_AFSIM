@@ -1,0 +1,395 @@
+# ==============================================================================
+# T-150 UAS Weapon Recoil Test Scenario
+# ==============================================================================
+# Project: project005_t150_uas - Version 2.0
+#
+# This scenario tests the T150_WEAPON_PROCESSOR for the T-150 UAS.
+# Validates:
+# - Recoil force generation and direction
+# - Attitude disturbance from recoil
+# - Moment arm effects from off-center mounts
+# - Ammunition tracking and mass changes
+# - Integration with 6DOF mover external forces
+#
+# Copyright 2025 - Project 005 T-150 UAS Simulation
+# ==============================================================================
+#
+# =============================================================================
+# WEAPON CONFIGURATION REFERENCE
+# =============================================================================
+# The T150_WEAPON_PROCESSOR supports full ballistic configuration.
+# Key parameters:
+#   munition_mass      - Bullet mass in kg (NOT full cartridge)
+#   muzzle_velocity    - Projectile exit velocity in m/s
+#   propellant_gas_factor - Multiplier for gas momentum (1.3-1.5 typical)
+#   recoil_impulse     - Override: set explicit impulse in N*s (0 = auto-calc)
+#   recoil_duration    - Impulse duration in seconds
+#
+# If recoil_impulse is 0 or omitted, it auto-calculates:
+#   J = munition_mass * muzzle_velocity * propellant_gas_factor
+#
+# -----------------------------------------------------------------------------
+# COMMON WEAPON BALLISTICS REFERENCE:
+# -----------------------------------------------------------------------------
+# 5.56x45mm NATO (M855):
+#   munition_mass       0.004       # 4g (62 grain)
+#   muzzle_velocity     940.0       # 940 m/s
+#   propellant_gas_factor 1.4
+#   recoil_duration     0.001       # ~1ms
+#   # Auto-calculated impulse: 4g * 940 * 1.4 = 5.3 N*s
+#
+# 7.62x51mm NATO (M80 Ball) - M240, M60, FN MAG:
+#   munition_mass       0.0095      # 9.5g (147 grain)
+#   muzzle_velocity     850.0       # 850 m/s
+#   propellant_gas_factor 1.4
+#   recoil_duration     0.002       # ~2ms
+#   # Auto-calculated impulse: 9.5g * 850 * 1.4 = 11.3 N*s
+#
+# 7.62x39mm (AK-47/AKM):
+#   munition_mass       0.0079      # 7.9g (122 grain)
+#   muzzle_velocity     715.0       # 715 m/s
+#   propellant_gas_factor 1.35
+#   recoil_duration     0.002
+#   # Auto-calculated impulse: 7.9g * 715 * 1.35 = 7.6 N*s
+#
+# .50 BMG (M2 Browning):
+#   munition_mass       0.045       # 45g (700 grain)
+#   muzzle_velocity     900.0       # 900 m/s
+#   propellant_gas_factor 1.3
+#   recoil_duration     0.003       # ~3ms
+#   # Auto-calculated impulse: 45g * 900 * 1.3 = 52.7 N*s
+#
+# 12.7x108mm (DShK, NSV):
+#   munition_mass       0.048       # 48g
+#   muzzle_velocity     860.0       # 860 m/s
+#   propellant_gas_factor 1.3
+#   recoil_duration     0.003
+#   # Auto-calculated impulse: 48g * 860 * 1.3 = 53.7 N*s
+#
+# 40mm Grenade (M203, Mk19):
+#   munition_mass       0.180       # 180g HE grenade
+#   muzzle_velocity     76.0        # 76 m/s (low velocity)
+#   propellant_gas_factor 1.2
+#   recoil_duration     0.010       # 10ms (slower impulse)
+#   # Auto-calculated impulse: 180g * 76 * 1.2 = 16.4 N*s
+# =============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME weapon_recoil_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include base platform definitions
+include ../../platforms/t150_platform.afsim
+
+# =============================================================================
+# Platform Type with Projectile Launcher (Centered Mount)
+# =============================================================================
+platform_type T150_ARMED_CENTERED T150_UAS
+
+    # Battery Processor
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          18000.0
+        low_battery_warning    0.20
+        update_interval        0.1 sec
+    end_processor
+
+    # VRS Processor
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  4.0
+        vrs_speed_threshold    5.0
+        caution_margin         0.8
+        induced_velocity       8.5
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    # Propulsion Processor
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        update_interval        0.1 sec
+    end_processor
+
+    # Weapon processor - centered mount (no moment arms)
+    # 40mm grenade launcher (similar to Mk19 or M320)
+    processor WEAPON_SYSTEM T150_WEAPON_PROCESSOR
+        weapon_type        PROJECTILE_LAUNCHER
+        weapon_name        launcher_center
+        # 40mm low-velocity grenade ballistics
+        munition_mass      0.230          # 230g M430 HEDP grenade
+        muzzle_velocity    76.0           # 76 m/s (low velocity)
+        propellant_gas_factor 1.2         # Lower gas factor for grenades
+        # recoil_impulse omitted - auto-calculates to 21.0 N*s
+        recoil_duration    0.012          # 12ms impulse (slower than bullets)
+        magazine_capacity  6
+        cycle_time         2.0            # 2 seconds between shots
+        mount_offset_x     0.0            # Centered under CG
+        mount_offset_y     0.0
+        mount_offset_z     0.25           # 25cm below CG
+        tilt_angle         30.0           # 30 deg from vertical
+        azimuth_angle      0.0            # Forward facing
+        update_interval    0.01           # 100 Hz for impulse accuracy
+        # Auto-fire for testing: fire at t=10s, 15s, 20s
+        auto_fire          true
+        auto_fire_start    10.0
+        auto_fire_interval 5.0
+        auto_fire_count    3
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Platform Type with Off-Center Weapon Mount (creates roll moment)
+# =============================================================================
+platform_type T150_ARMED_OFFSET T150_UAS
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          18000.0
+        low_battery_warning    0.20
+        update_interval        0.1 sec
+    end_processor
+
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  4.0
+        vrs_speed_threshold    5.0
+        caution_margin         0.8
+        induced_velocity       8.5
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        update_interval        0.1 sec
+    end_processor
+
+    # Weapon processor - right side mount (creates roll moment)
+    # 40mm grenade launcher - offset mount demonstrates moment arm effects
+    processor WEAPON_SYSTEM T150_WEAPON_PROCESSOR
+        weapon_type        PROJECTILE_LAUNCHER
+        weapon_name        launcher_right
+        # 40mm low-velocity grenade ballistics
+        munition_mass      0.230          # 230g M430 HEDP grenade
+        muzzle_velocity    76.0           # 76 m/s
+        propellant_gas_factor 1.2
+        recoil_duration    0.012
+        magazine_capacity  6
+        cycle_time         2.0
+        mount_offset_x     0.2            # 20cm forward of CG
+        mount_offset_y     0.4            # 40cm right of CG (creates roll moment)
+        mount_offset_z     0.25
+        tilt_angle         45.0           # 45 deg tilt for more horizontal recoil
+        azimuth_angle      15.0           # Slightly outward
+        update_interval    0.01
+        # Auto-fire for testing: fire at t=25s, 30s
+        auto_fire          true
+        auto_fire_start    25.0
+        auto_fire_interval 5.0
+        auto_fire_count    2
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Platform Type with Machine Gun
+# =============================================================================
+platform_type T150_ARMED_MG T150_UAS
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          19000.0     # Slightly higher for weapon weight
+        low_battery_warning    0.20
+        update_interval        0.1 sec
+    end_processor
+
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  4.0
+        vrs_speed_threshold    5.0
+        caution_margin         0.8
+        induced_velocity       8.5
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        update_interval        0.1 sec
+    end_processor
+
+    # Machine gun - 7.62x51mm NATO (M240 style)
+    # Accurate ballistics based on M80 Ball ammunition
+    processor WEAPON_SYSTEM T150_WEAPON_PROCESSOR
+        weapon_type        MACHINE_GUN
+        weapon_name        mg_forward
+        # 7.62x51mm NATO ballistics
+        munition_mass      0.0095         # 9.5g M80 Ball (147 grain)
+        muzzle_velocity    850.0          # 850 m/s
+        propellant_gas_factor 1.4         # Gas momentum adds ~40%
+        # recoil_impulse omitted - auto-calculates to 11.3 N*s
+        recoil_duration    0.002          # 2ms impulse per round
+        magazine_capacity  100
+        burst_length       5              # 5-round burst
+        rounds_per_minute  650            # M240 typical rate
+        mount_offset_x     0.3            # Forward mount
+        mount_offset_y     0.0
+        mount_offset_z     0.2
+        tilt_angle         60.0           # 60 deg tilt (more horizontal)
+        azimuth_angle      0.0
+        update_interval    0.001          # 1kHz for rapid fire
+        # Auto-fire for testing: burst at t=60s
+        auto_fire          true
+        auto_fire_start    60.0
+        auto_fire_interval 10.0
+        auto_fire_count    1
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Platform Type for Cruise Fire Test (separate timing)
+# =============================================================================
+platform_type T150_ARMED_CRUISE T150_UAS
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          18000.0
+        low_battery_warning    0.20
+        update_interval        0.1 sec
+    end_processor
+
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  4.0
+        vrs_speed_threshold    5.0
+        caution_margin         0.8
+        induced_velocity       8.5
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        update_interval        0.1 sec
+    end_processor
+
+    # Weapon processor for forward flight fire test
+    # 40mm grenade launcher - tests recoil during forward flight
+    processor WEAPON_SYSTEM T150_WEAPON_PROCESSOR
+        weapon_type        PROJECTILE_LAUNCHER
+        weapon_name        launcher_cruise
+        # 40mm low-velocity grenade ballistics
+        munition_mass      0.230          # 230g M430 HEDP grenade
+        muzzle_velocity    76.0           # 76 m/s
+        propellant_gas_factor 1.2
+        recoil_duration    0.012
+        magazine_capacity  6
+        cycle_time         2.0
+        mount_offset_x     0.0
+        mount_offset_y     0.0
+        mount_offset_z     0.25
+        tilt_angle         30.0
+        azimuth_angle      0.0
+        update_interval    0.01
+        # Auto-fire for testing: fire at t=40s, 50s
+        auto_fire          true
+        auto_fire_start    40.0
+        auto_fire_interval 10.0
+        auto_fire_count    2
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Test Platform Instances
+# =============================================================================
+
+# Test 1: Hover fire - centered mount
+platform t150_armed_hover T150_ARMED_CENTERED
+    route
+        position 39.7000n 84.1000w altitude 100 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# Test 2: Hover fire - offset mount (observe roll disturbance)
+platform t150_armed_offset T150_ARMED_OFFSET
+    route
+        position 39.7010n 84.1000w altitude 100 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# Test 3: Forward flight fire
+platform t150_armed_cruise T150_ARMED_CRUISE
+    route
+        position 39.7000n 84.0900w altitude 100 m agl speed 5 m/s
+        position 39.7050n 84.0900w altitude 100 m agl speed 10 m/s
+        position 39.7100n 84.0900w altitude 100 m agl speed 10 m/s stop
+    end_route
+end_platform
+
+# Test 4: Machine gun burst test
+platform t150_armed_mg T150_ARMED_MG
+    route
+        position 39.7000n 84.0800w altitude 100 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# =============================================================================
+# Auto-fire Configuration Notes
+# =============================================================================
+# Each weapon processor is configured with auto_fire options to automatically
+# trigger firing at specified intervals for testing purposes.
+#
+# Test timeline:
+#   t=10s, 15s, 20s: t150_armed_hover fires (centered mount)
+#   t=25s, 30s: t150_armed_offset fires (off-center mount, observe roll)
+#   t=40s, 50s: t150_armed_cruise fires (forward flight)
+#   t=60s: t150_armed_mg fires burst (machine gun)
+# =============================================================================
+
+# =============================================================================
+# Simulation output
+# =============================================================================
+event_pipe
+    file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+    use_preset default
+end_event_pipe
+
+# Extended simulation time
+end_time 120 sec

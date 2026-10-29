@@ -1,0 +1,276 @@
+# ==============================================================================
+# T-150 Flight Path Generator
+# ==============================================================================
+# Generates complex flight patterns for the T-150 UAS mission:
+#   - Start -> Hover 2 min -> Point A (straight line, 2km)
+#   - Point A -> Hover 1 min -> Point B (sawtooth/zigzag, 2km)
+#   - Point B -> Hover 1 min -> Point C (square wave, 2km)
+#   - Point C -> Hover 1 min -> Point D (sine wave, 2km)
+#   - Point D -> Hover 1 min -> Point E (prolate cycloid/loops, 2km)
+#   - Point E -> Hover 1 min -> Start (straight line return)
+#
+# Pattern amplitude: 200m perpendicular to travel direction
+# Prolate cycloid: 7 loops over 2km
+# Mission altitude: 500m AGL
+# ==============================================================================
+
+# ==============================================================================
+# WAYPOINT DEFINITIONS
+# Using generic flat terrain coordinates
+# Start: 35.0N, -120.0W
+# Points arranged in a circuit for easy visualization
+# ==============================================================================
+
+# Start/End point
+define T150_START_LAT    35.0000
+define T150_START_LON   -120.0000
+define T150_MISSION_ALT  500 m
+
+# Point A - 2km North of Start
+define T150_POINT_A_LAT  35.0180
+define T150_POINT_A_LON  -120.0000
+
+# Point B - 2km East of Point A
+define T150_POINT_B_LAT  35.0180
+define T150_POINT_B_LON  -119.9760
+
+# Point C - 2km South of Point B
+define T150_POINT_C_LAT  35.0000
+define T150_POINT_C_LON  -119.9760
+
+# Point D - 2km West of Point C (back towards start direction)
+define T150_POINT_D_LAT  35.0000
+define T150_POINT_D_LON  -120.0240
+
+# Point E - 2km North of Point D
+define T150_POINT_E_LAT  35.0180
+define T150_POINT_E_LON  -120.0240
+
+# ==============================================================================
+# PATTERN PARAMETERS
+# ==============================================================================
+define PATTERN_AMPLITUDE     200 m    # Lateral displacement amplitude
+define SAWTOOTH_SEGMENTS     8        # Number of zigzag segments
+define SQUAREWAVE_SEGMENTS   6        # Number of square wave cycles
+define SINEWAVE_POINTS       40       # Points to approximate sine wave
+define CYCLOID_LOOPS         7        # Number of loops in cycloid pattern
+
+# ==============================================================================
+# FLIGHT PATH TYPE DEFINITION
+# This creates the complex route with all pattern waypoints
+# ==============================================================================
+
+script_variables
+   # Pattern generation helpers
+   double pi = 3.14159265359;
+   double deg_per_meter_lat = 0.000009;     # Approximate at 35N
+   double deg_per_meter_lon = 0.0000108;    # Approximate at 35N
+end_script_variables
+
+# ==============================================================================
+# HELPER FUNCTIONS for generating pattern waypoints
+# These generate the intermediate points for each pattern segment
+# ==============================================================================
+
+# Function: Generate sawtooth/zigzag pattern waypoints
+# Creates alternating left-right displacement along the path
+script void generate_sawtooth_waypoints(WsfRoute route, double start_lat, double start_lon,
+                                         double end_lat, double end_lon, double amplitude_m, int segments)
+   # Calculate the base direction vector
+   double delta_lat = end_lat - start_lat;
+   double delta_lon = end_lon - start_lon;
+
+   # Calculate perpendicular direction (90 degrees)
+   double perp_lat = -delta_lon;
+   double perp_lon = delta_lat;
+
+   # Normalize perpendicular
+   double perp_mag = Math.Sqrt(perp_lat*perp_lat + perp_lon*perp_lon);
+   if (perp_mag > 0.0)
+   {
+      perp_lat = perp_lat / perp_mag;
+      perp_lon = perp_lon / perp_mag;
+   }
+
+   # Generate zigzag points
+   for (int i = 1; i <= segments; i = i + 1)
+   {
+      double t = (double)i / (double)(segments + 1);
+      double lat = start_lat + delta_lat * t;
+      double lon = start_lon + delta_lon * t;
+
+      # Alternate left/right displacement
+      double displacement = amplitude_m;
+      if (i % 2 == 0)
+      {
+         displacement = -amplitude_m;
+      }
+
+      # Apply perpendicular offset in meters -> degrees
+      lat = lat + perp_lat * displacement * 0.000009;
+      lon = lon + perp_lon * displacement * 0.0000108;
+
+      route.AddWaypoint(WsfWaypoint.Construct(
+         WsfGeoPoint.Construct(lat, lon, 500),
+         30.0  # Speed m/s
+      ));
+   }
+end_script
+
+# Function: Generate square wave pattern waypoints
+# Creates right-angle turns in alternating directions
+script void generate_squarewave_waypoints(WsfRoute route, double start_lat, double start_lon,
+                                           double end_lat, double end_lon, double amplitude_m, int cycles)
+   # Calculate the base direction vector
+   double delta_lat = end_lat - start_lat;
+   double delta_lon = end_lon - start_lon;
+
+   # Calculate perpendicular direction
+   double perp_lat = -delta_lon;
+   double perp_lon = delta_lat;
+
+   # Normalize perpendicular
+   double perp_mag = Math.Sqrt(perp_lat*perp_lat + perp_lon*perp_lon);
+   if (perp_mag > 0.0)
+   {
+      perp_lat = perp_lat / perp_mag;
+      perp_lon = perp_lon / perp_mag;
+   }
+
+   # Each cycle has 4 segments (up, forward, down, forward)
+   int total_points = cycles * 4;
+   double segment_progress = 1.0 / (double)total_points;
+
+   for (int i = 0; i < total_points; i = i + 1)
+   {
+      double t = (double)(i + 1) * segment_progress;
+      double base_lat = start_lat + delta_lat * t;
+      double base_lon = start_lon + delta_lon * t;
+
+      # Determine offset based on position in cycle
+      int phase = i % 4;
+      double displacement = 0.0;
+
+      if (phase == 0 || phase == 1)  # First half of cycle - positive offset
+      {
+         displacement = amplitude_m;
+      }
+      else  # Second half of cycle - negative offset
+      {
+         displacement = -amplitude_m;
+      }
+
+      double lat = base_lat + perp_lat * displacement * 0.000009;
+      double lon = base_lon + perp_lon * displacement * 0.0000108;
+
+      route.AddWaypoint(WsfWaypoint.Construct(
+         WsfGeoPoint.Construct(lat, lon, 500),
+         30.0
+      ));
+   }
+end_script
+
+# Function: Generate sine wave pattern waypoints
+# Creates smooth sinusoidal path
+script void generate_sinewave_waypoints(WsfRoute route, double start_lat, double start_lon,
+                                         double end_lat, double end_lon, double amplitude_m, int num_points)
+   # Calculate the base direction vector
+   double delta_lat = end_lat - start_lat;
+   double delta_lon = end_lon - start_lon;
+
+   # Calculate perpendicular direction
+   double perp_lat = -delta_lon;
+   double perp_lon = delta_lat;
+
+   # Normalize perpendicular
+   double perp_mag = Math.Sqrt(perp_lat*perp_lat + perp_lon*perp_lon);
+   if (perp_mag > 0.0)
+   {
+      perp_lat = perp_lat / perp_mag;
+      perp_lon = perp_lon / perp_mag;
+   }
+
+   double pi = 3.14159265359;
+
+   # Generate sine wave points (2 complete cycles over the path)
+   for (int i = 1; i <= num_points; i = i + 1)
+   {
+      double t = (double)i / (double)(num_points + 1);
+      double base_lat = start_lat + delta_lat * t;
+      double base_lon = start_lon + delta_lon * t;
+
+      # Sine displacement (2 complete cycles)
+      double displacement = amplitude_m * Math.Sin(4.0 * pi * t);
+
+      double lat = base_lat + perp_lat * displacement * 0.000009;
+      double lon = base_lon + perp_lon * displacement * 0.0000108;
+
+      route.AddWaypoint(WsfWaypoint.Construct(
+         WsfGeoPoint.Construct(lat, lon, 500),
+         30.0
+      ));
+   }
+end_script
+
+# Function: Generate prolate cycloid (loops) pattern waypoints
+# Creates a path with loops/spirals along the travel direction
+script void generate_cycloid_waypoints(WsfRoute route, double start_lat, double start_lon,
+                                        double end_lat, double end_lon, double amplitude_m, int num_loops)
+   # Calculate the base direction vector
+   double delta_lat = end_lat - start_lat;
+   double delta_lon = end_lon - start_lon;
+
+   # Normalize travel direction
+   double travel_mag = Math.Sqrt(delta_lat*delta_lat + delta_lon*delta_lon);
+   double travel_lat = delta_lat / travel_mag;
+   double travel_lon = delta_lon / travel_mag;
+
+   # Calculate perpendicular direction
+   double perp_lat = -delta_lon / travel_mag;
+   double perp_lon = delta_lat / travel_mag;
+
+   double pi = 3.14159265359;
+
+   # Points per loop for smooth curves
+   int points_per_loop = 12;
+   int total_points = num_loops * points_per_loop;
+
+   # Prolate cycloid parameters
+   # x = a*t - b*sin(t)
+   # y = a - b*cos(t)
+   # where b > a creates loops (prolate)
+   double a_param = 1.0;  # Translation rate
+   double b_param = 1.3;  # Loop size (>1 for prolate cycloid with loops)
+
+   for (int i = 1; i <= total_points; i = i + 1)
+   {
+      double t_param = (double)i / (double)total_points;
+      double theta = 2.0 * pi * (double)num_loops * t_param;
+
+      # Cycloid formula (normalized)
+      double cycloid_x = a_param * theta / (2.0 * pi * (double)num_loops) - b_param * Math.Sin(theta) / (2.0 * pi * (double)num_loops);
+      double cycloid_y = (a_param - b_param * Math.Cos(theta)) / (2.0 * pi);
+
+      # Normalize x to 0-1 range for progress along path
+      # The cycloid naturally progresses, just need to scale
+      double progress = t_param;
+
+      # Calculate base position along the path
+      double base_lat = start_lat + delta_lat * progress;
+      double base_lon = start_lon + delta_lon * progress;
+
+      # Add cycloid offsets
+      # Lateral offset from the sinusoidal component
+      double lateral_offset = amplitude_m * Math.Sin(theta);
+      # Forward/backward oscillation from the looping
+      double forward_offset = amplitude_m * 0.3 * (1.0 - Math.Cos(theta));
+
+      double lat = base_lat + perp_lat * lateral_offset * 0.000009 + travel_lat * forward_offset * 0.000009;
+      double lon = base_lon + perp_lon * lateral_offset * 0.0000108 + travel_lon * forward_offset * 0.0000108;
+
+      route.AddWaypoint(WsfWaypoint.Construct(
+         WsfGeoPoint.Construct(lat, lon, 500),
+         25.0  # Slightly slower for the loops
+      ));
+   }
+end_script

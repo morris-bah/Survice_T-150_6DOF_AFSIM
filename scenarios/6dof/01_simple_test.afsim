@@ -1,0 +1,67 @@
+# ==============================================================================
+# T-150 6DOF Climb Test - Vertical Only
+# ==============================================================================
+# Tests: Start on ground, climb vertically to 50m, hover for 3 minutes.
+# Same lat/lon for all waypoints - isolates vertical climb behavior.
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME t150_6dof_simple_test
+#define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+define_path_variable OUTPUT_DIR C:/code/AFSIM/AFSIM/output
+
+# Include the 6DOF platform definition
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# T-150 6DOF PLATFORM - VERTICAL CLIMB TEST
+# ==============================================================================
+
+platform t150_simple T150_6DOF_UAS
+
+   # Route: start at ground, climb to 50m
+   # First waypoint is starting position (tiny horizontal offset to avoid coincident error)
+   route
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+      position 35.00001n 120.0000w altitude 50 m agl speed 2 m/s stop
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  T-150 6DOF VERTICAL CLIMB TEST");
+   writeln("========================================");
+   writeln("Test: Start on ground, climb to 50m");
+   writeln("Same lat/lon - pure vertical movement");
+   writeln("========================================");
+end_execute
+
+execute at_time 30 sec absolute
+   writeln(">>> T=30s - Hovering");
+end_execute
+
+execute at_time 60 sec absolute
+   writeln(">>> T=60s - Hovering");
+end_execute
+
+execute at_time 120 sec absolute
+   writeln(">>> T=120s - Hovering");
+end_execute
+
+execute at_time 180 sec absolute
+   writeln(">>> T=180s - Test complete");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 180 sec

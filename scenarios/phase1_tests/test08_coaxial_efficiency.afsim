@@ -1,0 +1,117 @@
+# ==============================================================================
+# Test 08: Coaxial Rotor Efficiency
+# ==============================================================================
+# Purpose: Validate coaxial rotor interference modeling
+#
+# Method:
+#   - Stable hover at 50m (out of ground effect)
+#   - Monitor total power consumption
+#   - Compare against theoretical single-rotor efficiency
+#   - The 8-motor coaxial config should show ~85-90% efficiency for lower rotors
+#
+# Expected Results:
+#   - Hover power ~18kW (matching T-150 specs)
+#   - Power distribution reflects coaxial losses
+#   - Electrical power = mechanical power / 0.37 (motor efficiency)
+#
+# Key Metrics:
+#   - Hover power: 17-19 kW electrical
+#   - Mechanical power: ~6.3-7 kW (0.37 efficiency)
+#   - Coaxial interference: reflected in total power
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME test08_coaxial_efficiency
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing
+
+# Include the 6DOF platform with battery
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR FOR TELEMETRY
+# ==============================================================================
+platform_type T150_COAXIAL_TEST_UAS T150_6DOF_UAS
+
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing/test08_coaxial_efficiency.csv
+      csv_log_interval 1.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE - Coaxial Efficiency Test
+# ==============================================================================
+platform t150_coaxial_test T150_COAXIAL_TEST_UAS
+
+   route
+      # Start on ground
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Climb to 50m (out of ground effect)
+      position 35.00001n 120.0000w altitude 50 m agl speed 3 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  TEST 08: COAXIAL ROTOR EFFICIENCY");
+   writeln("========================================");
+   writeln("Purpose: Validate coaxial efficiency model");
+   writeln("Method: Stable hover at 50m");
+   writeln("Expected: ~18kW hover power (T-150 spec)");
+   writeln("========================================");
+end_execute
+
+execute at_time 15 sec absolute
+   writeln(">>> T=15s - Climbing to hover altitude");
+end_execute
+
+execute at_time 25 sec absolute
+   writeln(">>> T=25s - At hover altitude, stabilizing");
+end_execute
+
+execute at_time 30 sec absolute
+   writeln(">>> T=30s - HOVER MEASUREMENT: Record power");
+end_execute
+
+execute at_time 40 sec absolute
+   writeln(">>> T=40s - Continuing stable hover");
+end_execute
+
+execute at_time 50 sec absolute
+   writeln(">>> T=50s - Averaging power consumption");
+end_execute
+
+execute at_time 60 sec absolute
+   writeln(">>> T=60s - Test complete");
+   writeln("========================================");
+   writeln("  CHECK: Average hover power should be ~18kW");
+   writeln("========================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 60 sec

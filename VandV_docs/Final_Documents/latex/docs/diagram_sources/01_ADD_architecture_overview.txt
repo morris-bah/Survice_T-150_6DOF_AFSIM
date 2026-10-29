@@ -1,0 +1,46 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 3.1 Architecture Overview
+## Description: High-level architecture diagram showing the T-150 Plugin Suite's
+##   loosely-coupled component architecture within the AFSIM runtime. Shows the
+##   WsfPlatform containing the Rotorcraft6DOF mover, the AuxData store (shared
+##   blackboard), and four WsfProcessor plugins (Battery, Propulsion, VRS, Slung Load).
+##   Data flow arrows show AuxData key exchanges between components.
+
++------------------------------------------------------------------+
+|                        AFSIM Runtime                             |
+|                                                                  |
+|  +-----------------------------------------------------------+  |
+|  |                     WsfPlatform                            |  |
+|  |                                                            |  |
+|  |  +-------------------+     +---------------------------+   |  |
+|  |  | WsfRouteMover     |     |     AuxData Store         |   |  |
+|  |  |  (Rotorcraft6DOF) |<--->| (WsfAttributeContainer)   |   |  |
+|  |  |                   |     |                           |   |  |
+|  |  | +---------------+ |     |  6dof_total_power ------->|---+--> BatteryProcessor
+|  |  | | RigidBody6DOF | |     |  SLUNG_FORCE_X/Y/Z ----->|---+--> (reads)
+|  |  | +---------------+ |     |  PROP_TOTAL_POWER ------->|   |  |
+|  |  | +---------------+ |     |  VRS_LIFT_FACTOR -------->|   |  |
+|  |  | | RotorModel[8] | |     |  BATTERY_SOC ----------->|   |  |
+|  |  | +---------------+ |     |  WEAPON_FORCE_X/Y/Z ---->|   |  |
+|  |  +-------------------+     +---------------------------+   |  |
+|  |                                    ^   ^   ^   ^           |  |
+|  |  +----------------+  +----------+ | +-+-+ | +---------+   |  |
+|  |  | Battery        |  | Propul-  | | |VRS| | | Slung   |   |  |
+|  |  | Processor      |  | sion     | | |Pro| | | Load    |   |  |
+|  |  | (WsfProcessor) |  | Proc.    | | |ces| | | Proc.   |   |  |
+|  |  +----------------+  +----------+ | +---+ | +---------+   |  |
+|  +-----------------------------------------------------------+  |
++------------------------------------------------------------------+
+
+## Suggested eraser.io prompt:
+## Create a system architecture block diagram for the T-150 UAS AFSIM Plugin Suite.
+## Show an outer container "AFSIM Runtime" containing a "WsfPlatform" container.
+## Inside WsfPlatform, show: (1) a "Rotorcraft6DOF Mover" block containing
+## "RigidBody6DOF" and "RotorModel[8]" sub-blocks, (2) a central "AuxData Store"
+## block listing key names (6dof_total_power, SLUNG_FORCE_X/Y/Z, PROP_TOTAL_POWER,
+## VRS_LIFT_FACTOR, BATTERY_SOC, WEAPON_FORCE_X/Y/Z), and (3) four processor blocks
+## at the bottom: Battery Processor, Propulsion Processor, VRS Processor, Slung Load
+## Processor. Draw bidirectional arrows between the mover and AuxData store, and
+## upward arrows from each processor to the AuxData store. Label the diagram
+## "T-150 Plugin Suite Architecture (Blackboard Pattern)".
+## Diagram type: Block diagram / System architecture diagram

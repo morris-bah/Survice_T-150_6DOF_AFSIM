@@ -1,0 +1,100 @@
+%%% - - -   UNCLASSIFIED   - - - %%%
+
+\documentclass[11pt, letterpaper]{article}
+
+\newcommand{\thisdocument}{UAM}
+
+\usepackage{../format/NGICStyle}    % does everything
+\usepackage{../format/DurandalBib}    % contains bibliography info
+\usepackage{../format/NGICGlossary} % contains glossary info
+\usepackage{../values/ModelValues}      % sets classified values
+%\usepackage{../content/pySubfiles/ChangeLog}      % sets classified values
+%%% document settings
+\usepackage{lineno}
+\usepackage{tikz}
+
+
+%% document paths
+\graphicspath{{images}}
+\newcommand\csvpath{csv}
+
+\makeatletter
+\def\input@path{{content}}
+\makeatother
+
+% header and footer
+\chead{\documentlabel}
+\cfoot{\documentlabel\ \\ \thepage}
+
+% uncommenting this line globally supresses guidance notes in the PDF
+%\presetkeys{todonotes}{disable}{}
+
+%%% document start
+\begin{document}
+
+\pagenumbering{roman}
+
+
+\InDevelopmenttrue
+
+\ifInDevelopment
+	\draft
+	\linenumbers
+	\colorlet{ModelValueColor}{blue!50!cyan}
+\fi
+
+%% include sections
+
+% always
+
+\input{../content/UAM-FrontMatter}\pagebreak
+\tableofcontents\thispagestyle{fancy}\pagebreak
+\listoftables\thispagestyle{fancy}\pagebreak
+\listoffigures\thispagestyle{fancy}\pagebreak
+
+% arabic numbering and footer update
+\pagenumbering{arabic} 
+\cfoot{\classlabel\ \\ {Page \thepage\ of \pageref{LastPage}}}
+
+\input{../content/Introduction}
+
+\input{../content/SystemDescription}%\pagebreak
+
+\input{../content/ModelCapabilitiesAndIntendedUse.tex}
+
+\input{../content/KeyPerformanceIndicators}
+
+\input{../content/SourcesAssumptionsLimitationsGaps.tex}
+
+
+
+%% fill component name here, so if documents are turned on or off, renew can be used as a command. 
+\newcommand\componentname{\textcolor{black}{\textbf{HOLD}}}
+
+\input{../content/ThreatModelComponents}
+
+
+%%Individual component - there should be one for each component
+\input{../content/SampleComponentFile}
+
+%% Basic Setup and General Guide
+\input{../content/BasicSetupAndGeneralGuide}\pagebreak
+
+%% Analytic Outputs
+\input{../content/AnalyticOutputs}\pagebreak
+
+\input{../content/ModelLog}\pagebreak
+
+\input{../content/References}\pagebreak
+
+%\cite{reference3}
+
+% glossary print function
+\doPrintGloss
+
+\doPrintBib%
+
+\newpage\label{mylastpage}
+\end{document}
+
+%%% - - -   UNCLASSIFIED   - - - %%%

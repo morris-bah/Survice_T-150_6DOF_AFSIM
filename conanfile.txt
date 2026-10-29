@@ -1,0 +1,6 @@
+[requires]
+afsim-sdk/2.2505.3
+
+[generators]
+CMakeDeps
+CMakeToolchain

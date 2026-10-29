@@ -1,0 +1,130 @@
+# ==============================================================================
+# Test 09: Energy Conservation
+# ==============================================================================
+# Purpose: Validate physics consistency - energy balance
+#
+# Method:
+#   - Fixed flight profile: climb, cruise, descend
+#   - Track mechanical power output from 6DOF mover
+#   - Track electrical energy consumed by battery
+#   - Verify energy accounting matches efficiency model
+#
+# Expected Results:
+#   - Electrical energy = Mechanical energy / motor_efficiency
+#   - Energy balance within 5% (accounting for 37% efficiency)
+#   - SOC depletion matches power consumption integral
+#
+# Key Metrics:
+#   - Energy balance error: < 5%
+#   - Total energy consumed: matches flight profile
+#   - Motor efficiency: ~37% (mechanical to electrical)
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME test09_energy_conservation
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing
+
+# Include the 6DOF platform with battery
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR FOR TELEMETRY
+# ==============================================================================
+platform_type T150_ENERGY_TEST_UAS T150_6DOF_UAS
+
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing/test09_energy_conservation.csv
+      csv_log_interval 1.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE - Energy Conservation Test
+# ==============================================================================
+platform t150_energy_test T150_ENERGY_TEST_UAS
+
+   route
+      # PHASE 1: Ground start
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # PHASE 2: Climb to 100m
+      position 35.0001n 120.0000w altitude 100 m agl speed 5 m/s
+
+      # PHASE 3: Cruise 3km North
+      position 35.0270n 120.0000w altitude 100 m agl speed 25 m/s
+
+      # PHASE 4: Hover for 60 seconds
+      position 35.0271n 120.0000w altitude 100 m agl speed 2 m/s
+
+      # PHASE 5: Cruise 3km South (return)
+      position 35.0001n 120.0000w altitude 100 m agl speed 25 m/s
+
+      # PHASE 6: Descend and land
+      position 35.0000n 120.0000w altitude 0 m agl speed 2 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  TEST 09: ENERGY CONSERVATION");
+   writeln("========================================");
+   writeln("Purpose: Validate energy accounting");
+   writeln("Method: Fixed profile - climb/cruise/hover/return");
+   writeln("Expected: Energy balance <5% error");
+   writeln("========================================");
+end_execute
+
+execute at_time 30 sec absolute
+   writeln(">>> T=30s - CLIMB phase complete");
+end_execute
+
+execute at_time 90 sec absolute
+   writeln(">>> T=90s - CRUISE phase (outbound)");
+end_execute
+
+execute at_time 150 sec absolute
+   writeln(">>> T=150s - HOVER phase");
+end_execute
+
+execute at_time 210 sec absolute
+   writeln(">>> T=210s - CRUISE phase (return)");
+end_execute
+
+execute at_time 270 sec absolute
+   writeln(">>> T=270s - DESCENT phase");
+end_execute
+
+execute at_time 300 sec absolute
+   writeln(">>> T=300s - Test complete");
+   writeln("========================================");
+   writeln("  CHECK: Compare energy consumed vs SOC drop");
+   writeln("  Energy = 7000 Wh * (1.0 - final_SOC)");
+   writeln("========================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 300 sec

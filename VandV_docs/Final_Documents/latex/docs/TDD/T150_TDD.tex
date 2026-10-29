@@ -1,0 +1,44 @@
+%%% - - -   UNCLASSIFIED   - - - %%%
+
+\documentclass[11pt, letterpaper]{article}
+
+\newcommand{\thisdocument}{TDD}
+
+\usepackage{format/NGICStyle}      % does everything
+\usepackage{format/DurandalBib}    % contains bibliography info
+\usepackage{format/NGICGlossary}   % contains glossary info
+\usepackage{values/T150ModelValues} % sets classified values
+
+%%% document settings
+
+%% document paths
+\graphicspath{{../images}}
+\newcommand\csvpath{csv}
+
+\makeatletter
+\def\input@path{{content}}
+\makeatother
+
+% header and footer
+\chead{\documentlabel}
+\cfoot{\documentlabel\ \\ \thepage}
+
+%%% document start
+\begin{document}
+
+\pagenumbering{roman}
+
+\InDevelopmentfalse
+
+\ifInDevelopment
+	\draft
+	\linenumbers
+	\colorlet{ModelValueColor}{blue!50!cyan}
+\fi
+
+%% All content (front matter + body) in single content file
+\input{T150_TDD_Content}
+
+\end{document}
+
+%%% - - -   UNCLASSIFIED   - - - %%%

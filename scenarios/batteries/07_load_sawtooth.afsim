@@ -1,0 +1,154 @@
+# ==============================================================================
+# Battery Test: Sawtooth/Zigzag Pattern - TIME-BASED
+# ==============================================================================
+# Tests battery consumption for zigzag flight over a fixed 500 second
+# cruise phase. Sharper turns (~45° heading deviation) than previous design.
+#
+# Test Design:
+#   - Climb to 350m AGL (~70 seconds)
+#   - Fly zigzag pattern for 500 seconds at 30 m/s
+#   - Descend and land (~60 seconds)
+#
+# Pattern: Sharp diagonal segments alternating NE/NW
+# Each segment: ~500m north, ~500m lateral = ~707m path, ~45° heading
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME battery_test_sawtooth
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+
+# Include the 6DOF mover definition
+include ../../platforms/t150_6dof_mover.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR
+# ==============================================================================
+platform_type T150_BATTERY_TEST_UAS WSF_PLATFORM
+
+   side blue
+   icon 4_rotor_good
+   category air
+
+   # 6DOF physics-based mover
+   mover T150_6DOF_MOVER
+   end_mover
+
+   # Battery processor - reads power from 6DOF mover
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/battery_test_sawtooth_battery.csv
+      csv_log_interval 1.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE
+# ==============================================================================
+platform t150_battery_test T150_BATTERY_TEST_UAS
+
+   route
+      # =========================================
+      # PHASE 1: Takeoff and Climb to 350m
+      # =========================================
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+      position 35.0001n 120.0000w altitude 350 m agl speed 5 m/s
+
+      # =========================================
+      # PHASE 2: Sawtooth Pattern for 500 seconds
+      # Each zigzag: 500m N, 500m lateral = 707m diagonal
+      # At 30 m/s = ~24 seconds per diagonal
+      # 500s / 24s = ~21 segments needed
+      # Lateral offset: 500m = 0.0045 deg longitude
+      # North offset: 500m = 0.0045 deg latitude
+      # =========================================
+
+      # Segments 1-2
+      position 35.0046n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0091n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 3-4
+      position 35.0136n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0181n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 5-6
+      position 35.0226n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0271n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 7-8
+      position 35.0316n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0361n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 9-10
+      position 35.0406n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0451n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 11-12
+      position 35.0496n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0541n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 13-14
+      position 35.0586n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0631n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 15-16
+      position 35.0676n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0721n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 17-18
+      position 35.0766n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0811n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 19-20
+      position 35.0856n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0901n 120.0000w altitude 350 m agl speed 30 m/s
+      # Segments 21-22
+      position 35.0946n 119.9955w altitude 350 m agl speed 30 m/s
+      position 35.0991n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # =========================================
+      # PHASE 3: Descent and Landing
+      # =========================================
+      position 35.1000n 120.0000w altitude 50 m agl speed 5 m/s
+      position 35.1005n 120.0000w altitude 0 m agl speed 2 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  BATTERY TEST: SAWTOOTH PATTERN (TIMED)");
+   writeln("========================================");
+   writeln("Test Design: 500 second cruise phase");
+   writeln("Pattern: Sharp 45-degree zigzag");
+   writeln("Speed: 30 m/s cruise");
+   writeln("========================================");
+end_execute
+
+execute at_time 70 sec absolute
+   writeln(">>> T=70s - Reached cruise altitude, beginning 500s cruise phase");
+end_execute
+
+execute at_time 320 sec absolute
+   writeln(">>> T=320s - Mid-cruise (250s into cruise phase)");
+end_execute
+
+execute at_time 570 sec absolute
+   writeln(">>> T=570s - End of 500s cruise phase, beginning descent");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Total time: ~70s climb + 500s cruise + 60s descent + buffer
+end_time 680 sec

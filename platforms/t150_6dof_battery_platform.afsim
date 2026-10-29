@@ -1,0 +1,91 @@
+# ==============================================================================
+# T-150 / TRV-150 Heavy-Lift UAS Platform Type Definition (6DOF + Battery)
+# ==============================================================================
+# This platform combines:
+#   - Physics-based 6DOF rotorcraft mover
+#   - Battery processor with dynamic power integration
+#
+# The battery processor reads power consumption directly from the 6DOF mover
+# and tracks energy consumption, SOC, voltage sag, etc.
+#
+# Plugins required:
+#   - rotorcraft_6dof.so
+#   - t150_battery.so
+# ==============================================================================
+
+# Include the 6DOF mover definition
+include t150_6dof_mover.afsim
+
+# ==============================================================================
+# RADAR SIGNATURE (same as other T-150 variants)
+# ==============================================================================
+radar_signature T150_6DOF_BATTERY_RADAR_SIG
+   state default
+      inline_table dbsm 9 5
+               -90.0  -30.0    0.0   30.0   90.0
+      -180.0     3.0   -1.0   -3.0   -1.0    3.0
+      -135.0     3.0    1.0   -1.0    1.0    3.0
+       -90.0     3.0    2.0    0.0    2.0    3.0
+       -45.0     3.0    1.0   -1.0    1.0    3.0
+         0.0     3.0   -3.0   -5.0   -3.0    3.0
+        45.0     3.0    1.0   -1.0    1.0    3.0
+        90.0     3.0    2.0    0.0    2.0    3.0
+       135.0     3.0    1.0   -1.0    1.0    3.0
+       180.0     3.0   -1.0   -3.0   -1.0    3.0
+      end_inline_table
+end_radar_signature
+
+# ==============================================================================
+# T-150 6DOF + BATTERY Platform Type
+# ==============================================================================
+platform_type T150_6DOF_BATTERY_UAS WSF_PLATFORM
+
+   side blue
+   icon 4_rotor_good
+   category air
+
+   # --------------------------------------------------------------------------
+   # MOVER - 6DOF Physics-Based Rotorcraft
+   # --------------------------------------------------------------------------
+   # Uses the T150_6DOF_MOVER defined in t150_6dof_mover.afsim
+   # This provides full rigid body dynamics with rotor thrust/torque physics
+   mover T150_6DOF_MOVER
+   end_mover
+
+   # --------------------------------------------------------------------------
+   # BATTERY PROCESSOR - Tracks energy consumption from 6DOF mover
+   # --------------------------------------------------------------------------
+   # Reads power from the 6DOF mover's AuxData (6dof_total_power)
+   # Outputs: SOC, voltage, current, energy consumed
+   # CSV logging enabled via csv_output_file parameter in scenarios
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      # T-150 Battery Specifications (13S Li-Ion pack)
+      battery_capacity_wh 7000           # 7 kWh total capacity
+      initial_soc 1.0                    # Start fully charged
+
+      # Voltage model (13S Li-Ion: 13 cells in series)
+      nominal_voltage 46.8               # 13S x 3.6V = 46.8V nominal
+      full_charge_voltage 54.6           # 13S x 4.2V = 54.6V full
+      cutoff_voltage 39.0                # 13S x 3.0V = 39.0V cutoff
+      internal_resistance 0.025          # 25 milliohms pack resistance
+
+      # Power source integration
+      use_dynamic_power true             # Read power from mover/processor
+      power_source_key "6dof_total_power"   # Key from 6DOF mover AuxData
+
+      # Fallback if dynamic power unavailable
+      hover_power_w 18000                # 18 kW hover power estimate
+
+      # Warnings
+      low_battery_warning 0.20           # Warn at 20% SOC
+      voltage_sag_warning 42.0           # Warn below 42V
+
+      # CSV output disabled by default - enable in scenario by editing processor
+      # csv_output_file /path/to/output.csv
+      csv_log_interval 1.0
+   end_processor
+
+   # Reference radar signature
+   radar_signature T150_6DOF_BATTERY_RADAR_SIG
+
+end_platform_type

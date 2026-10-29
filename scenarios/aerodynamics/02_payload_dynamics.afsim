@@ -1,0 +1,219 @@
+# ==============================================================================
+# T-150 UAS Payload Dynamics Test Scenario
+#
+# Tests the Phase 4 payload mass and CoG dynamics model.
+# Payload parameters:
+# - Empty mass: 68 kg (T-150 airframe)
+# - Max payload: 55 kg
+# - Test payload: 40 kg with offset CG
+#
+# Look for propulsion processor log output showing:
+# - Total mass, payload mass, thrust margin
+# - Combined CG offsets
+# ==============================================================================
+
+include ../../platforms/t150_platform.afsim
+
+# ==============================================================================
+# Payload Test Platform Type - Heavy payload configuration
+# ==============================================================================
+platform_type T150_PAYLOAD_TEST T150_UAS
+
+   # Battery Processor
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh    7000.0
+      initial_soc            1.0
+      hover_power_w          18000.0
+      low_battery_warning    0.20
+      nominal_voltage        46.8
+      full_charge_voltage    54.6
+      cutoff_voltage         39.0
+      internal_resistance    0.025
+      use_dynamic_power      true
+      update_interval        1.0 sec
+   end_processor
+
+   # Propulsion Processor with payload configuration
+   # NOTE: After installing updated plugin with `sudo ./install_plugins.sh`,
+   # uncomment the payload parameters below
+   processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+      motor_count            8
+      kv_rating              100
+      max_power_per_motor    3500
+      propeller_diameter     0.76
+      coaxial_efficiency     0.85
+      motor_thermal_limit    150
+      nominal_voltage        46.8
+      peak_motor_efficiency  0.92
+      ambient_temperature    25
+      update_interval        1.0 sec
+      # Payload dynamics configuration (Phase 4)
+      empty_mass             68.0        # T-150 empty weight (kg)
+      payload_mass           40.0        # 40 kg payload
+      max_payload_mass       55.0        # Max 55 kg capacity
+      payload_cg_offset_x    0.1         # 10cm forward
+      payload_cg_offset_y    0.05        # 5cm right
+      payload_cg_offset_z    0.3         # 30cm below
+   end_processor
+
+   # VRS Processor
+   processor VRS_MONITOR T150_VRS_PROCESSOR
+      vrs_descent_threshold  4.0
+      vrs_speed_threshold    5.0
+      induced_velocity       8.0
+      coaxial_factor         0.85
+      update_interval        1.0 sec
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# Empty platform for comparison
+# ==============================================================================
+platform_type T150_EMPTY_TEST T150_UAS
+
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh    7000.0
+      initial_soc            1.0
+      hover_power_w          18000.0
+      low_battery_warning    0.20
+      use_dynamic_power      true
+      update_interval        1.0 sec
+   end_processor
+
+   processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+      motor_count            8
+      kv_rating              100
+      max_power_per_motor    3500
+      propeller_diameter     0.76
+      coaxial_efficiency     0.85
+      motor_thermal_limit    150
+      nominal_voltage        46.8
+      peak_motor_efficiency  0.92
+      ambient_temperature    25
+      update_interval        1.0 sec
+      # No payload configuration
+      empty_mass             68.0
+      payload_mass           0.0
+      max_payload_mass       55.0
+   end_processor
+
+   processor VRS_MONITOR T150_VRS_PROCESSOR
+      vrs_descent_threshold  4.0
+      vrs_speed_threshold    5.0
+      induced_velocity       8.0
+      coaxial_factor         0.85
+      update_interval        1.0 sec
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# Overloaded platform for warning test
+# ==============================================================================
+platform_type T150_OVERLOAD_TEST T150_UAS
+
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh    7000.0
+      initial_soc            1.0
+      hover_power_w          18000.0
+      low_battery_warning    0.20
+      use_dynamic_power      true
+      update_interval        1.0 sec
+   end_processor
+
+   processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+      motor_count            8
+      kv_rating              100
+      max_power_per_motor    3500
+      propeller_diameter     0.76
+      coaxial_efficiency     0.85
+      motor_thermal_limit    150
+      nominal_voltage        46.8
+      peak_motor_efficiency  0.92
+      ambient_temperature    25
+      update_interval        1.0 sec
+      # Overloaded payload - exceeds max!
+      empty_mass             68.0
+      payload_mass           60.0        # Exceeds 55 kg max
+      max_payload_mass       55.0
+   end_processor
+
+   processor VRS_MONITOR T150_VRS_PROCESSOR
+      vrs_descent_threshold  4.0
+      vrs_speed_threshold    5.0
+      induced_velocity       8.0
+      coaxial_factor         0.85
+      update_interval        1.0 sec
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# Test Platform Instances
+# ==============================================================================
+platform t150_loaded T150_PAYLOAD_TEST
+   route
+      position 35.0000n 120.0000w altitude 50 m agl speed 0 m/s
+      position 35.0010n 120.0000w altitude 100 m agl speed 5 m/s
+      position 35.0020n 120.0000w altitude 50 m agl speed 3 m/s
+   end_route
+end_platform
+
+platform t150_empty T150_EMPTY_TEST
+   route
+      position 35.0000n 120.0010w altitude 50 m agl speed 0 m/s
+      position 35.0010n 120.0010w altitude 100 m agl speed 5 m/s
+      position 35.0020n 120.0010w altitude 50 m agl speed 3 m/s
+   end_route
+end_platform
+
+platform t150_overload T150_OVERLOAD_TEST
+   route
+      position 35.0000n 120.0020w altitude 50 m agl speed 0 m/s
+      position 35.0010n 120.0020w altitude 100 m agl speed 5 m/s
+      position 35.0020n 120.0020w altitude 50 m agl speed 3 m/s
+   end_route
+end_platform
+
+# ==============================================================================
+# Simulation Control
+# ==============================================================================
+end_time 60 sec
+
+# ==============================================================================
+# Status Output
+# ==============================================================================
+execute at_time 0 sec absolute
+   writeln("");
+   writeln("==============================================");
+   writeln("T-150 Payload Dynamics Test Starting");
+   writeln("==============================================");
+   writeln("");
+   writeln("Test Configurations:");
+   writeln("  1. t150_loaded:   68kg empty + 40kg payload = 108kg total");
+   writeln("  2. t150_empty:    68kg empty + 0kg payload = 68kg total");
+   writeln("  3. t150_overload: 68kg empty + 60kg payload = 128kg (OVERLOADED!)");
+   writeln("");
+   writeln("Look for initialization messages showing:");
+   writeln("  - Empty mass, Payload mass, Total mass");
+   writeln("  - Thrust margin percentage");
+   writeln("  - OVERLOADED warning for t150_overload");
+   writeln("");
+end_execute
+
+execute at_time 55 sec absolute
+   writeln("");
+   writeln("==============================================");
+   writeln("Payload Dynamics Test Complete");
+   writeln("==============================================");
+   writeln("");
+   writeln("EXPECTED BEHAVIOR:");
+   writeln("  - t150_loaded: ~59% thrust margin (108kg / max ~265kg thrust)");
+   writeln("  - t150_empty:  ~74% thrust margin (68kg)");
+   writeln("  - t150_overload: Shows OVERLOADED warning, lower margin");
+   writeln("");
+   writeln("PROP_PAYLOAD_MASS, PROP_TOTAL_MASS, PROP_THRUST_MARGIN available");
+   writeln("in platform AuxData for analysis.");
+   writeln("==============================================");
+end_execute

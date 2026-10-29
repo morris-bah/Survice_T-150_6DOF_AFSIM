@@ -1,0 +1,9 @@
+{
+    "version": "0.5",
+    "requires": [
+        "afsim-sdk/2.2505.3#b2246f88ffe8236e4b9adc56618fb007%1792521572.763153"
+    ],
+    "build_requires": [],
+    "python_requires": [],
+    "config_requires": []
+}

@@ -1,0 +1,57 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{../values/ModelValues}
+
+
+\colorlet{ModelValueColor}{black}
+
+\newcommand{\newModelValue}[2]{%
+	\newcommand{#1}{\textcolor{ModelValueColor}{#2}}%
+}%
+
+%% the HIGHEST level of classification expected for this document
+
+\newcommand{\classlabel}{\unclasslabel}
+\newcommand{\classlabelshort}{\unclass }
+\newcommand{\classlabelacro}{\natolabelacro}
+\newcommand{\documentlabel}{\textcolor{green5}{\textbf{TEMPLATE UNCLASSIFIED - MODIFY WHEN FILLED IN}}}
+\newcommand{\ngicemail}{usarmy.charlottesville.ngic.list.modsimoffice@mail.mil}
+
+
+%% name and origin
+\newModelValue{\modelname}{ModelNameGoesHere}  			% e.g. SCOOBY DOO
+\newModelValue{\modelcodename}{Model\_Name\_Goes\_Here} % how the model appears in C++ object names e.g. SCOOBY_DOO
+\newModelValue{\countryname}{Elbonia}  				
+\newModelValue{\countryadjective}{Elbonian}  			
+% Common 
+\newModelValue{\antennaType}{Phased Array}
+\newModelValue{\azimuthBeamwidthDeg}{5deg}
+\newModelValue{\elevationBeamwidthDeg}{45deg}
+\newModelValue{\SnrThresholdDb}{13dB}
+\newModelValue{\NoiseFigureDb}{6dB}
+\newModelValue{\ReceiverNoiseFigureDb}{6dB}
+\newModelValue{\TransmitLossDb}{2dB}
+
+% EWR
+\newModelValue{\EwrDwellTime}{5ms}
+\newModelValue{\PeakGaindBi}{10dBi}
+\newModelValue{\monopulseAzimuthMeasurement}{1.5deg}
+\newModelValue{\EwrRotationRateRpm}{50rpm}
+\newModelValue{\frequency}{8-12GHz}
+\newModelValue{\centerFrequency}{10GHz}
+\newModelValue{\operationalBW}{4GHz}
+\newModelValue{\ewrDopplerBins}{32}
+\newModelValue{\numberTargets}{10}
+
+
+% JAMMER
+
+\newModelValue{\JammerDopplerBandwidthHz}{3.9MHz}
+\newModelValue{\JammerNumberDopplerBins}{32}
+\newModelValue{\JammerPeakGainDbi}{10dBi}
+\newModelValue{\BarrageNoiseBandwidthHz}{4GHz}
+\newModelValue{\SpotNoiseBandwidthHz}{125MHz}
+\newModelValue{\JammerRotationRateRpm}{50rpm}
+\newModelValue{\jammerTimeOut}{1s}
+
+
+

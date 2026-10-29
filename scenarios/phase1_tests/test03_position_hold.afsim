@@ -1,0 +1,112 @@
+# ==============================================================================
+# Test 03: Position Hold Accuracy
+# ==============================================================================
+# Purpose: Validate cascaded position controller accuracy
+#
+# Method:
+#   - Climb to 50m altitude
+#   - Command hover at fixed position for 120 seconds
+#   - Monitor position drift from commanded waypoint
+#
+# Expected Results:
+#   - Position drift < +/-3m from commanded waypoint
+#   - Stable hover with no drift over time
+#   - Altitude hold within +/-1m
+#
+# Key Metrics:
+#   - Horizontal position drift: < 3m
+#   - Altitude drift: < 1m
+#   - No progressive drift (stable)
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME test03_position_hold
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing
+
+# Include the 6DOF platform with battery
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR FOR TELEMETRY
+# ==============================================================================
+platform_type T150_POSITION_HOLD_UAS T150_6DOF_UAS
+
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing/test03_position_hold.csv
+      csv_log_interval 1.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE - Position Hold Test
+# ==============================================================================
+platform t150_position_hold T150_POSITION_HOLD_UAS
+
+   route
+      # Start on ground
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Climb to 50m and stop (position hold)
+      position 35.00001n 120.0000w altitude 50 m agl speed 3 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  TEST 03: POSITION HOLD ACCURACY");
+   writeln("========================================");
+   writeln("Purpose: Validate position hold controller");
+   writeln("Method: Hover at fixed point for 120s");
+   writeln("Expected: Position drift < 3m");
+   writeln("========================================");
+end_execute
+
+execute at_time 15 sec absolute
+   writeln(">>> T=15s - Climbing to hover altitude");
+end_execute
+
+execute at_time 30 sec absolute
+   writeln(">>> T=30s - Hovering, monitoring position drift");
+end_execute
+
+execute at_time 60 sec absolute
+   writeln(">>> T=60s - 30 seconds of hover complete");
+end_execute
+
+execute at_time 90 sec absolute
+   writeln(">>> T=90s - 60 seconds of hover complete");
+end_execute
+
+execute at_time 120 sec absolute
+   writeln(">>> T=120s - Test complete");
+   writeln("========================================");
+   writeln("  CHECK: Review AER for position stability");
+   writeln("========================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 120 sec

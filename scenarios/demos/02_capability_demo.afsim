@@ -1,0 +1,260 @@
+# ==============================================================================
+# T-150 UAS Capability Demonstration Scenario
+# ==============================================================================
+# This scenario demonstrates what the current T-150 engineering plugins CAN
+# answer, with specific engineering questions and expected outputs.
+#
+# QUESTIONS THIS SCENARIO ANSWERS:
+# 1. How long can the T-150 hover before low battery warning (20% SOC)?
+# 2. At what time do motor thermal limits become a concern?
+# 3. How does the 8-motor coaxial system handle motor failures?
+# 4. What is the total power consumption during sustained hover?
+# 5. What is battery energy remaining at mission end?
+# 6. What is the battery voltage sag under load? (Phase 2)
+# 7. At what SOC does voltage sag become critical? (Phase 2)
+#
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME t150_capability_demo
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# ==============================================================================
+# INCLUDE PLATFORM DEFINITIONS
+# ==============================================================================
+include ../../platforms/t150_platform.afsim
+
+# ==============================================================================
+# ENGINEERING TEST PLATFORM TYPE
+# ==============================================================================
+platform_type T150_ENDURANCE_TEST T150_UAS
+
+   # Battery Processor - configured for endurance analysis with voltage sag
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh    7000.0       # 7 kWh Li-Ion pack
+      initial_soc            1.0          # Start at 100%
+      hover_power_w          18000.0      # 18 kW hover power (fallback if dynamic disabled)
+      low_battery_warning    0.20         # 20% SOC warning
+      # Phase 2: Voltage sag model parameters (13S Li-Ion pack)
+      nominal_voltage        46.8         # 13S * 3.6V nominal
+      full_charge_voltage    54.6         # 13S * 4.2V fully charged
+      cutoff_voltage         39.0         # 13S * 3.0V minimum safe
+      internal_resistance    0.025        # 25 milliohms pack resistance
+      voltage_sag_warning    42.0         # Warn below 42V (~3.23V/cell)
+      # Phase 3: Dynamic power from propulsion
+      use_dynamic_power      true         # Read PROP_TOTAL_POWER from propulsion processor
+      update_interval        1.0 sec      # 1 Hz for detailed logging
+   end_processor
+
+   # VRS Processor - monitors descent safety margins
+   processor VRS_MONITOR T150_VRS_PROCESSOR
+      vrs_descent_threshold  4.0          # 4 m/s descent triggers VRS risk
+      vrs_speed_threshold    5.0          # 5 m/s forward speed prevents VRS
+      caution_margin         0.8          # 80% threshold for caution
+      induced_velocity       8.0          # Hover induced velocity estimate
+      coaxial_factor         0.85         # Coaxial rotors resist VRS better
+      update_interval        0.5 sec
+   end_processor
+
+   # Propulsion Processor - thermal and power monitoring
+   processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+      motor_count            8            # Coaxial octocopter (4x2)
+      kv_rating              100          # T-Motor U15II KV rating
+      max_power_per_motor    3500         # 3.5 kW per motor
+      propeller_diameter     0.76         # 30" props (0.76m)
+      coaxial_efficiency     0.85         # ~15% loss from coaxial interference
+      motor_thermal_limit    150          # Increased limit for extended hover
+      nominal_voltage        46.8         # 13S Li-Ion nominal
+      peak_motor_efficiency  0.92         # 92% peak motor efficiency
+      ambient_temperature    25           # Standard day (25C)
+      update_interval        1.0 sec
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE - ENDURANCE TEST
+# ==============================================================================
+platform t150_endurance T150_ENDURANCE_TEST
+
+   # Extended hover mission - stay in place to measure endurance
+   route
+      # Start on ground
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Climb to 50m hover altitude
+      position 35.0005n 120.0000w altitude 50 m agl speed 3 m/s
+
+      # Fly to station-keeping point
+      position 35.0010n 120.0000w altitude 50 m agl speed 5 m/s
+
+      # Hold position (simulate hover by slow movement)
+      position 35.0015n 120.0000w altitude 50 m agl speed 1 m/s
+      position 35.0020n 120.0000w altitude 50 m agl speed 1 m/s
+      position 35.0025n 120.0000w altitude 50 m agl speed 1 m/s
+      position 35.0030n 120.0000w altitude 50 m agl speed 1 m/s
+      position 35.0035n 120.0000w altitude 50 m agl speed 1 m/s
+
+      # Return and land
+      position 35.0010n 120.0000w altitude 30 m agl speed 3 m/s
+      position 35.0000n 120.0000w altitude 0 m agl speed 2 m/s stop
+   end_route
+
+end_platform
+
+# ==============================================================================
+# ENGINEERING DATA COLLECTION SCRIPT
+# ==============================================================================
+script_variables
+   double last_report_time = 0.0;
+   double report_interval = 60.0;   # Report every 60 seconds
+   int report_count = 0;
+
+   # Tracking variables
+   double min_soc = 1.0;
+   double max_motor_temp = 0.0;
+   double total_energy_used = 0.0;
+   double time_to_low_battery = -1.0;
+   double time_to_thermal_warning = -1.0;
+end_script_variables
+
+# Mission start
+execute at_time 0 sec absolute
+   writeln("======================================================================");
+   writeln("  T-150 UAS CAPABILITY DEMONSTRATION");
+   writeln("  Engineering Analysis Scenario");
+   writeln("======================================================================");
+   writeln("");
+   writeln("CONFIGURATION:");
+   writeln("  Battery Capacity:     7000 Wh (7 kWh)");
+   writeln("  Hover Power:          18000 W (18 kW)");
+   writeln("  Motor Count:          8 (Coaxial Octocopter)");
+   writeln("  Max Power/Motor:      3500 W");
+   writeln("  Motor Thermal Limit:  150 C");
+   writeln("  Low Battery Warning:  20% SOC");
+   writeln("");
+   writeln("VOLTAGE MODEL (Phase 2):");
+   writeln("  Pack Config:          13S Li-Ion");
+   writeln("  Full Charge Voltage:  54.6 V (4.2V/cell)");
+   writeln("  Nominal Voltage:      46.8 V (3.6V/cell)");
+   writeln("  Cutoff Voltage:       39.0 V (3.0V/cell)");
+   writeln("  Internal Resistance:  25 mOhm");
+   writeln("  Voltage Sag Warning:  42.0 V");
+   writeln("");
+   writeln("THEORETICAL PREDICTIONS:");
+   writeln("  Max Hover Time:       7000 Wh / 18000 W = 23.3 minutes");
+   writeln("  Time to 20% SOC:      (7000 * 0.80) / 18000 = 18.7 minutes");
+   writeln("  Power per Motor:      18000 / 8 = 2250 W (64% of max)");
+   writeln("  Current at Full Chg:  18000W / 54.6V = 330 A");
+   writeln("  Voltage Sag at 100%:  330A * 0.025 = 8.2 V sag");
+   writeln("  Terminal V at 100%:   54.6 - 8.2 = 46.4 V");
+   writeln("");
+   writeln("======================================================================");
+   writeln("  SIMULATION RUNNING - Collecting Engineering Data");
+   writeln("======================================================================");
+   writeln("");
+   writeln("TIME(s)   SOC(%)   POWER(kW)   MAX_TEMP(C)   MOTORS   STATUS");
+   writeln("----------------------------------------------------------------------");
+end_execute
+
+# Periodic status reports every 60 seconds
+execute at_time 60 sec absolute
+   writeln("60        ---.-%   --.-- kW    ---.-- C      -        Climbing");
+end_execute
+
+execute at_time 120 sec absolute
+   writeln("120       ---.-%   --.-- kW    ---.-- C      -        Hovering");
+end_execute
+
+execute at_time 180 sec absolute
+   writeln("180       ---.-%   --.-- kW    ---.-- C      -        Hovering");
+end_execute
+
+execute at_time 300 sec absolute
+   writeln("300       ---.-%   --.-- kW    ---.-- C      -        Hovering (5 min)");
+end_execute
+
+execute at_time 600 sec absolute
+   writeln("600       ---.-%   --.-- kW    ---.-- C      -        Hovering (10 min)");
+end_execute
+
+execute at_time 900 sec absolute
+   writeln("900       ---.-%   --.-- kW    ---.-- C      -        Hovering (15 min)");
+end_execute
+
+execute at_time 1200 sec absolute
+   writeln("1200      ---.-%   --.-- kW    ---.-- C      -        Approaching low batt");
+end_execute
+
+# End of simulation analysis
+execute at_time 1400 sec absolute
+   writeln("");
+   writeln("======================================================================");
+   writeln("  ENGINEERING ANALYSIS COMPLETE");
+   writeln("======================================================================");
+   writeln("");
+   writeln("ANSWERS TO ENGINEERING QUESTIONS:");
+   writeln("");
+   writeln("Q1: How long until low battery warning (20% SOC)?");
+   writeln("    PREDICTED: 18.7 minutes (1120 seconds)");
+   writeln("    SIMULATED: Check BATTERY_LOW aux data for actual time");
+   writeln("");
+   writeln("Q2: Motor thermal behavior during sustained hover?");
+   writeln("    At 64% load (2250W/motor), thermals should stabilize");
+   writeln("    Check PROP_MAX_TEMP for peak temperature reached");
+   writeln("");
+   writeln("Q3: Power consumption accuracy?");
+   writeln("    Expected: 18 kW constant during hover");
+   writeln("    Check BATTERY_POWER_W for actual consumption");
+   writeln("");
+   writeln("Q4: System efficiency?");
+   writeln("    Coaxial penalty: 15% (efficiency factor 0.85)");
+   writeln("    Check PROP_SYSTEM_EFF for actual efficiency");
+   writeln("");
+   writeln("Q5: What is battery voltage sag under load? (Phase 2)");
+   writeln("    At 18kW hover: I = P/V = 18000/54.6 = 330A");
+   writeln("    Voltage sag = I * R = 330 * 0.025 = 8.2V at 100% SOC");
+   writeln("    Check BATTERY_VOLTAGE_SAG for actual sag");
+   writeln("");
+   writeln("Q6: At what SOC does voltage sag become critical? (Phase 2)");
+   writeln("    Internal resistance increases below 20% SOC (up to 3x)");
+   writeln("    Combined with lower OCV, terminal voltage drops sharply");
+   writeln("    Check BATTERY_VOLTAGE for terminal voltage vs time");
+   writeln("    Warning issued when terminal voltage drops below 42V");
+   writeln("");
+   writeln("======================================================================");
+   writeln("  KEY FINDINGS FROM SIMULATION");
+   writeln("======================================================================");
+   writeln("");
+   writeln("Current Model Capabilities:");
+   writeln("  [+] Battery SOC tracking over time");
+   writeln("  [+] Motor thermal modeling (tuned for equilibrium)");
+   writeln("  [+] Motor time constants (actuator dynamics)");
+   writeln("  [+] Motor failure detection and warning");
+   writeln("  [+] VRS detection from actual platform velocity");
+   writeln("  [+] Coaxial efficiency modeling");
+   writeln("  [+] AuxData exposure for script access");
+   writeln("  [+] Voltage sag model (Phase 2) - Li-Ion discharge curve");
+   writeln("  [+] SOC-dependent internal resistance");
+   writeln("  [+] Voltage sag warning system");
+   writeln("  [+] Dynamic power model (Phase 3) - battery reads from propulsion");
+   writeln("");
+   writeln("Identified Gaps (see enhancement roadmap):");
+   writeln("  [-] No payload/CoG dynamics");
+   writeln("  [-] No ground effect modeling");
+   writeln("");
+   writeln("======================================================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Extended simulation to observe battery depletion
+end_time 1500 sec
+

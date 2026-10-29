@@ -1,0 +1,49 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 4.2 Battery Processor Lifecycle
+## Description: Sequence diagram showing the AFSIM-to-BatteryProcessor lifecycle:
+##   ProcessInput (parse configuration), Initialize (set initial state),
+##   Update (per-timestep power/SOC/voltage computation loop), and Destructor
+##   (write CSV summary). Shows the interaction between AFSIM calling lifecycle
+##   methods and the BatteryProcessor responding at each stage.
+
+Sequence: BatteryProcessor Lifecycle
+
+AFSIM              BatteryProcessor
+  |                      |
+  |-- ProcessInput() --->|  Parse: capacity_wh, initial_soc,
+  |                      |         voltage model params, CSV config,
+  |                      |         power_source_key, auxiliary_power_w
+  |                      |
+  |-- Initialize() ----->|  Set initial SOC, compute OCV,
+  |                      |  open CSV file, publish initial AuxData
+  |                      |
+  |-- Update(simTime) -->|  [per timestep, repeated]
+  |                      |    Read power from AuxData source
+  |                      |    Apply motor efficiency, add auxiliary power
+  |                      |    Compute energy consumed = power * dt
+  |                      |    Update SOC = SOC - (energy / capacity)
+  |                      |    Compute OCV from SOC lookup
+  |                      |    Solve for terminal voltage (quadratic)
+  |                      |    Publish state to AuxData
+  |                      |    Write CSV row at configured interval
+  |                      |    Check low-battery / voltage-sag warnings
+  |                      |
+  |-- ~Destructor() ---->|  Write CSV summary, close file
+
+## Suggested eraser.io prompt:
+## Create a sequence diagram showing the BatteryProcessor lifecycle within AFSIM.
+## Two participants: AFSIM (left) and BatteryProcessor (right).
+## Messages:
+## 1. AFSIM -> BatteryProcessor: ProcessInput()
+##    Note: Parses capacity_wh, initial_soc, voltage model params, CSV config,
+##    power_source_key, auxiliary_power_w
+## 2. AFSIM -> BatteryProcessor: Initialize()
+##    Note: Sets initial SOC, computes OCV, opens CSV file, publishes initial AuxData
+## 3. AFSIM -> BatteryProcessor: Update(simTime) [loop - repeated per timestep]
+##    Note: Read power from AuxData, apply efficiency, add auxiliary power,
+##    compute energy consumed, update SOC, compute OCV, solve terminal voltage
+##    (quadratic), publish to AuxData, write CSV, check warnings
+## 4. AFSIM -> BatteryProcessor: ~Destructor()
+##    Note: Write CSV summary, close file
+## Show the Update call inside a loop/repeat frame.
+## Diagram type: Sequence diagram

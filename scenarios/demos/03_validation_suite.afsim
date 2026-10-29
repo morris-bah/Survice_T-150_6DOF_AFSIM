@@ -1,0 +1,240 @@
+# ==============================================================================
+# T-150 UAS Comprehensive Validation Test Suite
+# ==============================================================================
+# Project: project005_t150_uas - Version 2.0
+#
+# Master validation scenario that exercises all T-150 UAS plugins and physics:
+# - VRS validation at multiple descent rates
+# - Battery/power validation across flight profiles
+# - Slung load validation with different cable lengths and masses
+# - 6DOF attitude validation at various tilt angles
+# - External force integration validation
+#
+# Copyright 2025 - Project 005 T-150 UAS Simulation
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME t150_validation_suite
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include base platform definitions
+include ../../platforms/t150_platform.afsim
+
+# =============================================================================
+# VRS TEST PLATFORMS - Multiple descent rate configurations
+# =============================================================================
+
+platform_type T150_VRS_TEST_SLOW T150_UAS
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  4.0
+        vrs_speed_threshold    5.0
+        caution_margin         0.8
+        induced_velocity       8.5
+        coaxial_factor         0.85
+        update_interval        0.05 sec    # High rate for VRS detection
+    end_processor
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          17000.0
+        update_interval        0.1 sec
+    end_processor
+end_platform_type
+
+# =============================================================================
+# BATTERY TEST PLATFORMS - Different flight profiles
+# =============================================================================
+
+platform_type T150_BATTERY_HOVER T150_UAS
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          17000.0
+        low_battery_warning    0.20
+        critical_battery_level 0.10
+        update_interval        0.1 sec
+    end_processor
+end_platform_type
+
+platform_type T150_BATTERY_CRUISE T150_UAS
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          17000.0
+        cruise_power_w         14000.0
+        low_battery_warning    0.20
+        update_interval        0.1 sec
+    end_processor
+end_platform_type
+
+platform_type T150_BATTERY_AGGRESSIVE T150_UAS
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          17000.0
+        climb_power_w          25000.0
+        low_battery_warning    0.25
+        update_interval        0.1 sec
+    end_processor
+end_platform_type
+
+# =============================================================================
+# SLUNG LOAD TEST PLATFORMS - Different cable lengths and masses
+# =============================================================================
+
+platform_type T150_SLUNG_SHORT T150_UAS
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          20000.0
+        update_interval        0.1 sec
+    end_processor
+    processor SLUNG_LOAD T150_SLUNG_LOAD_PROCESSOR
+        load_mass          10.0        # 10 kg light load
+        cable_length       3.0         # 3 meter cable (short)
+        cable_damping      0.1
+        max_cable_tension  2000.0
+        resonance_threshold 20.0
+        update_interval    0.02
+    end_processor
+end_platform_type
+
+platform_type T150_SLUNG_MEDIUM T150_UAS
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          22000.0
+        update_interval        0.1 sec
+    end_processor
+    processor SLUNG_LOAD T150_SLUNG_LOAD_PROCESSOR
+        load_mass          25.0        # 25 kg medium load
+        cable_length       5.0         # 5 meter cable (medium)
+        cable_damping      0.08
+        max_cable_tension  3000.0
+        resonance_threshold 18.0
+        update_interval    0.02
+    end_processor
+end_platform_type
+
+platform_type T150_SLUNG_LONG T150_UAS
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          25000.0
+        update_interval        0.1 sec
+    end_processor
+    processor SLUNG_LOAD T150_SLUNG_LOAD_PROCESSOR
+        load_mass          50.0        # 50 kg heavy load
+        cable_length       10.0        # 10 meter cable (long)
+        cable_damping      0.06
+        max_cable_tension  5000.0
+        resonance_threshold 15.0
+        update_interval    0.02
+    end_processor
+end_platform_type
+
+# =============================================================================
+# VRS VALIDATION TEST INSTANCES
+# =============================================================================
+
+# VRS Test 1: Slow descent (2 m/s) - should be safe
+platform vrs_test_2ms T150_VRS_TEST_SLOW
+    route
+        position 39.7000n 84.1000w altitude 200 m agl speed 0 m/s
+        position 39.7000n 84.1000w altitude 50 m agl speed 2 m/s stop
+    end_route
+end_platform
+
+# VRS Test 2: Medium descent (4 m/s) - at threshold
+platform vrs_test_4ms T150_VRS_TEST_SLOW
+    route
+        position 39.7010n 84.1000w altitude 200 m agl speed 0 m/s
+        position 39.7010n 84.1000w altitude 50 m agl speed 4 m/s stop
+    end_route
+end_platform
+
+# VRS Test 3: Fast descent (6 m/s) with forward speed - should avoid VRS
+platform vrs_test_6ms_forward T150_VRS_TEST_SLOW
+    route
+        position 39.7020n 84.1000w altitude 200 m agl speed 8 m/s
+        position 39.7070n 84.1000w altitude 50 m agl speed 8 m/s stop
+    end_route
+end_platform
+
+# =============================================================================
+# BATTERY VALIDATION TEST INSTANCES
+# =============================================================================
+
+# Battery Test 1: Extended hover (measures hover power consumption)
+platform battery_hover_test T150_BATTERY_HOVER
+    route
+        position 39.7000n 84.0900w altitude 100 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# Battery Test 2: Cruise mission (measures cruise efficiency)
+platform battery_cruise_test T150_BATTERY_CRUISE
+    route
+        position 39.7000n 84.0850w altitude 150 m agl speed 5 m/s
+        position 39.7100n 84.0850w altitude 150 m agl speed 15 m/s
+        position 39.7200n 84.0850w altitude 150 m agl speed 15 m/s
+        position 39.7300n 84.0850w altitude 150 m agl speed 15 m/s stop
+    end_route
+end_platform
+
+# Battery Test 3: Aggressive climb/maneuver (measures peak power)
+platform battery_aggressive_test T150_BATTERY_AGGRESSIVE
+    route
+        position 39.7000n 84.0800w altitude 50 m agl speed 0 m/s
+        position 39.7000n 84.0800w altitude 200 m agl speed 5 m/s    # Climb
+        position 39.7030n 84.0780w altitude 200 m agl speed 12 m/s   # Accel
+        position 39.7060n 84.0760w altitude 150 m agl speed 12 m/s   # Turn+descend
+        position 39.7060n 84.0760w altitude 50 m agl speed 3 m/s stop
+    end_route
+end_platform
+
+# =============================================================================
+# SLUNG LOAD VALIDATION TEST INSTANCES
+# =============================================================================
+
+# Slung Load Test 1: Short cable (3m), light load (10kg)
+platform slung_short_test T150_SLUNG_SHORT
+    route
+        position 39.7000n 84.0700w altitude 100 m agl speed 0 m/s
+        position 39.7020n 84.0700w altitude 100 m agl speed 8 m/s
+        position 39.7020n 84.0680w altitude 100 m agl speed 5 m/s    # Turn
+        position 39.7040n 84.0680w altitude 100 m agl speed 3 m/s stop
+    end_route
+end_platform
+
+# Slung Load Test 2: Medium cable (5m), medium load (25kg)
+platform slung_medium_test T150_SLUNG_MEDIUM
+    route
+        position 39.7000n 84.0650w altitude 120 m agl speed 0 m/s
+        position 39.7030n 84.0650w altitude 120 m agl speed 6 m/s
+        position 39.7030n 84.0620w altitude 120 m agl speed 4 m/s
+        position 39.7050n 84.0620w altitude 100 m agl speed 2 m/s stop
+    end_route
+end_platform
+
+# Slung Load Test 3: Long cable (10m), heavy load (50kg)
+platform slung_long_test T150_SLUNG_LONG
+    route
+        position 39.7000n 84.0600w altitude 150 m agl speed 0 m/s
+        position 39.7020n 84.0600w altitude 150 m agl speed 4 m/s
+        position 39.7020n 84.0580w altitude 150 m agl speed 3 m/s
+        position 39.7030n 84.0580w altitude 120 m agl speed 2 m/s stop
+    end_route
+end_platform
+
+# =============================================================================
+# Simulation output
+# =============================================================================
+event_pipe
+    file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+    use_preset default
+end_event_pipe
+
+# Extended simulation time for full validation
+end_time 300 sec

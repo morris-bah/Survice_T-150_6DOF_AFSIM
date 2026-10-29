@@ -1,0 +1,105 @@
+%%% - - -   UNCLASSIFIED   - - - %%%
+
+\documentclass[11pt, letterpaper]{article}
+
+\newcommand{\thisdocument}{TDD}
+
+\usepackage{../format/NGICStyle}    % does everything
+\usepackage{../format/DurandalBib}    % contains bibliography info
+\usepackage{../format/NGICGlossary} % contains glossary info
+\usepackage{../values/ModelValues}      % sets classified values
+%\usepackage{../content/ChangeLog}      % sets classified values
+%%% document settings
+
+%% document paths
+\graphicspath{{images}}
+\newcommand\csvpath{csv}
+
+\makeatletter
+\def\input@path{{content}}
+\makeatother
+
+% header and footer
+\chead{\documentlabel}
+\cfoot{\documentlabel\ \\ \thepage}
+
+% uncommenting this line globally supresses guidance notes in the PDF
+%\presetkeys{todonotes}{disable}{}
+
+%%% document start
+\begin{document}
+
+\pagenumbering{roman}
+
+\InDevelopmenttrue
+
+\ifInDevelopment
+	\draft
+	\linenumbers
+	\colorlet{ModelValueColor}{blue!50!cyan}
+\fi
+
+%% include sections
+
+\input{../content/TDD-FrontMatter}
+
+\tableofcontents\thispagestyle{fancy}\pagebreak
+\listoftables\thispagestyle{fancy}\pagebreak
+\listoffigures\thispagestyle{fancy}\pagebreak
+
+
+% arabic numbering and footer update
+\pagenumbering{arabic} 
+\cfoot{\classlabel\ \\ {Page \thepage\ of \pageref{LastPage}}}
+
+
+\guidance{
+	
+	\unclass HIGH LEVEL GUIDANCE FOR THIS DOCUMENT:
+	
+	\unclass Please maintain consistency across the document within a test family and across the document as much as possible. Maintain consistent labels, naming conventions, and output displays to include axis, scales, etc. This allows the reader ease in comparing data from one plot to another.
+	
+	\unclass This does require diligence and extra effort but must be emphasized. 
+	
+	\unclass Example: If OJX-1 is the label in the laydown then that is the name that should be used through out.  If the \gls{odessa} asset number or tag is "6" in the provided scenario file there should be a note in the text to say that.
+	
+	\unclass If this type of information can be standardized for the entire set of tests then it is recommended. Include in a high level table if it makes sense. 
+	
+	\unclass NOTE: It is recommended that naming that is used considers something that can be used both unclassified and classified or done in a way that is easy to update in the secure space. 
+	
+}
+\input{../content/Introduction}%\pagebreak
+
+%% fill component name here, so if documents are turned on or off, renew can be used as a command. 
+\newcommand\componentname{\textcolor{black}{\textbf{HOLD}}}  
+
+
+\input{../content/TDD-ReqTraceTemplate}
+
+
+\input{../content/SystemTestsIntro}
+
+
+
+\input{../content/ScopesOfTestFamilies.tex}
+
+%% Individual test cases begin here
+\input{../content/SampleTestFamily}
+% create new test family for every one needed. 
+
+\input{../content/SampleTestCase}
+
+\texttt{}\input{../content/UnitTests.tex}
+
+\input{../content/References}
+\pagebreak
+
+% glossary print function
+\doPrintGloss
+
+\doPrintBib%
+
+\newpage\label{mylastpage}
+\end{document}
+
+%%% - - -   UNCLASSIFIED   - - - %%%

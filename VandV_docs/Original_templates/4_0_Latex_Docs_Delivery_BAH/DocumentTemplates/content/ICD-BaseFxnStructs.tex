@@ -1,0 +1,385 @@
+\section{\unclass Base External Simulation Interface}
+
+\unclass This section is broken down into base level functions and  a section for the structs which those functions utilize.
+
+\subsection{\unclass Functions}
+
+\guidance{TIMELINE: This table should be drafted with all anticipated functions by SRR, and should be finalized by CDR. \\
+It should include the intended functions accessed through the DLL. As development progresses, this should be updated.
+}
+
+\unclass This section contains a list of all base interface functions in the \gls{dll} with descriptions and explanations for each of them. These functions are common across all \gls{odessa} external simulation \gls{dll}s.
+
+
+\tableOneNow{\unclasslabel}{\unclass Export Functions}{table1}{6.5in}{
+    Function \\
+    \hyperref[tab:Update]{bool Update()} \\
+    \hyperref[tab:Cleanup]{bool Cleanup()} \\
+    \hyperref[tab:DestroySystem]{void DestroySystem()} \\
+    \hyperref[tab:GetCurrentTimestepStart]{double GetCurrentTimestepStart()} \\
+    \hyperref[tab:GetCurrentTimestepEnd]{double GetCurrentTimestepEnd()} \\
+    \hyperref[tab:GetCurrentTimestepInt]{int GetCurrentTimestepInt()} \\
+    \hyperref[tab:GetSimTimeStepSize]{double GetSimTimeStepSize()} \\
+    \hyperref[tab:AddExternalSystem]{void AddExternalSystem(AddExternalSystemInfo system\_info)} \\
+    \hyperref[tab:AddExternalSystemExtended]{void AddExternalSystem(AddExternalSystemInfo\_Extended system\_info\_extended)} \\
+    \hyperref[tab:UpdateExternalSystem]{void UpdateExternalSystem(ExternalSystemUpdateInfo system\_update)} \\
+    \hyperref[tab:InitEnvironment]{void InitEnvironment()} \\
+    \hyperref[tab:AddExternalSpdw]{void AddExternalSpdw(SpdwInit spdw\_init)} \\
+    \hyperref[tab:GetVoacapAngles]{VoacapAngles GetVoacapAngles(source\_component\_id, dest\_component\_id, frequency\_hz)} \\
+    \hyperref[tab:GetExternalSystemInfoExtended]{ExternalSystemInfoExtended GetExternalSystemInfo\_Extended()} \\
+}
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Update}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{Update}} function is a call applied to all \gls{odessa} objects within the \gls{dll}. First the \textit{System} updates itself, then the \textit{Environment}. \textcolor{red5}{\textbf{Update}} takes no input parameters and does not provide \gls{odessa} objects with any information about the rest of the simulation. The accompanying \textit{model specific} ICD should contain a \textcolor{red5}{\textbf{SetInput}} function that provides simulation data \textit{to} the \gls{odessa} object. In most cases the \textit{model specific} \textcolor{red5}{\textbf{SetInput}} function should be called before \textcolor{red5}{\textbf{Update}} is. This function throws a \textit{generic error} described below.
+%    
+    \hypertarget{genericerror}{\textit{Note: other functions reference this throw error, therefore it is written generically}.}
+%
+    The accompanying \textit{model specific} ICD should contain a function which initializes the \gls{odessa} system object in the \gls{dll}. If the \textcolor{red5}{\textbf{FUNCTION}} is called before the \textit{model specific} initialization function is called, \textcolor{red5}{\textbf{FUNCTION}} will throw a \textit{generic error}. This \textit{generic} throw will print an error message which reads: 
+    
+    ``Error: cannot call function \textcolor{red5}{\textbf{FUNCTION}} before system is initialized.''
+%
+
+
+    \functionTable{\unclasslabel}{Update}{Update}{bool Update()}
+    {
+             & No input value taken\\ 
+    }{
+        bool & A bool which always returns true, this provides no meaningful information\\
+    }
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Cleanup}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{Cleanup}} function is a call applied to all \gls{odessa} objects within the \gls{dll}. First the \textit{System} performs its end of timestep cleanup functionality, then any internal representations of external systems perform theirs. \textcolor{red5}{\textbf{Cleanup}} takes no input parameters and does not provide \gls{odessa} objects with any information about the rest of the simulation.\textcolor{red5}{\textbf{ Cleanup}} should be called at the end of every simulation timestep. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Cleanup}{Cleanup}{bool Cleanup()}
+    {
+             & No input value taken\\
+    }{
+        bool & A bool which always returns true, this provides no meaningful information\\
+    }
+
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Destroy System}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{DestroySystem}} function is used at the very end of a simulation to release memory allocated within the \gls{dll}. This function does not throw errors.
+
+    \functionTable{\unclasslabel}{Destroy System}{DestroySystem}{void DestroySystem()}
+    {
+             & No input value taken\\
+    }{
+        void & No return value given\\
+    }
+
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Get Current Timestep Start}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{GetCurrentTimestepStart}} returns the simulation time in seconds at the beginning of the current timestep. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Get Current Timestep Start}{GetCurrentTimestepStart}{double GetCurrentTimestepStart()}
+    {
+               & No input value taken\\
+    }{
+        double & The beginning of the current simulation timestep in seconds\\
+    }
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Get Current Timestep End}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{GetCurrentTimestepEnd}} returns the simulation time in seconds at the end of the current timestep. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Get Current Timestep End}{GetCurrentTimestepEnd}{double GetCurrentTimestepEnd()}
+    {
+               & No input value taken\\
+    }{
+        double & The end of the current simulation timestep in seconds\\
+    }
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Get Current Timestep Int}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{GetCurrentTimestepInt}} returns the current simulation timestep as an integer count. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Get Current Timestep Int}{GetCurrentTimestepInt}{int GetCurrentTimestepInt()}
+    {
+               & No input value taken\\
+    }{
+        double & The current simulation timestep as an integer count\\
+    }
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Get Simulation Timestep Size}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{GetCurrentTimeStepSize}} function returns the length of the internal \gls{dll} timestep as a double in seconds. This value is set through a selected \textit{.scn} file and should remain the same throughout the simulation runtime. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Get Current Timestep Size}{GetSimTimeStepSize}{double GetSimTimeStepSize()}
+    {
+               & No input value taken\\
+    }{
+        double & Returns the length of the internal \gls{dll} timestep in seconds\\
+    }
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Add External System}
+
+    \hspace{\parindent}\unclass The \gls{dll} has an internal representation of entities from the external simulation of which the model or the environment need to be aware. These representations are added with the \textcolor{red5}{\textbf{AddExternalSystem}} function(s). This function applies inputs in values from the \textbf{\textit{\hyperref[tab:addtargetstruct]{Add External System Info Struct}}} to a new asset. This function should be called before the \textcolor{red5}{\textbf{InitEnvironment}} function so that the \gls{odessa} environment inside the \gls{dll} can properly register these representations. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Add External System}{AddExternalSystem}{void AddExternalSystem(AddExternalSystemInfo system\_info)}
+    {
+        AddExternalSystemInfo system\_info & A \textbf{\textit{\hyperref[tab:addtargetstruct]{struct}}} containing relevant system info values\\
+    }{
+        void                               & No return value given\\
+    }
+
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Add External System (Extended)}
+
+    \hspace{\parindent}\unclass The \gls{dll} has an internal representation of entities from the external simulation of which the model or the environment need to be aware. These representations are added with the \textcolor{red5}{\textbf{AddExternalSystem}} function(s). This function applies inputs in values from the \textbf{\textit{\hyperref[tab:addExternalSystemExtendedStruct]{Add External System Info Struct (Extended)}}} to a new asset. This function should be called before the \textcolor{red5}{\textbf{InitEnvironment}} function so that the \gls{odessa} environment inside the \gls{dll} can properly register these representations. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Add External System (Extended)}{AddExternalSystemExtended}{void AddExternalSystem(AddExternalSystemInfo\_Extended system\_info\_extended)}
+    {
+        \scriptsize{AddExternalSystemInfo\_Extended} \normalsize{system\_info} & A \textbf{\textit{\hyperref[tab:addtargetstruct]{struct}}} containing relevant system info values\\
+    }{
+        void                                                                   & No return value given\\
+    }
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Update External System}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{UpdateExternalSystem}} function updates the positional data of an entity added to the simulation through the \gls{dll} with the \hyperref[tab:AddExternalSystem]{\textcolor{red5}{\textbf{AddExternalSystem}}} function(s). The external system is specified with the \textit{system\_id} member variable in the \textbf{\textit{\hyperref[tab:updatetargetstruct]{Update External System Info Struct}}}. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Update External System}{UpdateExternalSystem}{void UpdateExternalSystem(ExternalSystemUpdateInfo system\_update)}
+    {
+        system\_update & A \textbf{\textit{\hyperref[tab:updatetargetstruct]{struct}}} containing relevant external system values\\
+    }{
+        void           & No return value given\\
+    }
+
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Initialize Environment}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{InitEnvironment}} function creates and initializes the \gls{odessa} environment within the \gls{dll} using input from a selected \textit{.scn} file. The \gls{odessa} environment is responsible for handling emitted \gls{spdw}s from external systems as they travel through the atmosphere. In order for \gls{spdw}s to be received by the model this \textcolor{red5}{\textbf{InitEnvironment}} function must be called before the \hyperref[tab:Update]{\textcolor{red5}{\textbf{Update}}} function. \hyperref[tab:AddExternalSystem]{\textcolor{red5}{\textbf{AddExternalSystem}}} calls should be performed before this function. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Initialize Environment}{InitEnvironment}{void InitEnvironment()}
+    {
+             & No input value taken\\
+    }{
+        void & No return value given\\
+    }
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Add External SPDW}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{AddExternalSpdw}} injects an \gls{spdw} into the outbox of a generic transmitting component that represents the transmitter of an external system. This function should be called when a receiver needs to accept pulses from other models in the external simulation. In order to call it an external model must be added as an external system and the \textcolor{red5}{\textbf{InitEnvironment}} function must have been called; this will allow external models to appear in propagation paths.  This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \functionTable{\unclasslabel}{Add External SPDW}{AddExternalSpdw}{void AddExternalSpdw(SpdwInit spdw\_init)}
+    {
+        spdw\_init & A \textbf{\textit{\hyperref[tab:spdwinitstruct]{struct}}} containing relevant \gls{spdw} values\\
+    }{
+        void & No return value given\\
+    }
+
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Get VOACAP Angles}
+
+    \hspace{\parindent}\unclass The \textcolor{red5}{\textbf{GetVoacapAngles}} collects takeoff and landing angles calculated by \gls{voacap} for skywave propagation. See the UAM for additional information on \gls{voacap}. This function throws a \hyperlink{genericerror}{\textit{generic error}} as described above.
+
+    \unclass \gls{odessa} system objects in the \gls{dll} will also throw an error if the \gls{voacap} input frequency is outside the operation limits. These limits are within two megahertz and thirty megahertz. This throw will print an error message which reads: 
+    
+    ``Error: VOACAP input frequency must be between 2 MHz and 30 MHz.''
+
+    \functionTable{\unclasslabel}{Get VOACAP Angles}{GetVoacapAngles}{VoacapAngles GetVoacapAngles(source\_component\_id, dest\_component\_id, frequency\_hz)}
+    {
+        source\_component\_id & Integer which describes the component which the signal emits from\\
+        dest\_compnent\_id & Integer which describes the component which the signal is to be received by\\
+        frequency\_hz & Double which describes center frequency of an associated signal being propagated (hertz)\\
+    }{
+        VoacapAngles & A \textbf{\textit{\hyperref[tab:voacapanglesstruct]{struct}}} which contains the azimuthal and elevation angles for the takeoff and landing for skywave propagation\\
+    }
+%
+%
+%\pagebreak\vspace{.35in}\vbox{
+    \sectionthr{Get External System Info Extended}
+
+    \hspace{\parindent}\unclass The function \textcolor{red5}{\textbf{GetExternalSystemInfo\_Extended}} returns a struct representation of a model's system that can be given to other systems in the simulation. Other systems can use this struct to inform their copy of the environment code that a new system has entered the simulation. The environment can interact with this shell model system without having to know about the real model which lives in a different dll.
+
+    \functionTable{\unclasslabel}{Get External System Info Extended}{GetExternalSystemInfoExtended}{ExternalSystemInfoExtended GetExternalSystemInfo\_Extended()}
+    {
+         & No input value taken \\
+    }{
+        ExternalSystemInfoExtended & A struct which contains the info needed to create a shell aproximation of this model in a different dll\\
+    }
+%
+%
+%
+%
+\pagebreak
+
+\sectiontwo{Structs}
+
+\unclass This section contains the structs that are common across all \gls{odessa} external simulation \gls{dll}s.
+%
+%\tableTwoNow{Add External System Information Struct}{2.5in, fg=TableBlue, l}{4in, l}{
+\tableTwoNow{\unclasslabel}{\unclass External System Information Struct}{table1}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}addTarget                                  & \\
+    \SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+    \SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+    \SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    int system\_id                                              & Integer \gls{id} of the external system\\
+    int entity\_id                                              & Integer \gls{id} of the entity within the external system\\
+    int platform\_id                                            & Integer \gls{id} of the platform within the external system\\
+    bool has\_tx                                                & Bool value describing whether the external system has a transmitter or not\\
+    int interface\_id                                           & Integer \gls{id} of the interface within the external system. Only used if `has\_tx' is true\\
+    int tx\_id                                                  & Integer \gls{id} of the transmitter within the external system. Only used if `has\_tx' is true\\
+    int number\_of\_hits\_to\_death                             & Integer containing value of ``hits to kill'' an asset\\
+    double rcs                                                  & Double containing the radar cross section, the apparent size of an asset in meters squared\\
+    double initial\_speed                                       & Double containing initial speed in meters per second of an asset\\
+    double initial\_heading                                     & Double containing initial directional facing of an asset in radians where 0.0 is due north\\
+    std::array$<$double, 3$>$ dimensions                        & An array containing the dimensions of a target in length(m), width(m), and height(m) respectively\\
+    std::array$<$double, 3$>$ initial\_lla                      & Initial \gls{lla} of a target in latitude(radians), longitude(radians), and altitude(m) respectively\\
+    double operating\_frequency\_hz                             & Double containing the operating frequency in Hertz of the external system's transmitter. Only used if `has\_tx' is true\\
+}
+%
+%\pagebreak
+
+\tableTwoNow{\unclasslabel}{\unclass Add External System Information Struct (Extended)}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}addExternalSystemExtended                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    int system\_id                                              & Integer \gls{id} of the external system\\
+    Color alignment                                             & Alignment of the external system (red, blue, or gray)\\
+    std::vector$<$ExternalEntityInfo$>$ entity\_info            & Vector of external entity information structs to represent entities within the external system\\
+}
+%
+\tableTwoNow{\unclasslabel}{\unclass External Entity Information Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}externalEntityInfo                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    int entity\_id                                              & Integer \gls{id} of the entity within the external system.\\
+    int platform\_id                                            & Integer \gls{id} of the platform within the external system.\\
+    std::vector$<$ExternalAttachmentInfo$>$ attachment\_info    & Vector of external attachment info structs to represent the platform attachments of the external entity.\\
+    int number\_of\_hits\_to\_death                             & Integer containing value of ``hits to kill'' an asset.\\
+    double rcs                                                  & Double containing the radar cross section, the apparent size of an asset, in meters squared.\\
+    double initial\_speed                                       & Double containing initial speed in meters per second of an asset.\\
+    double initial\_heading                                     & Double containing initial directional facing of an asset in radians where 0.0 is due north.\\
+    std::array$<$double, 3$>$ dimensions                        & An array containing the dimensions of a target in length(m), width(m), and height(m) respectively.\\
+    std::array$<$double, 3$>$ initial\_lla                      & Initial \gls{lla} of a target in latitude(radians), longitude(radians), and altitude(m) respectively.\\
+}
+%
+%\pagebreak
+%
+\tableTwoNow{\unclasslabel}{\unclass External Attachment Information Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}externalAttachmentInfo                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    int interface\_id                                           & Integer \gls{id} of the external interface for this grouping of attachments\\
+    std::vector$<$ExternalTransmitterInfo$>$ transmitter\_info  & Vector of external transmitter information structs to represent transmitters within this grouping of attachments\\
+}
+
+\tableTwoNow{\unclasslabel}{\unclass External Transmitter Information Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}externalTransmitterInfo                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+	    int transmitter\_id                                         & Integer \gls{id} of the transmitter\\
+    double operating\_frequency\_hz                             & Double containing the operating frequency in Hertz of the transmitter\\
+}
+%
+\tableTwoNow{\unclasslabel}{\unclass Update External System Information Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}ExternalSystemUpdateInfo                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    int system\_id                                              & Integer \gls{id} of the external system\\
+    double update\_time                                         & Simulation time in seconds for this update information\\
+    std::vector$<$PlatformInfo$>$ new\_ecf\_states              & Updated target position and heading for each entity within the external system. These values are a described in the \textbf{\textit{\hyperref[tab:platforminfostruct]{Platform Information Struct}}}\\
+}
+%
+%\pagebreak
+%
+\tableTwoNow{\unclasslabel}{\unclass Platform Information Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}PlatformInfo                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    std::array$<$double, 3$>$ ecf\_position                     & Earth-centered, Earth-fixed coordinates of the platform.\linebreak Described as an array of doubles: X (meters), Y (meters), and Z (meters)\\
+    std::array$<$double, 3$>$ ecf\_velocity                     & Earth-centered, Earth-fixed velocity of the platform.\linebreak Described as an array of doubles: X (meters per second), Y (meters per second), and Z (meters per second)\\
+    std::array$<$double, 3$>$ ecf\_acceleration                 & Earth-centered, Earth-fixed acceleration of the platform.\linebreak Described as an array of doubles: X (meters per second squared), Y (meters per second squared), and Z (meters per second squared)\\
+    std::array$<$double, 4$>$ pointing\_quaternion              & Current pointing quaternion of the platform.\linebreak Described as an array of doubles: q1 (unitless), q2 (unitless), q3 (unitless), and q4 (unitless)\\
+}
+%
+\tableTwoNow{\unclasslabel}{\unclass SPDW Initialization Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}SpdwInit                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    int external\_system\_id                                    & \gls{id} of the external system that generated the associated \gls{spdw}\\
+    int sender\_id                                              & \gls{id} of the component within the external system that generated the associated \gls{spdw}\\
+    int signal\_link                                            & An integer used to describe a class/group of pulses meant to be received as a burst\\
+    int pulse\_number                                           & An integer used to describe the number of a pulse in a `signal\_link' group of pulses\\
+    std::string metadata                                        & A string of key-value pairs describing model-specific metadata\\
+    \gls{spdw}Info \gls{spdw}\_data                             & Qualities relevant to the specified \gls{spdw}, these values are a described in the \textbf{\textit{\hyperref[tab:spdwinfostruct]{SPDW Information Struct}}}\\
+}
+%
+%\pagebreak
+%
+\tableTwoNow{\unclasslabel}{\unclass SPDW Information Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}SpdwInfo                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    double transmit\_time\_secs                                 & Double which describes the transmit time of an signal (seconds)\\
+    double pri\_secs                                            & Double which describes the Pulse Repetition Interval of an associated signal (seconds)\\
+    double pulse\_width\_secs                                   & Double which describes pulse width of an associated signal (seconds)\\
+    double erp\_watts                                           & Double which describes effective radiate power of an associated signal. This value is calculated post-environmental effects (watts)\\
+    double center\_freq\_hertz                                  & Double which describes operational center frequency of an associated signal (hertz)\\
+    double signal\_bandwidth\_hertz                             & Double which describes the operational bandwidth of an associated signal (hertz)\\
+    double transmit\_phase\_rads                                & Double which describes the phase of an output antenna skin of an associated signal (radians)\\
+    CoherencyType coherency                                     & Enum which describes the coherency of an associated signal. Includes coherent and noncoherent\\
+    SkirtShape skirt\_shape                                     & Enum which describes the skirt shape of an associated signal\\
+    JammingTypes jamming\_type                                  & Enum which describes the jamming type of an associated signal \textit{Note: for jamming \gls{spdw}s only}\\
+    Polarization polarization                                   & Enum which describes the polarization of the transmitting antenna of an associated signal\\
+    PulseModulation modulation\_on\_pulse                       & Enum which describes the modulation schema on the pulse of an associated signal\\
+    PulseModulationSpec modulation\_spec                        & Enum which describes advanced parameters of the modulation of an associated signal\\
+    TransmitMode transmit\_mode                                 & Enum which describes the transmit mode of an associated signal\\
+}
+%
+%\pagebreak
+%
+\tableTwoNow{\unclasslabel}{\unclass VOACAP Angles Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}VoacapAngles                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    AzimuthElevation landing\_rads                              & Landing angle from source component to destination component as calculated by \gls{voacap} (radians)\linebreak It is composed of by the \textbf{\textit{\hyperref[tab:azimuthelevationstruct]{Azimuth and Elevation Struct}}}\\
+    AzimuthElevation takeoff\_rads                              & Takeoff angle from source component to destination component as calculated by \gls{voacap} (radians)\linebreak It is composed of by the \textbf{\textit{\hyperref[tab:azimuthelevationstruct]{Azimuth and Elevation Struct}}}\\
+}
+%
+\tableTwoNow{\unclasslabel}{\unclass Azimuth and Elevation Struct}{LABEL}{2.5in, fg=TableBlue, l}{4in, l}{
+    \SetCell[c=2]{c}AzimuthElevation                                  & \\
+	\SetCell[c=2]{altGra2, fg=black, font=\bfseries, c}Functions Using This Struct\\
+	\SetCell[c=2]{c}FUNCTION NAMES                                  & \\
+	\SetRow{altGra2, fg=black, font=\bfseries, c}Member & Description\\
+    double azimuth                                              & Double describing the azimuth angle (radians)\\
+    double elevation                                            & Double describing the elevation angle (radians)\\
+}
+%
+%%% - - -   UNCLASSIFIED   - - - %%%

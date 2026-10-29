@@ -1,0 +1,231 @@
+# ==============================================================================
+# T-150 UAS Attitude Extreme Test Scenario
+# ==============================================================================
+# Project: project005_t150_uas - Version 2.0
+#
+# This scenario tests the 6DOF mover at extreme attitude angles:
+# - 30 degree tilt (normal operation)
+# - 45 degree tilt (aggressive maneuver)
+# - 60 degree tilt (near maximum bank)
+# - 80 degree tilt (extreme - structural/control limit)
+#
+# Tests position control stability across tilt angle configurations.
+# Validates that the max_tilt_angle parameter correctly limits attitude.
+#
+# Copyright 2025 - Project 005 T-150 UAS Simulation
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME t150_attitude_extreme_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include base platform definitions
+include ../../platforms/t150_platform.afsim
+
+# =============================================================================
+# 6DOF PLATFORM WITH 30 DEG MAX TILT (Default)
+# =============================================================================
+platform_type T150_6DOF_30DEG T150_UAS
+
+    mover T150_6DOF_MOVER ROTORCRAFT_6DOF_MOVER
+        mass                    85.0        # 85 kg empty
+        inertia_xx              5.0
+        inertia_yy              5.0
+        inertia_zz              8.0
+        rotor_configuration     COAXIAL_OCTO
+        rotor_diameter          0.76
+        arm_length              0.8
+        coaxial_spacing         0.12
+        thrust_coefficient      0.12
+        torque_coefficient      0.01
+        max_rpm                 4500
+        motor_time_constant     0.08
+        max_tilt_angle          30.0       # 30 degree max tilt (default)
+        altitude_kp             0.3
+        altitude_ki             0.05
+        altitude_kd             1.2
+        position_kp             0.3
+        position_kd             0.8
+        velocity_kp             0.5
+        heading_kp              1.0
+        waypoint_arrival_radius 5.0
+    end_mover
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          17000.0
+        update_interval        0.1 sec
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# 6DOF PLATFORM WITH 45 DEG MAX TILT (Aggressive)
+# =============================================================================
+platform_type T150_6DOF_45DEG T150_UAS
+
+    mover T150_6DOF_MOVER ROTORCRAFT_6DOF_MOVER
+        mass                    85.0
+        inertia_xx              5.0
+        inertia_yy              5.0
+        inertia_zz              8.0
+        rotor_configuration     COAXIAL_OCTO
+        rotor_diameter          0.76
+        arm_length              0.8
+        coaxial_spacing         0.12
+        thrust_coefficient      0.12
+        torque_coefficient      0.01
+        max_rpm                 4500
+        motor_time_constant     0.08
+        max_tilt_angle          45.0       # 45 degree max tilt
+        altitude_kp             0.3
+        altitude_ki             0.05
+        altitude_kd             1.2
+        position_kp             0.4        # Higher gain for faster response
+        position_kd             1.0
+        velocity_kp             0.6
+        heading_kp              1.0
+        waypoint_arrival_radius 5.0
+    end_mover
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          18000.0    # Higher power for aggressive flight
+        update_interval        0.1 sec
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# 6DOF PLATFORM WITH 60 DEG MAX TILT (Near Maximum Bank)
+# =============================================================================
+platform_type T150_6DOF_60DEG T150_UAS
+
+    mover T150_6DOF_MOVER ROTORCRAFT_6DOF_MOVER
+        mass                    85.0
+        inertia_xx              5.0
+        inertia_yy              5.0
+        inertia_zz              8.0
+        rotor_configuration     COAXIAL_OCTO
+        rotor_diameter          0.76
+        arm_length              0.8
+        coaxial_spacing         0.12
+        thrust_coefficient      0.12
+        torque_coefficient      0.01
+        max_rpm                 4500
+        motor_time_constant     0.08
+        max_tilt_angle          60.0       # 60 degree max tilt
+        altitude_kp             0.35       # Tuned for high-tilt operation
+        altitude_ki             0.06
+        altitude_kd             1.5
+        position_kp             0.5
+        position_kd             1.2
+        velocity_kp             0.7
+        heading_kp              1.2
+        waypoint_arrival_radius 5.0
+    end_mover
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          20000.0    # Higher power for extreme maneuvers
+        update_interval        0.1 sec
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# 6DOF PLATFORM WITH 80 DEG MAX TILT (Extreme Test)
+# =============================================================================
+platform_type T150_6DOF_80DEG T150_UAS
+
+    mover T150_6DOF_MOVER ROTORCRAFT_6DOF_MOVER
+        mass                    85.0
+        inertia_xx              5.0
+        inertia_yy              5.0
+        inertia_zz              8.0
+        rotor_configuration     COAXIAL_OCTO
+        rotor_diameter          0.76
+        arm_length              0.8
+        coaxial_spacing         0.12
+        thrust_coefficient      0.12
+        torque_coefficient      0.01
+        max_rpm                 4500
+        motor_time_constant     0.08
+        max_tilt_angle          80.0       # 80 degree max tilt (extreme!)
+        altitude_kp             0.4        # Aggressive gains for extreme tilt
+        altitude_ki             0.08
+        altitude_kd             2.0
+        position_kp             0.6
+        position_kd             1.5
+        velocity_kp             0.8
+        heading_kp              1.5
+        waypoint_arrival_radius 5.0
+    end_mover
+
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          25000.0    # Maximum power for extreme maneuvers
+        update_interval        0.1 sec
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# TEST PLATFORM INSTANCES
+# =============================================================================
+
+# Test 1: 30 degree tilt - standard maneuver
+platform tilt_30_test T150_6DOF_30DEG
+    route
+        position 39.7000n 84.1000w altitude 100 m agl speed 0 m/s
+        position 39.7020n 84.1000w altitude 100 m agl speed 8 m/s  # Forward accel
+        position 39.7040n 84.0980w altitude 100 m agl speed 10 m/s # Turn
+        position 39.7040n 84.0980w altitude 100 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# Test 2: 45 degree tilt - aggressive maneuver
+platform tilt_45_test T150_6DOF_45DEG
+    route
+        position 39.7000n 84.0950w altitude 100 m agl speed 0 m/s
+        position 39.7030n 84.0950w altitude 100 m agl speed 12 m/s
+        position 39.7060n 84.0920w altitude 100 m agl speed 15 m/s
+        position 39.7060n 84.0920w altitude 100 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# Test 3: 60 degree tilt - high-performance maneuver
+platform tilt_60_test T150_6DOF_60DEG
+    route
+        position 39.7000n 84.0900w altitude 100 m agl speed 0 m/s
+        position 39.7040n 84.0900w altitude 100 m agl speed 15 m/s
+        position 39.7080n 84.0860w altitude 100 m agl speed 18 m/s
+        position 39.7080n 84.0860w altitude 100 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# Test 4: 80 degree tilt - extreme test (caution: may be unstable)
+platform tilt_80_test T150_6DOF_80DEG
+    route
+        position 39.7000n 84.0850w altitude 120 m agl speed 0 m/s
+        position 39.7050n 84.0850w altitude 120 m agl speed 18 m/s
+        position 39.7100n 84.0800w altitude 120 m agl speed 20 m/s
+        position 39.7100n 84.0800w altitude 100 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# =============================================================================
+# Simulation output
+# =============================================================================
+event_pipe
+    file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+    use_preset default
+end_event_pipe
+
+# Extended simulation time
+end_time 180 sec

@@ -1,0 +1,82 @@
+## Source: ICD (Interface Control Document) - T150_ICD_Content.tex
+## Section: 5.1 Inter-Plugin Data Flow Diagram
+## Description: Comprehensive data flow diagram showing all AuxData key exchanges
+##   between the 5 T-150 plugins. Shows producer/consumer relationships:
+##   - 6DOF Mover publishes 6dof_total_power, velocity/attitude telemetry;
+##     consumes SLUNG_FORCE_X/Y/Z and WEAPON_FORCE/MOMENT
+##   - Battery Processor consumes 6dof_total_power and PROP_TOTAL_POWER (fallback);
+##     publishes BATTERY_SOC, BATTERY_VOLTAGE, BATTERY_POWER_W
+##   - Propulsion Processor publishes PROP_TOTAL_POWER, PROP_TOTAL_THRUST, etc.
+##   - Slung Load Processor publishes SLUNG_FORCE_X/Y/Z, SLUNG_CABLE_*, SLUNG_SWING_*;
+##     consumes platform velocity via GetVelocityNED()
+##   - VRS Processor publishes VRS_MARGIN, VRS_STATE, VRS_LIFT_FACTOR;
+##     consumes platform velocity via GetVelocityNED()
+
++---------------------+        6dof_total_power         +---------------------+
+| WSF_ROTORCRAFT_     | ------------------------------> | T150_BATTERY_       |
+| 6DOF_MOVER          |                                 | PROCESSOR           |
+|                     |                                 |                     |
+| Publishes:          |    PROP_TOTAL_POWER (fallback)  | Consumes:           |
+|   6dof_total_power  | <--+                            |   6dof_total_power  |
+|   6dof_total_thrust |    |                            |   PROP_TOTAL_POWER  |
+|   6dof_vel_*        |    |                            |   (fallback chain)  |
+|   6dof_roll/pitch/  |    |                            |                     |
+|   yaw_deg           |    |   +--------------------+   | Publishes:          |
+|                     |    +-- | T150_PROPULSION_   |   |   BATTERY_SOC       |
+| Consumes:           |        | PROCESSOR          |   |   BATTERY_VOLTAGE   |
+|   SLUNG_FORCE_X/Y/Z|        |                    |   |   BATTERY_POWER_W   |
+|   WEAPON_FORCE_*    |        | Publishes:         |   +---------------------+
+|   WEAPON_MOMENT_*   |        |   PROP_TOTAL_POWER |
++---------------------+        |   PROP_TOTAL_THRUST|
+        ^                      |   PROP_GROUND_EFF  |
+        |                      |   PROP_*_SPEED     |
+        |                      +--------------------+
+        |
+        |  SLUNG_FORCE_X/Y/Z
+        |
++---------------------+
+| T150_SLUNG_LOAD_    |
+| PROCESSOR           |
+|                     |        +---------------------+
+| Consumes:           |        | T150_VRS_           |
+|   Platform velocity |        | PROCESSOR           |
+|   (GetVelocityNED)  |        |                     |
+|                     |        | Consumes:           |
+| Publishes:          |        |   Platform velocity |
+|   SLUNG_FORCE_X/Y/Z |       |   (GetVelocityNED)  |
+|   SLUNG_CABLE_*     |        |                     |
+|   SLUNG_SWING_*     |        | Publishes:          |
++---------------------+        |   VRS_MARGIN        |
+                               |   VRS_STATE         |
+                               |   VRS_LIFT_FACTOR   |
+                               +---------------------+
+
+## Suggested eraser.io prompt:
+## Create a data flow diagram showing all inter-plugin communication in the
+## T-150 UAS AFSIM Plugin Suite.
+## 5 component blocks, each listing their published and consumed AuxData keys:
+##
+## 1. WSF_ROTORCRAFT_6DOF_MOVER (top-left)
+##    Publishes: 6dof_total_power, 6dof_total_thrust, 6dof_vel_*, 6dof_roll/pitch/yaw_deg
+##    Consumes: SLUNG_FORCE_X/Y/Z, WEAPON_FORCE_*, WEAPON_MOMENT_*
+##
+## 2. T150_BATTERY_PROCESSOR (top-right)
+##    Publishes: BATTERY_SOC, BATTERY_VOLTAGE, BATTERY_POWER_W
+##    Consumes: 6dof_total_power, PROP_TOTAL_POWER (fallback chain)
+##
+## 3. T150_PROPULSION_PROCESSOR (center)
+##    Publishes: PROP_TOTAL_POWER, PROP_TOTAL_THRUST, PROP_GROUND_EFF, PROP_*_SPEED
+##
+## 4. T150_SLUNG_LOAD_PROCESSOR (bottom-left)
+##    Publishes: SLUNG_FORCE_X/Y/Z, SLUNG_CABLE_*, SLUNG_SWING_*
+##    Consumes: Platform velocity (GetVelocityNED API)
+##
+## 5. T150_VRS_PROCESSOR (bottom-right)
+##    Publishes: VRS_MARGIN, VRS_STATE, VRS_LIFT_FACTOR
+##    Consumes: Platform velocity (GetVelocityNED API)
+##
+## Draw labeled arrows for each data path:
+## - 6DOF Mover -> Battery: "6dof_total_power"
+## - Propulsion -> Battery: "PROP_TOTAL_POWER (fallback)"
+## - Slung Load -> 6DOF Mover: "SLUNG_FORCE_X/Y/Z"
+## Diagram type: Data flow diagram

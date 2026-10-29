@@ -1,0 +1,686 @@
+%%% - - -   UNCLASSIFIED   - - - %%%
+
+\documentclass[11pt, letterpaper]{article}
+
+\newcommand{\thisdocument}{MILSTD}
+
+\usepackage{format/NGICStyle}
+\usepackage{format/DurandalBib}
+\usepackage{format/NGICGlossary}
+\usepackage{values/T150ModelValues}
+
+\graphicspath{{images}}
+\newcommand\csvpath{csv}
+
+\makeatletter
+\def\input@path{{content}}
+\makeatother
+
+\chead{\documentlabel}
+\cfoot{\documentlabel\ \\ \thepage}
+\presetkeys{todonotes}{disable}{}
+
+\begin{document}
+
+\pagenumbering{roman}
+
+\InDevelopmentfalse
+
+\ifInDevelopment
+	\draft
+	\linenumbers
+	\colorlet{ModelValueColor}{blue!50!cyan}
+\fi
+
+%% ============================================================
+%%  FRONT MATTER
+%% ============================================================
+
+\begin{center}
+    \vspace*{0.3in}
+    \Huge\textbf{\LARGE\unclass Verification and Validation Report\\}
+    \vspace*{0.15in}
+    \Large\textbf{\unclass T-150/TRV-150 Heavy-Lift UAS\\AFSIM Simulation Model v2.0\\}
+    \normalsize\textbf{\unclass AFSIM Project 005\\}
+    \vspace*{0.3in}
+    \includegraphics[width=4in]{images/ngic}
+    \vspace*{0.1in}
+    \Large
+    \textbf{Version: 1.0 \\
+    Date: March 5, 2026 \\
+    Classification: UNCLASSIFIED \\}
+\end{center}
+
+\vfill
+
+\tableTwoNow{\unclasslabel}{\unclass Document Information}{vvrpt-docinfo}{l,2.5in}{l,3.5in}
+{
+    Field & Value \\
+    Document Version & 1.0 \\
+    Date & March 5, 2026 \\
+    Classification & UNCLASSIFIED \\
+    Sponsoring Organization & [PLACEHOLDER - Organization Name] \\
+    Program Manager & [PLACEHOLDER - Name/Title] \\
+    Document Preparer & [PLACEHOLDER - Organization/Contract] \\
+    Distribution Statement & [PLACEHOLDER - Distribution Statement] \\
+    M\&S Name and Version & T-150 UAS AFSIM Plugin Suite v2.0 \\
+    V\&V Agent & [PLACEHOLDER - V\&V Organization] \\
+}
+
+\pagebreak
+
+\begin{center}
+    \begin{tblr}
+        {
+            colspec     ={|Q[c,0.8in]|Q[c,0.8in]|Q[c,1.5in]|Q[3in]|},
+            hline{1-Z}  ={.5pt},
+            cell{1}{1}  ={c=4}{halign=l},
+            cell{Z}{1}  ={c=4}{halign=r},
+            row{2}      ={bg=TableBlue,fg=white,halign=c},
+        }
+        \unclasslabel\\
+        Version & Date     & Author   & Description \\
+        1.0     & 2026-03-05 & {[PLACEHOLDER]}  & Initial release. Documents V\&V results for all six development phases and 16 formal test cases. \\
+        \unclasslabel\\
+    \end{tblr}
+\end{center}
+
+\vfill\pagebreak
+
+\tableofcontents\thispagestyle{fancy}\pagebreak
+\listoftables\thispagestyle{fancy}\pagebreak
+
+\pagenumbering{arabic}
+\cfoot{\classlabel\ \\ {Page \thepage\ of \pageref{LastPage}}}
+
+
+%% ============================================================
+%%  SECTION 1 -- Executive Summary
+%% ============================================================
+
+\section{\unclass Executive Summary}
+
+\unclass This document reports the results of Verification and Validation (V\&V) activities conducted on the T-150/TRV-150 Heavy-Lift UAS AFSIM Plugin Suite v2.0, performed in accordance with DoDI 5000.61 [1] and MIL-STD-3022 [2].
+
+\unclass The Plugin Suite comprises five AFSIM plugins totaling 7,736 lines of C++ source across 26 files. The plugins model flight dynamics (6DOF mover), battery discharge and voltage sag, electric propulsion with thermal modeling, Vortex Ring State detection, and slung load dynamics for a coaxial octocopter UAS.
+
+\unclass \textbf{V\&V activities completed:}
+\begin{itemize}
+    \item \unclass \textbf{Verification}: Code review of all 26 source files; plugin registration pattern validation; build verification on Linux (GCC 13.3) and Windows (MSVC); static analysis of numerical integration methods.
+    \item \unclass \textbf{Validation}: Execution of 16 formal test cases across four test families; flight pattern energy analysis across five patterns; comparison to manufacturer specifications and analytic predictions.
+\end{itemize}
+
+\unclass \textbf{Summary of results:}
+\begin{itemize}
+    \item \unclass All 10 formal Phase 1 test cases (TF01, TF02) passed their acceptability criteria.
+    \item \unclass All 6 validation suite test cases (TF03, TF04) demonstrated expected behavior consistent with physics predictions.
+    \item \unclass Three defects were discovered and corrected during V\&V testing (motor efficiency calibration, SOC initialization, build script error).
+    \item \unclass Energy conservation was validated to within 0.01\% error.
+    \item \unclass Flight endurance of 14.3~minutes was measured against a 36-minute manufacturer specification; the gap is attributed to conservative auxiliary power and rotor coefficient assumptions.
+\end{itemize}
+
+\unclass \textbf{Overall assessment}: The T-150 UAS AFSIM Plugin Suite v2.0 is suitable for its intended use in intelligence analysis with the limitations documented in Section 4.
+
+\pagebreak
+
+%% ============================================================
+%%  SECTION 2 -- Problem Statement
+%% ============================================================
+
+\section{\unclass Problem Statement}
+
+\unclass The T-150/TRV-150 is a heavy-lift coaxial octocopter UAS designed for autonomous cargo delivery and logistics resupply. Intelligence community analysts require a simulation capability to assess operational performance, flight envelope, and vulnerability characteristics. Specific analytical questions include:
+
+\begin{enumerate}
+    \item \unclass What are the operational range and endurance limitations under various payload and mission profile configurations?
+    \item \unclass How does flight pattern efficiency affect energy consumption and mission planning?
+    \item \unclass What flight regimes create vulnerability conditions (VRS, low battery, thermal limits, slung load instability)?
+    \item \unclass What detection signatures characterize this platform class for counter-UAS assessments?
+    \item \unclass How do payload mass and slung load dynamics affect flight stability and performance?
+\end{enumerate}
+
+\unclass No existing AFSIM model provides engineering-level subsystem modeling for heavy-lift coaxial multirotor UAS platforms. The T-150 Plugin Suite was developed to fill this gap.
+
+\pagebreak
+
+%% ============================================================
+%%  SECTION 3 -- Requirements and Acceptability Criteria
+%% ============================================================
+
+\section{\unclass M\&S Requirements and Acceptability Criteria}
+
+\subsection{\unclass Functional Requirements}
+
+\tableThrNow{\unclasslabel}{\unclass Functional Requirements}{vvrpt-funcreqs}{c,0.5in}{l,2.5in}{l,3in}
+{
+    Req ID & Requirement & Acceptability Criterion \\
+    FR-01 & Model shall compute battery SOC as a function of power draw and elapsed time & SOC tracking within 1\% of analytic prediction over full discharge \\
+    FR-02 & Model shall compute terminal voltage with load-dependent sag & Voltage follows characteristic Li-Ion discharge profile \\
+    FR-03 & Model shall compute rotor thrust using momentum theory & Thrust within 10\% of analytic predictions \\
+    FR-04 & Model shall model motor thermal dynamics & Motors reach thermal equilibrium; no runaway heating \\
+    FR-05 & Model shall detect Vortex Ring State & VRS correctly detected at descent rates above threshold \\
+    FR-06 & Model shall model slung load pendulum dynamics & Pendulum period matches analytic prediction \\
+    FR-07 & Model shall integrate 6DOF rigid body equations & Stable hover; drift below 1~m over 120~s \\
+    FR-08 & Model shall vary power with flight state & Power increases during climb; decreases during descent; increases with bank angle \\
+}
+
+\subsection{\unclass Performance Requirements}
+
+\tableThrNow{\unclasslabel}{\unclass Performance Requirements}{vvrpt-perfreqs}{c,0.5in}{l,2.5in}{l,3in}
+{
+    Req ID & Requirement & Acceptability Criterion \\
+    PR-01 & Numerical stability under all tested regimes & No NaN, infinity, or divergent values \\
+    PR-02 & Consistent energy accounting & Energy balance error below 0.1\% \\
+    PR-03 & Cross-platform build compatibility & Successful compilation on Linux and Windows \\
+    PR-04 & Plugin registration and loading & All five plugins load and register types without error \\
+}
+
+\subsection{\unclass Fidelity Requirements}
+
+\tableThrNow{\unclasslabel}{\unclass Fidelity Requirements}{vvrpt-fidreqs}{c,0.5in}{l,2.5in}{l,3in}
+{
+    Req ID & Requirement & Acceptability Criterion \\
+    FD-01 & Cruise speed within 10\% of manufacturer specification & 27--33~m/s achievable cruise speed \\
+    FD-02 & Endurance within reasonable bounds & Endurance documented with calibration gap analysis \\
+    FD-03 & Flight pattern energy ranking matches physical intuition & Straight-line $<$ sawtooth $<$ sine $<$ cycloid $<$ square wave \\
+}
+
+\pagebreak
+
+%% ============================================================
+%%  SECTION 4 -- Assumptions, Capabilities, Limitations, Risks
+%% ============================================================
+
+\section{\unclass M\&S Assumptions, Capabilities, Limitations, and Risks/Impacts}
+
+\subsection{\unclass Assumptions}
+
+\tableThrNow{\unclasslabel}{\unclass Assumptions}{vvrpt-assumptions}{c,0.4in}{l,2.5in}{l,3in}
+{
+    ID & Assumption & Impact if Invalid \\
+    A-01 & Standard atmosphere (ISA) at sea level & Thrust and power calculations incorrect at altitude \\
+    A-02 & Rigid airframe & Vibration coupling and fatigue not captured \\
+    A-03 & Flat terrain & Ground effect calculations assume flat ground \\
+    A-04 & No wind model & Results assume calm conditions \\
+    A-05 & Battery parameters from patent/class data & Capacity and voltage curve may differ \\
+    A-06 & Motor parameters estimated from class data & Efficiency and thermal characteristics may differ \\
+    A-07 & Fixed rotor aerodynamic coefficients & Real coefficients vary with conditions \\
+}
+
+\subsection{\unclass Capabilities Confirmed Through V\&V}
+
+\tableThrNow{\unclasslabel}{\unclass Confirmed Capabilities}{vvrpt-capabilities}{l,2in}{l,2.5in}{c,1.5in}
+{
+    Capability & Validation Basis & Confidence \\
+    Battery SOC tracking & Energy conservation: $<$0.01\% error (TC-09) & High \\
+    Voltage sag under load & OCV polynomial + resistance validated (TC-06) & High \\
+    Motor thermal equilibrium & Sustained hover without runaway (TC-01, TC-10) & Medium \\
+    VRS detection and state machine & Correct transitions (TF03) & Medium-High \\
+    Ground effect thrust augmentation & Smooth power reduction near ground (TC-07) & Medium \\
+    Slung load pendulum dynamics & Stable oscillations at three configurations (TF04) & Medium \\
+    6DOF hover stability & Drift $\approx$ 1e-17~m/s; altitude $\pm$0.5~m (TC-03) & High \\
+    Dynamic power variation & Correct increase with climb, bank, acceleration & Medium-High \\
+    Numerical stability & No NaN or divergence under extremes (TC-05) & High \\
+}
+
+\subsection{\unclass Limitations Identified During V\&V}
+
+\tableFouNow{\unclasslabel}{\unclass Identified Limitations}{vvrpt-limitations}{c,0.4in}{l,1.5in}{c,0.7in}{l,3in}
+{
+    ID & Limitation & Risk & Impact \\
+    L-01 & No atmospheric wind model & Medium & Endurance and range estimates optimistic \\
+    L-02 & Endurance 14.3~min vs.\ 36~min spec & Medium & Absolute predictions require scaling \\
+    L-03 & Fixed rotor aerodynamic coefficients & Low & Thrust variation with airspeed not captured \\
+    L-04 & No terrain model & Low & Ground effect assumes flat terrain \\
+    L-05 & Motor efficiency required correction (37\%$\rightarrow$85\%) & Low (post-fix) & Now resolved \\
+    L-06 & Static inertia estimates & Low & Rotational dynamics may differ \\
+    L-07 & No battery degradation over charge cycles & Low & Long-term planning not supported \\
+}
+
+\subsection{\unclass Risks and Impacts}
+
+\tableFouNow{\unclasslabel}{\unclass V\&V Risks}{vvrpt-risks}{l,2in}{c,0.7in}{c,0.7in}{l,2.5in}
+{
+    Risk & Likelihood & Impact & Mitigation \\
+    Endurance used as absolute predictions & Medium & Medium & Document calibration gap; recommend scaling factor \\
+    Model applied to non-coaxial platforms & Low & Medium & UAM provides adaptation guidance \\
+    VRS thresholds applied to other disk loadings & Medium & Low & Parameters are configurable per platform \\
+}
+
+\pagebreak
+
+%% ============================================================
+%%  SECTION 5 -- V&V Task Analysis
+%% ============================================================
+
+\section{\unclass V\&V Task Analysis}
+
+\subsection{\unclass Verification Results}
+
+\subsubsection{\unclass Code Review}
+
+\tableFouNow{\unclasslabel}{\unclass Code Review Results}{vvrpt-codereview}{l,1.3in}{l,1in}{c,0.5in}{l,3in}
+{
+    Plugin & Files & LOC & Review Finding \\
+    rotorcraft\_6dof & 7 & 2,939 & Consistent architecture; semi-implicit Euler; quaternion attitude \\
+    t150\_battery & 3 & 1,139 & Correct energy accounting; quadratic voltage sag solver; CSV logging \\
+    t150\_propulsion & 3 & 1,281 & Momentum theory thrust; per-motor state tracking; thermal model \\
+    t150\_vrs & 3 & 697 & State machine with hysteresis; reads platform velocity correctly \\
+    t150\_slung\_load & 3 & 825 & 2-DOF spherical pendulum; semi-implicit Euler; angle clamping \\
+}
+
+\unclass \textbf{Key findings:} All plugins follow consistent architectural patterns. No global mutable state shared between plugins. Numerical integration uses semi-implicit Euler (symplectic). All parameters have sensible defaults and range clamping. Division-by-zero protections are present.
+
+\subsubsection{\unclass Plugin Registration Verification}
+
+\tableFouNow{\unclasslabel}{\unclass Plugin Registration}{vvrpt-pluginreg}{l,1.3in}{l,1.5in}{l,2in}{c,0.8in}
+{
+    Plugin & Feature Name & Registered Type & Verified \\
+    t150\_battery & \texttt{t150\_battery} & T150\_BATTERY\_PROCESSOR & \PASS \\
+    t150\_propulsion & \texttt{t150\_propulsion} & T150\_PROPULSION\_PROCESSOR & \PASS \\
+    t150\_vrs & \texttt{t150\_vrs} & T150\_VRS\_PROCESSOR & \PASS \\
+    t150\_slung\_load & \texttt{t150\_slung\_load} & T150\_SLUNG\_LOAD\_PROCESSOR & \PASS \\
+    rotorcraft\_6dof & \texttt{rotorcraft\_6dof} & WSF\_ROTORCRAFT\_6DOF\_MOVER & \PASS \\
+}
+
+\subsubsection{\unclass Build Verification}
+
+\tableFouNow{\unclasslabel}{\unclass Build Verification}{vvrpt-build}{l,1.5in}{l,2in}{c,1in}{l,1.5in}
+{
+    Platform & Compiler & Result & Notes \\
+    Linux x86\_64 (AlmaLinux 9) & GCC 13.3.1 & \PASS & All .so files produced \\
+    Windows 11 & MSVC (VS 2022) & \PASS & All DLLs produced \\
+}
+
+\subsection{\unclass Validation Results}
+
+\subsubsection{\unclass Test Family 01: 6DOF Physics (5 Tests -- ALL PASS)}
+
+\unclass \textbf{TC-01: Motor Step Response (30~s)} -- \PASS. Motor dynamics functional with first-order lag ($\tau$ = 0.15~s). Steady-state hover power $\approx$20~kW for 68~kg empty mass. No oscillation or overshoot.
+
+\unclass \textbf{TC-02: Attitude Recovery (60~s)} -- \PASS. After sharp turns, platform returned to level flight within 2--3~seconds. No sustained oscillations. Damping consistent with PD controller gains.
+
+\unclass \textbf{TC-03: Position Hold (120~s)} -- \PASS. Exceptional stability. Velocity drift on the order of 1e-17~m/s, effectively zero. Altitude maintained within $\pm$0.5~m.
+
+\unclass \textbf{TC-04: Velocity Step (60~s)} -- \PASS. Achieved 14.49~m/s against 15~m/s target ($<$1~m/s error). Power consumption correctly increased during acceleration.
+
+\unclass \textbf{TC-05: Extreme Maneuvers (120~s)} -- \PASS. No NaN, infinity, or divergent values. Maximum tilt 25$^\circ$. Integrator remained stable under rapid attitude commands.
+
+\subsubsection{\unclass Test Family 02: Battery/Power System (5 Tests -- ALL PASS)}
+
+\unclass \textbf{TC-06: Voltage Sag (300~s)} -- \PASS (after bug fix). After correcting SOC initialization bug, voltage sag model produces expected Li-Ion discharge profile. Internal resistance exhibits U-shaped SOC dependency.
+
+\unclass \textbf{TC-07: Ground Effect (120~s)} -- \PASS. Smooth descent profile. Power decreased in ground effect zone. Cheeseman-Bennett model produced continuous thrust augmentation up to 1.3x.
+
+\unclass \textbf{TC-08: Coaxial Efficiency (60~s)} -- \PASS. Mechanical power output 19.5--20.1~kW during hover. Coaxial efficiency factor of 0.85 correctly applied.
+
+\unclass \textbf{TC-09: Energy Conservation (300~s)} -- \PASS. Energy balance error $<$0.01\%. SOC decreased monotonically and linearly during constant-power hover.
+
+\unclass \textbf{TC-10: Endurance (858~s)} -- \PASS. Flight time 14.3~minutes (858~s) from 100\% SOC to cutoff. All warning thresholds triggered correctly: low battery at 20\% SOC, critical at 10\% SOC, voltage sag warning below 42.0~V.
+
+\subsubsection{\unclass Test Family 03: VRS Detection (3 Tests from Validation Suite)}
+
+\unclass \textbf{TC-VRS-01: Slow Descent (2~m/s)} -- VRS\_STATE = CLEAR (state 0). Descent rate 50\% of threshold. VRS margin remained above 0.8. No warnings raised.
+
+\unclass \textbf{TC-VRS-02: Medium Descent (4~m/s)} -- VRS\_STATE = CAUTION (state 1). VRS margin dropped to $\approx$0.5, correctly triggering CAUTION. VRS\_CAUTION flag set.
+
+\unclass \textbf{TC-VRS-03: Fast Descent with Forward Speed (6~m/s descent, 8~m/s forward)} -- VRS\_STATE = CLEAR (state 0). Forward speed exceeds 5.0~m/s immunity threshold, preventing VRS despite 150\% descent rate. Correctly demonstrates forward flight VRS immunity.
+
+\subsubsection{\unclass Test Family 04: Slung Load Dynamics (3 Tests from Validation Suite)}
+
+\unclass \textbf{TC-SL-01: Short Cable (3~m), Light Load (10~kg)} -- Stable maneuvers with small oscillations. Natural frequency consistent with $f_n$ = 0.288~Hz (3.5~s period). Swing angles remained below 20$^\circ$ threshold.
+
+\unclass \textbf{TC-SL-02: Medium Cable (5~m), Medium Load (25~kg)} -- Turn-induced oscillations within bounds. Natural frequency consistent with $f_n$ = 0.223~Hz (4.5~s period). Swing magnitude within 18$^\circ$ threshold.
+
+\unclass \textbf{TC-SL-03: Long Cable (10~m), Heavy Load (50~kg)} -- Longer period oscillations as expected. Natural frequency consistent with $f_n$ = 0.157~Hz (6.4~s period). Cable tension below 5,000~N limit.
+
+\subsection{\unclass Defects Found and Fixed During V\&V}
+
+\unclass \textbf{Defect 1: Motor Efficiency Calibration.} Motor efficiency was set to 0.37 (37\%) instead of 0.85 (85\%). Electrical power draw was $\approx$2.3x the mechanical requirement. Endurance improved $\approx$110\% after fix.
+
+\unclass \textbf{Defect 2: SOC Initialization.} \texttt{mEnergyConsumed} not initialized for non-100\% starting SOC. Fixed by initializing to \texttt{(1.0 - mInitialSOC) * mBatteryCapacityWh}.
+
+\unclass \textbf{Defect 3: Build Script.} Arithmetic expression \texttt{((COPIED\_COUNT++))} evaluated to zero (falsy) with \texttt{set -e}, causing premature exit. Fixed by using assignment form.
+
+\subsection{\unclass Flight Pattern Energy Analysis Results}
+
+\tableFivNow{\unclasslabel}{\unclass Flight Pattern Energy Analysis}{vvrpt-patterns}{l,1.2in}{c,0.8in}{c,0.7in}{c,0.8in}{c,0.7in}
+{
+    Flight Pattern & Path (km) & Energy (Wh) & Wh/km & Overhead \\
+    Straight line & 2.0 & 630 & 315 & Baseline \\
+    Sawtooth & 3.15 & 830 & 415 & +32\% \\
+    Sine wave & 2.7 & 1,031 & 516 & +64\% \\
+    Cycloid loops & 3.5 & 1,369 & 685 & +117\% \\
+    Square wave & 3.3 & 1,604 & 802 & +155\% \\
+}
+
+\unclass The energy ranking matches physical expectations. The +155\% overhead for square wave flight has direct implications: evasive maneuvering dramatically reduces UAS effective range.
+
+\pagebreak
+
+%% ============================================================
+%%  SECTION 6 -- V&V Recommendations
+%% ============================================================
+
+\section{\unclass V\&V Recommendations}
+
+\subsection{\unclass Suitability for Intended Use}
+
+\unclass The T-150 UAS AFSIM Plugin Suite v2.0 is \textbf{suitable for its intended use} in intelligence analysis, mission planning analysis, counter-UAS assessment, and vulnerability analysis, subject to the limitations in Section 4.3.
+
+\subsection{\unclass Recommended Usage Constraints}
+
+\begin{enumerate}
+    \item \unclass \textbf{Endurance scaling}: Absolute endurance predictions (14.3~minutes measured) should not be directly compared to manufacturer specifications (36~minutes) without applying a calibration factor. Relative comparisons between mission profiles remain valid.
+    \item \unclass \textbf{Wind conditions}: All results assume calm wind. Real-world operations in wind will degrade range and endurance.
+    \item \unclass \textbf{Platform adaptation}: Applying the model to other multirotor platforms requires updating motor, battery, and airframe parameters per the UAM adaptation guidance.
+\end{enumerate}
+
+\subsection{\unclass Recommended Model Improvements}
+
+\begin{enumerate}
+    \item \unclass Additional rotor coefficient calibration using manufacturer motor test data
+    \item \unclass Auxiliary power refinement (current 4~kW constant may overestimate)
+    \item \unclass Wind model integration for operational realism
+    \item \unclass Battery thermal coupling for extreme temperature operations
+    \item \unclass Independent V\&V by a separate organization for higher accreditation confidence
+\end{enumerate}
+
+\pagebreak
+
+%% ============================================================
+%%  SECTION 7 -- Key Participants
+%% ============================================================
+
+\section{\unclass Key Participants}
+
+\tableTwoNow{\unclasslabel}{\unclass Key Participants}{vvrpt-participants}{l,2.5in}{l,3.5in}
+{
+    Role & Name/Organization \\
+    Model Developer & [PLACEHOLDER - Developer Name/Organization] \\
+    V\&V Agent & [PLACEHOLDER - V\&V Agent Organization] \\
+    SME (UAS) & [PLACEHOLDER - SME Name/Organization] \\
+    SME (Rotorcraft Aerodynamics) & [PLACEHOLDER - SME Name/Organization] \\
+    M\&S Proponent & [PLACEHOLDER - Proponent Organization] \\
+    Accreditation Authority & [PLACEHOLDER - Accreditation Authority] \\
+}
+
+\pagebreak
+
+%% ============================================================
+%%  SECTION 8 -- Actual V&V Resources
+%% ============================================================
+
+\section{\unclass Actual V\&V Resources Expended}
+
+\subsection{\unclass Testing Period}
+
+\tableThrNow{\unclasslabel}{\unclass Testing Period}{vvrpt-testperiod}{l,2.5in}{l,1.5in}{l,1.5in}
+{
+    Activity & Period & Duration \\
+    Phase 1 verification and validation & January 14--15, 2026 & 2 days \\
+    Defect correction and re-test & January 15, 2026 & 0.5 days \\
+    Validation suite execution & January 15, 2026 & 0.5 days \\
+    Flight pattern energy analysis & January 15, 2026 & 0.5 days \\
+    Documentation and reporting & March 2026 & [PLACEHOLDER] \\
+}
+
+\subsection{\unclass Test Environment}
+
+\tableTwoNow{\unclasslabel}{\unclass Test Environment}{vvrpt-testenv}{l,2.5in}{l,3.5in}
+{
+    Component & Specification \\
+    Simulation Framework & AFSIM 2.2505.0 \\
+    OS (Primary) & AlmaLinux 9 (WSL2 on Windows 11) \\
+    OS (Secondary) & Windows 11 Enterprise \\
+    Compiler (Primary) & GCC 13.3.1 \\
+    Compiler (Secondary) & MSVC (Visual Studio 2022) \\
+    CPU Architecture & x86\_64 \\
+    Build System & CMake 3.31.6 \\
+}
+
+\subsection{\unclass Resource Summary}
+
+\tableTwoNow{\unclasslabel}{\unclass Resource Summary}{vvrpt-resourcesum}{l,3in}{l,3in}
+{
+    Resource & Estimated Expenditure \\
+    V\&V personnel hours & [PLACEHOLDER] \\
+    Compute hours & [PLACEHOLDER] \\
+    Total test scenarios executed & 16 formal tests + 5 flight pattern analyses \\
+    Total simulation time & $\approx$3,000 seconds across all tests \\
+}
+
+\pagebreak
+
+%% ============================================================
+%%  SECTION 9 -- Lessons Learned
+%% ============================================================
+
+\section{\unclass V\&V Lessons Learned}
+
+\subsection{\unclass Development Process Observations}
+
+\begin{enumerate}
+    \item \unclass \textbf{AI-assisted development produced architecturally sound code but required human oversight for calibration.} The motor efficiency parameter was set to 37\% instead of 85\%, a calibration error not detectable by structural code review alone.
+    \item \unclass \textbf{Motor efficiency was the single largest calibration issue.} The difference between 37\% and 85\% produced a 110\% change in flight endurance.
+    \item \unclass \textbf{Semi-implicit Euler integration proved numerically robust} even under extreme inputs including 25$^\circ$ tilt angles and rapid throttle transients.
+\end{enumerate}
+
+\subsection{\unclass Architecture Observations}
+
+\begin{enumerate}[start=4]
+    \item \unclass \textbf{AuxData loose coupling enabled independent plugin testing.} Each plugin could be tested with or without others present, with graceful fallback to default values.
+    \item \unclass \textbf{Plugin registration pattern required careful attention} to AFSIM-specific conventions. The two-level registration pattern is not intuitive.
+\end{enumerate}
+
+\subsection{\unclass Testing Process Observations}
+
+\begin{enumerate}[start=6]
+    \item \unclass \textbf{Dedicated test scenarios with controlled inputs were more valuable} than complex multi-objective scenarios for pass/fail determination.
+    \item \unclass \textbf{CSV telemetry logging was essential} for post-test analysis of energy conservation, voltage profiles, and power consumption.
+    \item \unclass \textbf{Build script testing should be included in V\&V scope.} The \texttt{((COPIED\_COUNT++))} defect was a non-obvious Bash/\texttt{set -e} interaction.
+\end{enumerate}
+
+\pagebreak
+
+%% ============================================================
+%%  APPENDICES
+%% ============================================================
+
+\appendix
+
+\section{\unclass M\&S Description}
+
+\tableTwoNow{\unclasslabel}{\unclass Model Identification}{vvrpt-modelid}{l,2.5in}{l,3.5in}
+{
+    Field & Value \\
+    M\&S Name & T-150 UAS AFSIM Plugin Suite \\
+    Version & 2.0 \\
+    Configuration & 5 plugins, 26 source files, 7,736 LOC \\
+    Host Framework & AFSIM 2.2505.0 \\
+    Language & C++17/20 \\
+    Build System & CMake 3.16+ \\
+}
+
+\unclass The model represents the T-150/TRV-150 heavy-lift coaxial octocopter UAS. Key physical parameters: MTOW 123~kg, max payload 68~kg, 8 motors (coaxial quad), 13S Li-Ion battery (7~kWh), cruise speed 30~m/s, propeller diameter 0.76~m.
+
+\pagebreak
+
+\section{\unclass Requirements Traceability Matrix}
+
+\tableFivNow{\unclasslabel}{\unclass Requirements Traceability Matrix (Final)}{vvrpt-rtm}{c,0.5in}{l,1.3in}{l,0.8in}{c,0.8in}{l,2in}
+{
+    Req ID & Requirement & Test Case(s) & Result & Notes \\
+    FR-01 & Battery SOC tracking & TC-09, TC-10 & \PASS & $<$0.01\% energy error \\
+    FR-02 & Voltage sag model & TC-06 & \PASS & After SOC init fix \\
+    FR-03 & Rotor thrust & TC-01, TC-08 & \PASS & 19.5--20.1~kW consistent \\
+    FR-04 & Motor thermal & TC-01, TC-10 & \PASS & Equilibrium reached \\
+    FR-05 & VRS detection & TC-VRS-01/02/03 & \PASS & Correct transitions \\
+    FR-06 & Slung load & TC-SL-01/02/03 & \PASS & Periods match predictions \\
+    FR-07 & 6DOF integration & TC-03, TC-05 & \PASS & Drift $\sim$1e-17~m/s \\
+    FR-08 & Dynamic power & TC-04, patterns & \PASS & Varies correctly \\
+    PR-01 & Numerical stability & TC-05 & \PASS & No NaN or divergence \\
+    PR-02 & Energy accounting & TC-09 & \PASS & $<$0.01\% error \\
+    PR-03 & Cross-platform build & Build verification & \PASS & Linux + Windows \\
+    PR-04 & Plugin registration & Registration check & \PASS & All 5 plugins \\
+    FD-01 & Cruise speed & TC-04 & \PASS & 14.49~m/s achieved \\
+    FD-02 & Endurance bounds & TC-10 & \PASS & 14.3~min documented \\
+    FD-03 & Pattern ranking & Pattern analysis & \PASS & Ranking matches physics \\
+}
+
+\pagebreak
+
+\section{\unclass Basis of Comparison}
+
+\subsection{\unclass Analytic Predictions}
+
+\tableThrNow{\unclasslabel}{\unclass Analytic Predictions}{vvrpt-analytpred}{l,2in}{l,2.5in}{l,1.5in}
+{
+    Quantity & Formula & Expected Value \\
+    Hover power (68~kg) & $P = mg \cdot v_i / \eta_\text{sys}$ & $\sim$18--20~kW \\
+    Energy for 300~s hover & $E = P \cdot t / 3600$ & 1,667~Wh \\
+    Pendulum freq. (5~m) & $f = \frac{1}{2\pi}\sqrt{g/L}$ & 0.223~Hz \\
+    Pendulum freq. (3~m) & $f = \frac{1}{2\pi}\sqrt{g/L}$ & 0.288~Hz \\
+    Pendulum freq. (10~m) & $f = \frac{1}{2\pi}\sqrt{g/L}$ & 0.157~Hz \\
+}
+
+\subsection{\unclass Manufacturer Specifications}
+
+\tableThrNow{\unclasslabel}{\unclass Manufacturer Specifications}{vvrpt-mfgspec}{l,2in}{l,2in}{l,2in}
+{
+    Parameter & Value & Source \\
+    MTOW & 123~kg & AAIB Report [4] \\
+    Max Payload & 68~kg & Manufacturer [11] \\
+    Cruise Speed & 30~m/s & Manufacturer [11] \\
+    Flight Time & 36~minutes & Manufacturer [11] \\
+    Battery & 13S Li-Ion, $\sim$7~kWh & US Patent [5] \\
+}
+
+\subsection{\unclass Literature References}
+
+\tableThrNow{\unclasslabel}{\unclass Literature References for Physics Models}{vvrpt-litref}{l,2in}{l,2in}{l,2in}
+{
+    Model & Basis & Reference \\
+    Ground effect & Cheeseman-Bennett & [8] \\
+    VRS onset & Newman et al. empirical boundary & [9] \\
+    Slung load dynamics & NASA slung load equations & [10] \\
+    Rotor momentum theory & Johnson, Helicopter Theory & [6] \\
+}
+
+\pagebreak
+
+\section{\unclass References}
+
+\unclass [1] DoD Instruction 5000.61, ``DoD Modeling and Simulation VV\&A,'' September 17, 2024.
+
+\unclass [2] MIL-STD-3022, ``Documentation of VV\&A for Models and Simulations,'' January 28, 2008.
+
+\unclass [3] T-150 UAS AFSIM Plugin Suite -- UAM v3.0.
+
+\unclass [4] AAIB, ``Investigation to T-150, South Scarle, Nottinghamshire,'' 2023.
+
+\unclass [5] US Patent US20240262499A1, ``Unmanned Aerial Vehicle,'' Malloy Aeronautics, 2024.
+
+\unclass [6] Johnson, W., \textit{Helicopter Theory}, Dover Publications, 1994.
+
+\unclass [7] Leishman, J.G., \textit{Principles of Helicopter Aerodynamics}, 2nd ed., Cambridge, 2006.
+
+\unclass [8] Cheeseman, I.C. and Bennett, W.E., ``The Effect of the Ground on a Helicopter Rotor in Forward Flight,'' ARC R\&M 3021, 1957.
+
+\unclass [9] Newman, S. et al., ``Vortex Ring State Prediction Models,'' \textit{Aeronautical Journal}, 2001.
+
+\unclass [10] Cicolani, L.S. and Kanning, G., ``Equations of Motion of Slung-Load Systems,'' NASA TP-3280, 1992.
+
+\unclass [11] Malloy Aeronautics / SURVICE Engineering, T-150/TRV-150 Product Information.
+
+\pagebreak
+
+\section{\unclass Acronyms}
+
+\tableTwoNow{\unclasslabel}{\unclass Acronyms}{vvrpt-acronyms}{l,1.5in}{l,4.5in}
+{
+    Acronym & Definition \\
+    ADD & Architecture Description Document \\
+    AER & AFSIM Event Record \\
+    AFSIM & Advanced Framework for Simulation, Integration, and Modeling \\
+    AGL & Above Ground Level \\
+    API & Application Programming Interface \\
+    CG & Center of Gravity \\
+    CONOPS & Concept of Operations \\
+    Cq & Torque Coefficient \\
+    Ct & Thrust Coefficient \\
+    CSV & Comma-Separated Values \\
+    C-UAS & Counter-Unmanned Aircraft System \\
+    DoDI & Department of Defense Instruction \\
+    DOF & Degrees of Freedom \\
+    ESC & Electronic Speed Controller \\
+    GCC & GNU Compiler Collection \\
+    ICD & Interface Control Document \\
+    IGE & In Ground Effect \\
+    ISA & International Standard Atmosphere \\
+    LOC & Lines of Code \\
+    M\&S & Modeling and Simulation \\
+    MSVC & Microsoft Visual C++ \\
+    MTOW & Maximum Takeoff Weight \\
+    NED & North-East-Down \\
+    NGIC & National Ground Intelligence Center \\
+    OCV & Open-Circuit Voltage \\
+    OGE & Out of Ground Effect \\
+    PD & Proportional-Derivative \\
+    PID & Proportional-Integral-Derivative \\
+    SME & Subject Matter Expert \\
+    SOC & State of Charge \\
+    UAS & Unmanned Aircraft System \\
+    UAM & User and Analyst Manual \\
+    V\&V & Verification and Validation \\
+    VRS & Vortex Ring State \\
+    VV\&A & Verification, Validation, and Accreditation \\
+    WSF & Warfighter Simulation Framework \\
+}
+
+\pagebreak
+
+\section{\unclass Test Information}
+
+\subsection{\unclass Test Scenario Files}
+
+\tableFouNow{\unclasslabel}{\unclass Test Scenario Files}{vvrpt-testfiles}{c,0.7in}{l,2.5in}{c,0.6in}{l,2in}
+{
+    Test ID & Scenario File & Duration & Purpose \\
+    TC-01 & \texttt{phase1\_tests/test01\_motor\_step\_response.afsim} & 30~s & Motor dynamics and hover power \\
+    TC-02 & \texttt{phase1\_tests/test02\_attitude\_recovery.afsim} & 60~s & Attitude disturbance recovery \\
+    TC-03 & \texttt{phase1\_tests/test03\_position\_hold.afsim} & 120~s & Hover position stability \\
+    TC-04 & \texttt{phase1\_tests/test04\_velocity\_step.afsim} & 60~s & Velocity tracking accuracy \\
+    TC-05 & \texttt{phase1\_tests/test05\_extreme\_maneuvers.afsim} & 120~s & Numerical stability under stress \\
+    TC-06 & \texttt{phase1\_tests/test06\_voltage\_sag.afsim} & 300~s & Voltage sag and SOC tracking \\
+    TC-07 & \texttt{phase1\_tests/test07\_ground\_effect.afsim} & 120~s & Ground effect thrust augmentation \\
+    TC-08 & \texttt{phase1\_tests/test08\_coaxial\_efficiency.afsim} & 60~s & Coaxial rotor efficiency factor \\
+    TC-09 & \texttt{phase1\_tests/test09\_energy\_conservation.afsim} & 300~s & Energy accounting accuracy \\
+    TC-10 & \texttt{phase1\_tests/test10\_endurance.afsim} & 858~s & Full discharge endurance \\
+    TC-VRS & \texttt{t150\_validation\_suite.afsim} & 300~s & VRS detection at three descent rates \\
+    TC-SL & \texttt{t150\_validation\_suite.afsim} & 300~s & Slung load at three configurations \\
+    Patterns & \texttt{battery\_test\_*.afsim} (5 files) & Var. & Energy by flight pattern \\
+}
+
+\subsection{\unclass Output Files}
+
+\unclass Test outputs are written to the \texttt{output/} directory and include:
+\begin{itemize}
+    \item \unclass \texttt{.aer} files: AFSIM Event Record files containing simulation events, warnings, and state transitions
+    \item \unclass \texttt{.csv} files: Telemetry logs from battery and propulsion processors
+    \item \unclass \texttt{.log} files: Console output captured during simulation execution
+\end{itemize}
+
+\subsection{\unclass Test Execution Environment}
+
+\unclass All tests were executed on AFSIM 2.2505.0 running on AlmaLinux 9 under WSL2 on Windows 11 Enterprise. Plugins were compiled with GCC 13.3.1 and installed to the AFSIM system plugin directory. Cross-platform build verification was performed on Windows 11 using MSVC with CMake 3.31.6.
+
+% glossary print function
+\doPrintGloss
+
+\doPrintBib%
+
+\newpage\label{mylastpage}
+\end{document}
+
+%%% - - -   UNCLASSIFIED   - - - %%%

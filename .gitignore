@@ -1,0 +1,132 @@
+# =============================================================================
+# BUILD & BUILD SYSTEM ARTIFACTS
+# =============================================================================
+/build/
+/lib/
+/conan/
+.conan2/
+conaninfo.txt
+conanbuildinfo.cmake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CMakeUserPresets.json
+Makefile
+
+# Compiled object and library files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.exp
+*.pdb
+*.ilk
+*_export.h
+*.res
+
+# Visual Studio build
+*.sln
+*.vcxproj*
+*.sln.DotSettings
+x64/
+Debug/
+Release/
+
+# Plugin-specific build paths
+plugins/*/build/
+plugins/build/
+
+# =============================================================================
+# AFSIM OUTPUT & GENERATED FILES
+# =============================================================================
+output/
+*.aer
+*.lis
+
+# Except important documentation indices
+!scenarios/INDEX.csv
+
+# =============================================================================
+# LOG & TEMPORARY FILES
+# =============================================================================
+*.log
+*.csv
+*.tmp
+*.bak
+*~
+
+# LaTeX intermediate build artifacts (for docs in VandV_docs/)
+*.aux
+*.bcf
+*.lof
+*.lot
+*.toc
+*.run.xml
+*.bbx
+*.cbx
+*.blg
+*.bbl
+*.fls
+*.fdb_latexmk
+*.dvi
+*.ps
+*.synctex.gz
+compile_log*.txt
+
+# =============================================================================
+# PYTHON
+# =============================================================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+dist/
+*.egg
+.Python
+
+# =============================================================================
+# DEPENDENCY & ENVIRONMENT
+# =============================================================================
+/vendor/
+node_modules/
+.venv/
+venv/
+env/
+.env
+.env.local
+
+# =============================================================================
+# OS & EDITOR SPECIFIC FILES
+# =============================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+*.lnk
+
+# IDE & Editor configurations
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo
+*.user
+*.pro.user
+*.qbs.user
+*.sublime-workspace
+*.sublime-project
+
+# =============================================================================
+# LOCAL & SESSION-SPECIFIC FILES
+# =============================================================================
+.claude/settings.local.json
+local_config.cmake
+.local/
+.cache/

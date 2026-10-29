@@ -1,0 +1,67 @@
+## Source: UAM (User and Analyst Manual) - T150_UAM_Content.tex
+## Section: 3.1 Model Functional Block Diagram
+## Description: Top-level functional block diagram of the T-150 simulation model
+##   showing all five plugin components and their data flow through the AFSIM
+##   AuxData key-value store. The 6DOF Mover (physics engine) sits at the top
+##   containing RigidBody6DOF, RotorModel[8], and FlightController sub-blocks.
+##   Below it, the Propulsion, Battery, and VRS processors communicate through
+##   AuxData, with the Slung Load processor feeding forces back up.
+
++------------------------------------------------------------------+
+|                       AFSIM Platform                              |
+|                                                                   |
+|  +------------------------------------------------------------+  |
+|  |           Rotorcraft6DOF_Mover (Physics Engine)             |  |
+|  |  +--------------+  +---------------+  +-----------------+  |  |
+|  |  | RigidBody6DOF|  | RotorModel[8] |  | FlightController|  |  |
+|  |  | - Position   |  | - Thrust      |  | - Altitude PID  |  |  |
+|  |  | - Velocity   |  | - Torque      |  | - Position PD   |  |  |
+|  |  | - Quaternion |  | - RPM         |  | - Attitude PD   |  |  |
+|  |  +--------------+  +---------------+  +-----------------+  |  |
+|  +-----------------------------+------------------------------+  |
+|                                |                                 |
+|                    6dof_total_power (AuxData)                     |
+|                                v                                 |
+|  +----------------+   +----------------+   +------------------+  |
+|  | T150_PROPULSION|   | T150_BATTERY   |   | T150_VRS         |  |
+|  | _PROCESSOR     |   | _PROCESSOR     |   | _PROCESSOR       |  |
+|  | Motor states   |-->| SOC tracking   |   | Descent rate     |  |
+|  | Thermal model  |   | Voltage sag    |   | VRS margin       |  |
+|  | Ground effect  |   | Energy usage   |   | State machine    |  |
+|  | Payload dyn.   |   | Current calc   |   | Lift/ctrl factor |  |
+|  +-------+--------+   +--------+-------+   +--------+---------+ |
+|          |                     |                     |            |
+|          v                     v                     v            |
+|  +-----------------------------------------------------------+   |
+|  |                  Platform AuxData                          |   |
+|  |  PROP_*, BATTERY_*, VRS_*, SLUNG_*, 6dof_*                |   |
+|  +-----------------------------------------------------------+   |
+|          ^                                                        |
+|  +------------------+                                             |
+|  | T150_SLUNG_LOAD  |                                             |
+|  | _PROCESSOR       |                                             |
+|  | Pendulum dyn.    |                                             |
+|  | Cable tension    |                                             |
+|  | Force coupling   |                                             |
+|  +------------------+                                             |
++------------------------------------------------------------------+
+
+## Suggested eraser.io prompt:
+## Create a system block diagram for the T-150 UAS AFSIM Simulation Model.
+## Layout (top to bottom):
+## 1. Outer container: "AFSIM Platform"
+## 2. Top block: "Rotorcraft6DOF_Mover (Physics Engine)" containing three sub-blocks:
+##    - "RigidBody6DOF" (Position, Velocity, Quaternion)
+##    - "RotorModel[8]" (Thrust, Torque, RPM)
+##    - "FlightController" (Altitude PID, Position PD, Attitude PD)
+## 3. Arrow down labeled "6dof_total_power (AuxData)"
+## 4. Three processor blocks in a row:
+##    - "T150_PROPULSION_PROCESSOR" (Motor states, Thermal model, Ground effect, Payload dyn.)
+##    - "T150_BATTERY_PROCESSOR" (SOC tracking, Voltage sag, Energy usage, Current calc)
+##    - "T150_VRS_PROCESSOR" (Descent rate, VRS margin, State machine, Lift/ctrl factor)
+##    Arrow from Propulsion to Battery labeled "PROP_TOTAL_POWER"
+## 5. All three processors arrow down to: "Platform AuxData" block
+##    (listing key prefixes: PROP_*, BATTERY_*, VRS_*, SLUNG_*, 6dof_*)
+## 6. Below AuxData, arrow up from: "T150_SLUNG_LOAD_PROCESSOR"
+##    (Pendulum dynamics, Cable tension, Force coupling)
+## Diagram type: Block diagram / System architecture diagram

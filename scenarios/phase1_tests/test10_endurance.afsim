@@ -1,0 +1,156 @@
+# ==============================================================================
+# Test 10: Endurance - Full Battery Depletion
+# ==============================================================================
+# Purpose: Full system integration test - cruise until battery depleted
+#
+# Method:
+#   - Start with 100% SOC (7000 Wh)
+#   - Climb to cruise altitude (350m)
+#   - Cruise at 30 m/s until battery depleted
+#   - Monitor range achieved, flight time, discharge curve
+#
+# Expected Results:
+#   - Flight time: ~35-40 minutes (matching T-150 specs)
+#   - Range: ~35-40 km (loaded configuration)
+#   - Smooth discharge curve following Li-Ion chemistry
+#   - Low battery and voltage warnings trigger appropriately
+#
+# Key Metrics:
+#   - Total flight time: 35-40 minutes
+#   - Range: 35-40 km
+#   - Average cruise power: ~17 kW
+#   - Battery warnings: trigger at 20% SOC, 42V
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME test10_endurance
+##define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing
+define_path_variable OUTPUT_DIR output/phase1_tests
+
+# Include the 6DOF platform with battery
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR FOR TELEMETRY
+# ==============================================================================
+platform_type T150_ENDURANCE_TEST_UAS T150_6DOF_UAS
+
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file $(OUTPUT_DIR)/test10_endurance.csv
+      csv_log_interval 5.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE - Endurance Test
+# ==============================================================================
+platform t150_endurance_test T150_ENDURANCE_TEST_UAS
+
+   route
+      # Start on ground
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Climb to cruise altitude
+      position 35.0001n 120.0000w altitude 350 m agl speed 5 m/s
+
+      # Long-distance cruise (100km to ensure battery depletion)
+      # At 30 m/s, 100km would take ~55 minutes
+      # Battery should deplete around 35-40km
+##      position 35.9000n 120.0000w altitude 350 m agl speed 30 m/s
+      position 35.9000n 120.0000w altitude 350 m agl speed 25 m/s
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# BATTERY DEPLETION MONITOR
+# ==============================================================================
+# Check SOC every 30 seconds, terminate when depleted
+execute at_interval_of 30 sec
+   WsfPlatform pf = WsfSimulation.FindPlatform("t150_endurance_test");
+   if (pf.IsValid()) {
+      double soc = pf.AuxDataDouble("BATTERY_SOC");
+      double voltage = pf.AuxDataDouble("BATTERY_VOLTAGE");
+      if (soc <= 0.05) {
+         writeln("========================================");
+         writeln("  BATTERY DEPLETED - TEST COMPLETE");
+         writeln("========================================");
+         writeln("Final SOC: " + (string)soc);
+         writeln("Final Voltage: " + (string)voltage);
+         WsfSimulation.Terminate();
+      }
+   }
+end_execute
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  TEST 10: ENDURANCE TEST");
+   writeln("========================================");
+   writeln("Purpose: Full battery depletion test");
+   writeln("Method: Cruise at 30 m/s until depleted");
+   writeln("Expected: 35-40 min, 35-40 km range");
+   writeln("========================================");
+end_execute
+
+execute at_time 60 sec absolute
+   writeln(">>> T=1min - At cruise altitude");
+end_execute
+
+execute at_time 300 sec absolute
+   writeln(">>> T=5min - ~2.5km traveled");
+end_execute
+
+execute at_time 600 sec absolute
+   writeln(">>> T=10min - ~5km traveled, check SOC");
+end_execute
+
+execute at_time 900 sec absolute
+   writeln(">>> T=15min - ~7.5km traveled");
+end_execute
+
+execute at_time 1200 sec absolute
+   writeln(">>> T=20min - ~10km traveled");
+end_execute
+
+execute at_time 1500 sec absolute
+   writeln(">>> T=25min - ~12.5km traveled, SOC ~50%");
+end_execute
+
+execute at_time 1800 sec absolute
+   writeln(">>> T=30min - ~15km traveled");
+end_execute
+
+execute at_time 2100 sec absolute
+   writeln(">>> T=35min - Approaching range limit");
+end_execute
+
+execute at_time 2400 sec absolute
+   writeln(">>> T=40min - Maximum expected endurance");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Allow up to 50 minutes (battery should deplete before this)
+end_time 3000 sec

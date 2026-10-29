@@ -1,0 +1,216 @@
+%% BEGIN USER CONTENT HERE
+\subsubsection{\unclass Test Case X1: Descriptive Name}
+%% END USER CONTENT HERE
+
+\guidance{\unclass TIMELINE: Should be finalized by \gls{cdr}.
+	
+\unclass REQUIRED: Brief prose description of the test and laydown figure. ENCOURAGED: explanatory figures and/or tables.}
+
+\subsubsubsection{\unclass Behavior Tested}
+
+\guidance{\unclass TIMELINE: Should be finalized by \gls{cdr}.
+	
+\unclass REQUIRED: Prose description of the behavior tested.  Identify the items in the requirements traceability matrix that are assessed by this test.  ENCOURAGED: explanatory figures and/or tables.
+
+\unclass Basic example: Test Case  1 examines the functionality of the \gls{ewr}, without a jammer present. The test centers around antenna parameters such as directionality, receiver frequency, and mainbeam power. The requirements associated with Test Case 1 are listed in table below.
+	
+\unclass Additional example: Test Case 1 examines the model's ability to apply appropriate FOV limits to jamming commands and beam steering; as well as interpolating the gain according to changing geometry.
+}
+
+\unclass Behavior Tested goes here.
+
+\guidance{\unclass TIMELINE: Should be finalized by \gls{cdr}.
+	
+\unclass REQUIRED: There must be a figure showing the basic geometry setup of the test case.  If the test family has a shared geometry, then this figure may be moved to the test family section.  The figure below demonstrates a way of plotting the geometry. Make sure to include labels on both axis as well as legends. Make sure it’s clear which direction the platform is moving. \\
+\unclass In addition to the figure, please include a written statement describing the geometry of the test case. \\
+\unclass Example: For each of the test cases in Test Family 1, the OJX-1 is located [LLA] (as denoted by red dot in figure 1) and is facing [insert cardinal direction and/or az/el]. It is set to the test specific parameters in table 5 below. The Straight and Level Platform (SLP) starts the scenario located at [LLA] approximately [y-distance]km [cardinal direction and az/el] from OJX-1. The SLP is traveling [cardinal direction and az] at Z- m/s which is a [direct approach, crossing route, etc.] compared to the stationary OJX-1..
+
+}
+
+\doMyFigure{6in}{\unclasslabel}{../images/TestFamily12Weapon}{\unclass Test Case 1 Geometry}{TestCase1Geo}
+
+\tableFouNow{\classlabel}
+{\unclass Requirements Traceability Matrix}
+{TraceMatrix}
+{l,2cm}{l,8cm}{1,3cm}{1,2cm}
+{
+	Requirement & Description & Test Coverage & Test Result / Status \\
+	\SetCell[c=4,r=1]{bg=altGray,c} 3: General System Model \\
+	3.1 & Description & 1.1 & Not Tested  \\
+	
+}
+
+\subsubsubsection{\unclass Prerequisites}
+
+
+\guidance{
+	
+	\unclass TIMELINE: Should be finalized by \gls{cdr}.
+	
+	\unclass REQUIREMENT Identify what classes, subsystems, etc. that must be completed and tested before this test can be concluded. If this is a system test or simulation environment test, identify what other models or federates are required. One of the purposes of this section is to improve traceability so that if a “prerequisite” class or subsystem changes we can easily identify which downstream tests need to be re-run or re-evaluated; or if this test is anomalous the evaluator can more easily identify the upstream tests to inspect. Another purpose of this section is to understand scheduling considerations for development. Another purpose of this section is to facilitate addition of stop conditions or warnings in test automation or review. For example, if a “prerequisite” test fails or its results are out of bounds, then downstream tests should be stopped or flagged because we know the downstream tests will provide erroneous results.  To this end, the table below has Primary, Secondary, and Unused component sections for each part of the test case, as well as the overall test case.  Changes to Primary and Secondary components are guaranteed and likely, respectively, to at least require re-inspection of the test case.  Unused components are components that are either intentionally disabled or designed to not function during this test case, and would not require re-inspection of the test case if they were changed.  Any component that does not fall into one of these categories is generally assumed to be proven functional through unit tests and other test cases, and likely to not affect this test case.
+	
+	\unclass Basic example: Test Case 3 requires that all of the radar modes are functioning properly, as these components are the primary focus of this test case.  This test case also requires that the radar processor is functionally processing signals and moving between modes where applicable.
+	
+	
+}
+
+\unclass \tref{TestCase31Scopes} shows which components are assessed by this Test Case.  Primary Components relate directly to the behavior tested and expected results.  Secondary Components are active during the test.  Unused Components are those turned off or simulated with truth values or lookup tables.  Any changes made to Primary or Secondary Components or to lookup tables used by them will require that this test be rerun.  
+
+%%%%% BEGIN USER CONTENT %%%%%
+
+\tableFivNow{\unclasslabel}
+{\unclass Test Case Prerequisites}
+{TestCase31Scopes}
+{c,2cm}{l,5.5cm}{c,2.5cm}{c,2.5cm}{c,2.5cm}
+{
+	Inspected Result & Summary & {Primary\\Components} & {Secondary\\Components} & {Unused\\Components} \\
+	\SetRow{bg=altGray} {Overall\\Test Case} & Verifies each radar mode returns the correct information & RadarMode & {RadarProcessor} & N/A \\
+	Search Mode & Verifies that Search Mode properly scans and creates virtual tracks on adequate detections & SearchMode & {RadarMode\\RadarProcessor} & N/A \\
+	Acquire Mode & Verifies that Acquire Mode revisits a virtual track and properly converts it into a confirmed track & AcquireMode & {RadarMode\\RadarProcessor} & N/A \\
+	Track Mode & Verifies that Track Mode properly revisits and updates a stable track & TrackMode & {RadarMode\\RadarProcessor} & N/A \\
+}
+
+%%%% END USER CONTENT %%%%%%
+
+\subsubsubsection{\unclass Test Inputs}
+
+\guidance{
+	
+	\unclass TIMELINE: Should be finalized by \gls{cdr}.
+	
+	\unclass REQUIREMENT Identify the inputs for this test that differ from the list of input options in this Test Family's Default Parameters table.  Also describe the geometry of the test; a figure in addition to text is strongly encouraged. \\
+	
+	\unclass EXAMPLE: \unclass This test can be ran by executing the TF\_1.1.scn file in the Scenario GUI.  The inputs for this test are the model inputs listed in the Basic Test Parameters for this test family except for the following changes:
+	
+	}
+
+%%%%% BEGIN USER CONTENT %%%%%
+
+
+\tableThrNow{\classlabel}{\unclass Test Case 1X: Unique Parameters}{TF1TestTable}
+{l,4cm}{l,6cm}{1,5cm}
+{
+	Input Name & Description & Value(s) \\
+	Simulation Start Date & Start Date for the Simulation & 07/10/2024  \\	
+}
+%%%% END USER CONTENT %%%%%%
+
+\subsubsubsection{\unclass Assumptions and Constraints}
+
+\guidance{
+	
+	\unclass TIMELINE: Should be started by \gls{cdr} and finalized by \gls{trr}.
+	
+	\unclass Please include any relevant assumptions and/or constraints that are specific to this test scenario.  Some tests will have both assumptions and constraints. In this context, \textbf{Assumptions} enumerate which functionalities of the overall model behave differently during this particular test.  These include which components are operational in the model (excluding prerequisites), what is working which components are operational in the target, what is working which components are operational in in the ODESSA framework, and what the changes to the active scenario do to the above.  Examples: if the system is put into mode X it will require a detection to begin jamming, if the pedestal is static then the antenna pattern will be probed a reasonable amount, if the TAR is disabled the TER will have difficulty finding targets, etc.  \textbf{Constraints} are restrictions that the scenario has put upon the test framework as a whole, either to change model behavior for testing or to the scenario itself as a whole to limit model behavior.  Some scenarios will do both of these. Examples: pedestal rotation is disabled to allow for antenna testing, disabling TAR and using perfect cue to test TER track capabilities, placing a target behind terrain to make it undetectable, etc.
+}
+
+%%%%% BEGIN USER CONTENT %%%%%
+
+%%%% END USER CONTENT %%%%%%
+
+
+\subsubsubsection{\unclass Test Procedure}
+
+\guidance{
+\unclass TIMELINE: Should be started by PDR and finalized by TRR.
+
+\unclass REQUIREMENT Identify the required outputs and how the data will be presented. If specific outputs are logged, explain the log location and name, and an explanation of the file format and fields. The explanation here should be brief and lean on the description in the User Manual; if the explanation becomes long, expand the UAM description and shorten the description here. If the data will be graphed, explain what will be plotted and the axis labels, etc., and examples of those figures, tables, etc. should be captured for review and discussion with SMEs and M\&S TPOCs in this document and the milestone slides no later than CDR.\\ 
+
+\unclass Include the filenames of the scenario files and plot configuration files developed to execute this test as applicable.\\
+
+\unclass If an external post-processing tool is used (such as a \gls{matlab} sidecar), then add another table and include the default parameters for that, too. 
+\\
+	
+	\unclass The purpose of this section is so that the SME and TPOC can provide meaningful feedback to the tester early in the process – before the test is run and results presented. An example of feedback that this will enable is the SME could say that “screen shots of log files are meaningless”, or “a plot of OBSERVABLE vs. QUANTITY only provides value of you include a second plot with the relative difference calculated”, or “that figure should also include truth data”, etc. A secondary purpose of this section is that it provides guidance to more junior technicians or reviewers if they are tasked with implementing the test scripts. \\
+	It is not sufficient to simply state, ``run the test script and then run the data plotting script'', or ``load the scenario and run it'', or ``the output is in a log file, plot it''.  Give specific instructions for recreating any graphs shown here. \\
+	
+	\unclass EXAMPLE: Figure 1 is generated by plotting BSE azimuth angle vs. time to show a successful track and following of the target, and is also generated by the ST\_1.1\_fig\_1.config file.
+} 
+
+%%%%% BEGIN USER CONTENT %%%%%
+%%%% END USER CONTENT %%%%%%
+
+\subsubsubsection{\unclass Expected Results and Evaluation Criteria}
+
+\guidance{
+	
+\unclass TIMELINE: Should be started by PDR and finalized by TRR.
+
+\unclass REQUIREMENT Describe the expected results from the test.  If this is based on intel instead of physics and engineering, cite the supporting source.  Explain what we would expect to see from each of the figures and logged data defined in the Test Procedure section.  Note that each step in the test will need its own expected results and disposition assessment in the Result Narrative table, therefore identify a range of accuracy, allowable errors, etc. to assist the tester in determining the disposition of each testing step.  If provided intelligence predicts a particular result, then that result should be called out in the expected results. Show math to bolster the expectation and potentially describe the output from the model that will support the calculations. Describe which KPIs are assessed by this test and whether this test and/or KPI can be used for validation.\\
+	\unclass  Similar to the test procedure section, this section provides the most value early in the development and documentation process. This section allows the SME to provide feedback on whether or not the test case has appropriate parameter coverage or will provide sufficient and unambiguous evidence. A secondary purpose of this section is that it provides guidance to more junior technicians or reviewers if they are tasked with implementing the test scripts and reviewing results.\\
+	\unclass  Note: it is not sufficient to simply state, ``we expect it to behave correctly.''  Give specific benchmarks for success or failure.  For example, "If the pedestal orientation versus time does not settle to the pedestal command versus time with a specified time, the test fails." \\
+	\unclass  For example, "As A and B move apart, we expect the communication connection to match that predicted in equation 1. Based on the characteristics of this system, we expect loss of connection to occur at an MDS below YYY; and based on the setup of this scenario we expect this to occur at a range of XXX meters. Varying parameter CC should result in a linear increase in observable DD for the range FFF to GGG."
+	
+	
+	\unclass Correlate each of the items in Behavior Tested above with an expected result.  Quantify the expected results including an acceptable error margin wherever possible. 
+} 
+
+
+\subsubsubsection{\unclass Result Narrative}
+
+\guidance{
+
+\unclass TIMELINE: Should be started by CDR near-finalized by TRR, and finalized at FDR.
+
+\unclass REQUIREMENT Give a narrative description of the actual result from executing the test case.  Ensure that any deviations from the expected results are described in enough detail to assist in analyzing the results.  Call out any unique features and explain them.  Assess whether the test is PASS or FAIL.  Refer to the generated figures.  Figures, tables, charts, etc. used to verify model performance should be review with SMEs and M\&S TPOCs starting no later than CDR and should be refined and solidified by TRR.  In general, screen shots of log output is not acceptable.}
+
+%% BEGIN USER CONTENT HERE
+\unclass Test Narrative Goes Here
+%% END USER CONTENT HERE
+
+	
+\guidance{
+	\unclass TIMELINE: Should be started by CDR near-finalized by TRR, and only minor variations in test results should occur between TRR and FDR. \\
+	\unclass Document any minor variations on this test in the below table, if applicable.  These tests should only be small 1-2 parameter changes that do not drastically affect testing results.  If using batch run permutations, separate the input parameters with ; as in the Scenario GUI.  If using multiple scenario files, make a separate line for each scenario file.  \\
+}
+
+\tableFivNow{\classlabel}
+{\unclass Test Case Permutations}
+{TestCase1Permutations}
+{l,2cm}{l,3cm}{1,4cm}{1,3cm}{l,3cm}
+{
+	Scenario File & Description & Varied Parameters & Expected Changes & Test Disposition \\
+	1.2b.scn & moved target slightly North & STL Latitude = 0.41 deg & System should still be able to track the target & \textbf{PASS} \\
+	1.2c.scn & moved target slightly East and West & STL Longitude = 0.41;-0.41 deg & System should still be able to track the target & \textbf{PASS} \\
+	
+}
+
+
+\guidance{
+
+\unclass TIMELINE: Should be started by CDR near-finalized by TRR, and finalized at FDR.
+
+\unclass REQUIREMENT Use the table below to document the steps for the test case.\\
+	Step \#: the test case step number.Each step number will tie to individual steps to the final complete test. Multiple steps may tie to individual requirements that are demonstrated through a single test. \\
+	Description: the required input by the tester (tester actions and equipment operation) that is required in order to achieve the expected result\\
+	Expected Results: the expected results from performing the step.  Identify a range of accuracy, allowable errors, etc. that will assist the tester in determining the disposition of the step.\\
+	Disposition: the disposition of the step\\
+	Actual Results: the actual result from executing the test case.  Ensure that any deviations from the expected results are described in enough detail to assist in analyzing the results.\\
+	Comments: include comments as appropriate\\
+	Test Case Disposition: the disposition of the test PASS, PASS with CR, FAIL, PENDING}
+
+\tableFouNow{\unclasslabel}
+%% BEGIN USER CONTENT HERE
+{\unclass Test Case SampleTestCaseID: SampleTestCaseName} % caption
+{testcaseSampleCaseID}	% crossreferences label; "tab:" is supplied automatically so only put here what you want after the colon
+%% END USER CONTENT HERE
+{c}{p,2.5in}{p,2.5in}{c}
+{
+	Step \# & Description & Expected Results & Disposition \\
+	%% BEGIN USER CONTENT HERE
+	1 & description & expected results & PASS \\  % repeat this row as necessary
+	%% END USER CONTENT HERE
+	\SetCell[c=2]{bg=TableBlue,fg=white,halign=p} Actual Results && \SetCell[c=2]{bg=TableBlue,fg=white,halign=p} Comments: \\
+	\SetCell[c=2]{halign=p}
+	%% BEGIN USER CONTENT HERE
+	your text of the actual results
+	%% END USER CONTENT HERE
+	&& \SetCell[c=2]{} 
+	%% BEGIN USER CONTENT HERE
+	your comments \\
+	%% END USER CONTENT HERE
+	\SetCell[c=2]{bg=TableBlue,fg=white,halign=p} Test Case Disposition && \SetCell[c=2]{halign=c} 
+	%% BEGIN USER CONTENT HERE
+	\textbf{PASS} \\
+	% END USER CONTENT HERE
+}

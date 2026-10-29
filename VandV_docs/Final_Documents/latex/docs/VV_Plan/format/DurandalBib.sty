@@ -1,0 +1,164 @@
+%% ╔═════════════════════════════════════════╗
+%% ║         U N C L A S S I F I E D         ║
+%% ╚═════════════════════════════════════════╝
+
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{format/DurandalBib}[2025/11/05 Durandal biblatex integration (tidy)]
+
+% We inline the custom .bbx/.cbx so the job directory always has the style files
+\RequirePackage{filecontents}
+
+% ----------------------------
+% Write/overwrite: icd206.bbx
+% ----------------------------
+\begin{filecontents*}[overwrite]{icd206.bbx}
+\ProvidesFile{icd206.bbx}[2025/11/05 ICD-206 bibliography style (native, simple)]
+\RequireBibliographyStyle{numeric}
+% Keep sorting/maxnames here; 'giveninits' is handled at package load to avoid duplication
+\ExecuteBibliographyOptions{sorting=nyt,maxnames=99}
+
+% Comfortable vertical spacing between entries
+\setlength{\bibitemsep}{.75\baselineskip}
+
+% Non-breaking pipe separator macro
+\newcommand{\icdsep}{\addnbspace\textbar\addnbspace}
+
+% --- TECHREPORT driver (prints mapped user-fields) ---
+\DeclareBibliographyDriver{techreport}{%
+  \usebibmacro{begentry}%
+  % usera := 'class' (plain, no label)
+  \iffieldundef{usera}{}{\printfield{usera}\setunit*{\icdsep}}%
+  \printnames{author}\setunit*{\icdsep}%
+  % Use the global title field format (no need for a missing [icdtitle])
+  \printfield{title}\setunit*{\icdsep}%
+  \iffieldundef{institution}{}{\printlist{institution}\setunit*{\icdsep}}%
+  \iffieldundef{date}{}{\printdate\setunit*{\icdsep}}%
+  \iffieldundef{version}{}{\printfield{version}\setunit*{\icdsep}}%
+  % Confidence tail (all via user-fields mapped by the sourcemap)
+  \iffieldundef{userb}{}{\printfield{userb}\setunit*{\icdsep}}% confidence (labeled in .sty)
+  \iffieldundef{userd}{}{\printfield{userd}\setunit*{\icdsep}}% confmethod
+  \iffieldundef{usere}{}{\printfield{usere}\setunit*{\icdsep}}% confbasis
+  \iffieldundef{userf}{}{\printfield{userf}\setunit*{\icdsep}}% confsource
+  \iffieldundef{userc}{}{\printfield{userc}}% classification (labeled in .sty)
+  % Gentle break before optional description/note (safer than \linebreak + negative vspace)
+  \par\smallskip
+  \iffieldundef{note}{}{\printfield{note}}%
+  \finentry%
+}
+
+% Make 'report' entries use the same driver logic
+\DeclareBibliographyAlias{report}{techreport}
+\end{filecontents*}
+
+% ----------------------------
+% Write/overwrite: icd206.cbx
+% ----------------------------
+\begin{filecontents*}[overwrite]{icd206.cbx}
+\ProvidesFile{icd206.cbx}[2025/11/05 ICD-206 citation style]
+\RequireCitationStyle{numeric}
+
+% Favor shorthand (mapped from 'number'), else 'number', else labelnumber
+\newbibmacro*{icd:code}{%
+  \ifboolexpr{ test {\iffieldundef{shorthand}} }{%
+    \ifboolexpr{ test {\iffieldundef{number}} }{\printfield{labelnumber}}{\printfield{number}}%
+  }{%
+    \printfield{shorthand}%
+  }%
+}
+
+\DeclareCiteCommand{\cite}
+  {\usebibmacro{prenote}}
+  {\printtext[bibhyperref]{\usebibmacro{icd:code}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+
+\DeclareCiteCommand{\parencite}
+  {\usebibmacro{prenote}}
+  {\bibopenparen\printtext[bibhyperref]{\usebibmacro{icd:code}}\bibcloseparen}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+
+\DeclareCiteCommand{\textcite}
+  {\usebibmacro{prenote}}
+  {\printtext[bibhyperref]{\usebibmacro{icd:code}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+\end{filecontents*}
+
+% ----------------------------
+% Load biblatex with our style
+% ----------------------------
+\RequirePackage[
+  backend=biber,
+  style=icd206,
+  giveninits=true,
+  isbn=false, doi=false, url=true
+]{biblatex}
+
+% Make in-text codes show ICD-206-XX by copying 'number' → 'shorthand'
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{\map{
+    \step[fieldsource=number]
+    \step[fieldset=shorthand, origfieldval, final]
+  }}
+}
+
+% Map native fields to biblatex 'user' fields consumed by the .bbx driver
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{ \step[fieldsource=class]           \step[fieldset=usera, origfieldval, final] }
+    \map{ \step[fieldsource=confidence]      \step[fieldset=userb, origfieldval, final] }
+    \map{ \step[fieldsource=classification]  \step[fieldset=userc, origfieldval, final] }
+    \map{ \step[fieldsource=confmethod]      \step[fieldset=userd, origfieldval, final] }
+    \map{ \step[fieldsource=confbasis]       \step[fieldset=usere, origfieldval, final] }
+    \map{ \step[fieldsource=confsource]      \step[fieldset=userf, origfieldval, final] }
+  }
+}
+
+% --- Field formats (titles & labeled tails) ---
+\DeclareFieldFormat{usera}{#1}                                   % plain class mark (e.g., \unclasslabel text)
+\DeclareFieldFormat{title}{Title:~\textit{#1}}                   % styled title
+\DeclareFieldFormat{version}{\textbf{VERSION:~}#1}
+\DeclareFieldFormat{userb}{\textbf{CONFIDENCE:~}#1}              % confidence
+\DeclareFieldFormat{userd}{\textit{Confidence Method:~}#1}       % method
+\DeclareFieldFormat{usere}{\textit{Confidence Basis:~}#1}        % basis
+\DeclareFieldFormat{userf}{\textit{Confidence Source:~}#1}       % source
+\DeclareFieldFormat{userc}{\textbf{CLASSIFICATION:~}#1}          % classification (labeled)
+\DeclareFieldFormat{note}{\textbf{DESCRIPTION:~}#1}
+
+% Bibliography database (path relative to main .tex)
+\addbibresource{ref.bib}
+
+% ----------------------------
+% Framed bibliography page header
+% ----------------------------
+\RequirePackage{tikz}
+\RequirePackage{fancyhdr}
+
+\newcommand{\doPrintBib}{%
+  \clearpage
+  \pagestyle{fancy}%
+  \fancyhf{}%
+  \raggedright
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+  % Use L/C/R only so it works in oneside and twoside without warnings
+%  \fancyhead[L]{%
+%    \begin{tikzpicture}[overlay,remember picture]
+%      \draw[line width=0.5mm, black]
+%        ([xshift=1cm,yshift=-1cm]current page.north west)
+%        rectangle
+%        ([xshift=-1cm,yshift=1cm]current page.south east);
+%      \node at ([yshift=-1.5cm]current page.north) {\classification};
+%      \node at ([yshift= 1.5cm]current page.south) {\classification};
+%    \end{tikzpicture}%
+%  }%
+  \hfill{\large Citations}\vspace{-1cm}%
+  \printbibliography%
+}
+
+
+%% ╔═════════════════════════════════════════╗
+%% ║         U N C L A S S I F I E D         ║
+%% ╚═════════════════════════════════════════╝

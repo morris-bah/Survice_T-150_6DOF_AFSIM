@@ -1,0 +1,342 @@
+# ==============================================================================
+# T-150 UAS Circular Engagement Test Scenario
+# ==============================================================================
+# Project: project005_t150_uas - Version 2.0
+#
+# This scenario demonstrates:
+# - Takeoff and climb to 50m AGL
+# - Locate ground target (static tank)
+# - Fly 200m radius circle around target
+# - Engage target at 5 points (72° intervals) with variable bursts
+# - Return to start area
+#
+# Engagement Pattern:
+#   Point 1 (0°/North):   1 round
+#   Point 2 (72°):        1 round
+#   Point 3 (144°):       2 rounds
+#   Point 4 (216°):       5 rounds
+#   Point 5 (288°):       20 rounds
+#   Total: 29 rounds expended
+#
+# Weapon: M240-style 7.62x51mm NATO
+#   - Weapon weight: 12.3 kg (27 lbs)
+#   - Ammo weight: 5.44 kg (12 lbs) for 100 rounds linked
+#   - Total: 17.7 kg weapon system
+#
+# Outputs:
+#   - .aer file for visual playback
+#   - .csv file with telemetry (battery, mass, performance, PID)
+#
+# Copyright 2025 - Project 005 T-150 UAS Simulation
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME circular_engagement_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# =============================================================================
+# Target Platform - Static Ground Vehicle
+# =============================================================================
+# Target location: 39.7000N, 84.1000W (center of engagement circle)
+# =============================================================================
+
+platform_type STATIC_TARGET WSF_PLATFORM
+    icon tank
+
+    # Static - no movement
+    mover WSF_GROUND_MOVER
+        update_interval 1 sec
+    end_mover
+end_platform_type
+
+# =============================================================================
+# Include T-150 Base Platform
+# =============================================================================
+include ../../platforms/t150_platform.afsim
+
+# =============================================================================
+# T-150 Armed with M240 Machine Gun
+# =============================================================================
+# M240 specifications:
+#   Weight: 12.3 kg (27 lbs) unloaded
+#   Ammo: 100 rounds 7.62x51mm linked = 5.44 kg (12 lbs)
+#   Total weapon system: 17.7 kg
+#   Rate of fire: 650-950 RPM (using 750 RPM)
+#
+# Using 5 weapon "channels" with different burst lengths to simulate
+# variable engagement patterns. Multi-weapon support sums all forces.
+# =============================================================================
+
+platform_type T150_M240_ARMED T150_UAS
+
+    # Battery Processor with CSV output enabled
+    processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+        battery_capacity_wh    7000.0
+        initial_soc            1.0
+        hover_power_w          20000.0      # Higher power with weapon payload
+        low_battery_warning    0.20
+        update_interval        0.1 sec
+        # CSV output for detailed analysis
+        csv_output_file        /home/shepard/afsim_projects/project005_t150_uas/output/circular_engagement_test_battery.csv
+        csv_log_interval       0.5          # Log every 0.5 seconds for detail
+    end_processor
+
+    # VRS Processor
+    processor VRS_MONITOR T150_VRS_PROCESSOR
+        vrs_descent_threshold  4.0
+        vrs_speed_threshold    5.0
+        caution_margin         0.8
+        induced_velocity       8.5
+        coaxial_factor         0.85
+        update_interval        0.1 sec
+    end_processor
+
+    # Propulsion Processor with CSV output
+    processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+        motor_count            8
+        kv_rating              100
+        max_power_per_motor    3500
+        propeller_diameter     0.76
+        coaxial_efficiency     0.85
+        motor_thermal_limit    120
+        nominal_voltage        46.8
+        peak_motor_efficiency  0.92
+        ambient_temperature    25
+        # Payload mass includes M240 + ammo
+        payload_mass           17.7         # kg (M240 12.3kg + ammo 5.4kg)
+        max_payload_mass       55.0
+        update_interval        0.1 sec
+        # CSV output for detailed analysis
+        csv_output_file        /home/shepard/afsim_projects/project005_t150_uas/output/circular_engagement_test_propulsion.csv
+        csv_log_interval       0.5          # Log every 0.5 seconds
+    end_processor
+
+    # =========================================================================
+    # M240 Weapon System - Split into 5 channels for variable bursts
+    # =========================================================================
+    # All mounted at same position, different burst lengths and fire times
+    # Total ammo: 100 rounds split across channels based on engagement plan
+    # =========================================================================
+
+    # Engagement 1: Single shot at Point 1 (North, ~T=30s)
+    processor WEAPON_BURST_1 T150_WEAPON_PROCESSOR
+        weapon_type            MACHINE_GUN
+        weapon_name            m240_burst1
+        munition_mass          0.0095       # 9.5g M80 Ball
+        muzzle_velocity        850.0
+        propellant_gas_factor  1.4
+        recoil_duration        0.002
+        magazine_capacity      1            # Single round
+        burst_length           1
+        rounds_per_minute      750
+        mount_offset_x         0.25         # Forward mount
+        mount_offset_y         0.0
+        mount_offset_z         0.15
+        tilt_angle             75.0         # Near horizontal for ground attack
+        azimuth_angle          0.0
+        update_interval        0.001
+        auto_fire              true
+        auto_fire_start        30.0         # Fire at Point 1
+        auto_fire_interval     999.0        # Only fire once
+        auto_fire_count        1
+        # CSV output
+        csv_output_file        /home/shepard/afsim_projects/project005_t150_uas/output/circular_engagement_test_weapon.csv
+        csv_log_interval       0.1
+    end_processor
+
+    # Engagement 2: Single shot at Point 2 (72°, ~T=50s)
+    processor WEAPON_BURST_2 T150_WEAPON_PROCESSOR
+        weapon_type            MACHINE_GUN
+        weapon_name            m240_burst2
+        munition_mass          0.0095
+        muzzle_velocity        850.0
+        propellant_gas_factor  1.4
+        recoil_duration        0.002
+        magazine_capacity      1
+        burst_length           1
+        rounds_per_minute      750
+        mount_offset_x         0.25
+        mount_offset_y         0.0
+        mount_offset_z         0.15
+        tilt_angle             75.0
+        azimuth_angle          0.0
+        update_interval        0.001
+        auto_fire              true
+        auto_fire_start        50.0         # Fire at Point 2
+        auto_fire_interval     999.0
+        auto_fire_count        1
+        # CSV output
+        csv_output_file        /home/shepard/afsim_projects/project005_t150_uas/output/circular_engagement_test_weapon2.csv
+        csv_log_interval       0.1
+    end_processor
+
+    # Engagement 3: 2-round burst at Point 3 (144°, ~T=70s)
+    processor WEAPON_BURST_3 T150_WEAPON_PROCESSOR
+        weapon_type            MACHINE_GUN
+        weapon_name            m240_burst3
+        munition_mass          0.0095
+        muzzle_velocity        850.0
+        propellant_gas_factor  1.4
+        recoil_duration        0.002
+        magazine_capacity      2
+        burst_length           2
+        rounds_per_minute      750
+        mount_offset_x         0.25
+        mount_offset_y         0.0
+        mount_offset_z         0.15
+        tilt_angle             75.0
+        azimuth_angle          0.0
+        update_interval        0.001
+        auto_fire              true
+        auto_fire_start        70.0         # Fire at Point 3
+        auto_fire_interval     999.0
+        auto_fire_count        1
+        # CSV output
+        csv_output_file        /home/shepard/afsim_projects/project005_t150_uas/output/circular_engagement_test_weapon3.csv
+        csv_log_interval       0.1
+    end_processor
+
+    # Engagement 4: 5-round burst at Point 4 (216°, ~T=90s)
+    processor WEAPON_BURST_4 T150_WEAPON_PROCESSOR
+        weapon_type            MACHINE_GUN
+        weapon_name            m240_burst4
+        munition_mass          0.0095
+        muzzle_velocity        850.0
+        propellant_gas_factor  1.4
+        recoil_duration        0.002
+        magazine_capacity      5
+        burst_length           5
+        rounds_per_minute      750
+        mount_offset_x         0.25
+        mount_offset_y         0.0
+        mount_offset_z         0.15
+        tilt_angle             75.0
+        azimuth_angle          0.0
+        update_interval        0.001
+        auto_fire              true
+        auto_fire_start        90.0         # Fire at Point 4
+        auto_fire_interval     999.0
+        auto_fire_count        1
+        # CSV output
+        csv_output_file        /home/shepard/afsim_projects/project005_t150_uas/output/circular_engagement_test_weapon4.csv
+        csv_log_interval       0.1
+    end_processor
+
+    # Engagement 5: 20-round burst at Point 5 (288°, ~T=110s)
+    processor WEAPON_BURST_5 T150_WEAPON_PROCESSOR
+        weapon_type            MACHINE_GUN
+        weapon_name            m240_burst5
+        munition_mass          0.0095
+        muzzle_velocity        850.0
+        propellant_gas_factor  1.4
+        recoil_duration        0.002
+        magazine_capacity      20
+        burst_length           20
+        rounds_per_minute      750
+        mount_offset_x         0.25
+        mount_offset_y         0.0
+        mount_offset_z         0.15
+        tilt_angle             75.0
+        azimuth_angle          0.0
+        update_interval        0.001
+        auto_fire              true
+        auto_fire_start        110.0        # Fire at Point 5
+        auto_fire_interval     999.0
+        auto_fire_count        1
+        # CSV output
+        csv_output_file        /home/shepard/afsim_projects/project005_t150_uas/output/circular_engagement_test_weapon5.csv
+        csv_log_interval       0.1
+    end_processor
+
+end_platform_type
+
+# =============================================================================
+# Platform Instances
+# =============================================================================
+
+# Ground target - static tank at center of engagement circle
+platform target_tank STATIC_TARGET
+    route
+        position 39.7000n 84.1000w altitude 0 m agl speed 0 m/s stop
+    end_route
+end_platform
+
+# T-150 Armed UAS - circular engagement mission
+# Start position: 200m North of target (Point 1 on circle)
+# Flight path: Takeoff -> Climb -> Circle (5 waypoints) -> Return
+#
+# Circle waypoints at 200m radius (calculated for 39.7N, 84.1W):
+#   Point 1 (0°/N):   39.7018N, 84.1000W
+#   Point 2 (72°):    39.7006N, 84.0977W
+#   Point 3 (144°):   39.6985N, 84.0986W
+#   Point 4 (216°):   39.6985N, 84.1014W
+#   Point 5 (288°):   39.7006N, 84.1023W
+#   Return:           39.7016N, 84.1002W (near start, not exact)
+#
+platform t150_hunter T150_M240_ARMED
+    route
+        # =====================================================================
+        # Phase 1: Takeoff from slightly south of Point 1, climb to 50m
+        # =====================================================================
+        position 39.7010n 84.1000w altitude 5 m agl speed 0 m/s     # Start position
+        position 39.7014n 84.1000w altitude 50 m agl speed 3 m/s    # Climb to 50m
+
+        # =====================================================================
+        # Phase 2: Transit to Point 1 and begin circle (engage at each point)
+        # =====================================================================
+        # Point 1 (0°/North) - 1 round engagement at ~T=30s
+        position 39.7018n 84.1000w altitude 50 m agl speed 8 m/s
+
+        # Point 2 (72°) - 1 round engagement at ~T=50s
+        position 39.7006n 84.0977w altitude 50 m agl speed 8 m/s
+
+        # Point 3 (144°) - 2 round engagement at ~T=70s
+        position 39.6985n 84.0986w altitude 50 m agl speed 8 m/s
+
+        # Point 4 (216°) - 5 round engagement at ~T=90s
+        position 39.6985n 84.1014w altitude 50 m agl speed 8 m/s
+
+        # Point 5 (288°) - 20 round engagement at ~T=110s
+        position 39.7006n 84.1023w altitude 50 m agl speed 8 m/s
+
+        # =====================================================================
+        # Phase 3: Complete circle and return to base
+        # =====================================================================
+        # Return toward start (slightly offset to avoid exact overlap)
+        position 39.7012n 84.1002w altitude 50 m agl speed 8 m/s
+
+        # Descend and land
+        position 39.7008n 84.1002w altitude 10 m agl speed 3 m/s
+        position 39.7004n 84.1002w altitude 5 m agl speed 0 m/s stop
+
+    end_route
+end_platform
+
+# =============================================================================
+# Event Recording - AER file for visual playback
+# =============================================================================
+event_pipe
+    file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+    use_preset default
+end_event_pipe
+
+# =============================================================================
+# Simulation Time
+# =============================================================================
+# Mission timeline:
+#   T=0-20s:    Takeoff and climb
+#   T=20-30s:   Transit to Point 1
+#   T=30s:      Engagement 1 (1 round)
+#   T=30-50s:   Transit to Point 2
+#   T=50s:      Engagement 2 (1 round)
+#   T=50-70s:   Transit to Point 3
+#   T=70s:      Engagement 3 (2 rounds)
+#   T=70-90s:   Transit to Point 4
+#   T=90s:      Engagement 4 (5 rounds)
+#   T=90-110s:  Transit to Point 5
+#   T=110s:     Engagement 5 (20 rounds)
+#   T=110-140s: Return to base
+#   T=140-150s: Descent and landing
+# =============================================================================
+end_time 160 sec

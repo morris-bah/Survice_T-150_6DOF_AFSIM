@@ -1,0 +1,197 @@
+# ==============================================================================
+# Spline Navigation Behavior Test Scenario
+# ==============================================================================
+# Project: project005_t150_uas - Rotorcraft 6DOF Spline Enhancement
+#
+# This scenario tests the new spline navigation capabilities:
+# - Catmull-Rom spline path interpolation for smooth curved paths
+# - Per-waypoint behavior modes:
+#   - FLY_THROUGH: Smooth arc through waypoint, maintain speed
+#   - SLOW_PASS: Decelerate to specified speed through waypoint
+#   - STOP_AND_HOVER: Full stop, hover for duration, optionally rotate
+#
+# Test Route:
+#   WP0 (start): Takeoff position
+#   WP1: FLY_THROUGH at 8 m/s
+#   WP2: STOP_AND_HOVER for 5 seconds, rotate to 90 deg
+#   WP3: FLY_THROUGH at 10 m/s
+#   WP4: SLOW_PASS at 2 m/s
+#   WP5: Final position, stop
+#
+# Expected Results:
+# - Smooth curved paths between waypoints (no sharp corners)
+# - Complete stop at WP2, hover 5 seconds, rotate to face East
+# - Gradual deceleration approaching WP4
+# - Speed profiling matches expected trapezoid profiles
+#
+# Copyright 2025 - Project 005 T-150 UAS Simulation
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME spline_behavior_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# ==============================================================================
+# T-150 with Spline Navigation Enabled
+# ==============================================================================
+# Defined directly (not inheriting) to avoid duplicate mover issues
+# ==============================================================================
+platform_type T150_SPLINE_TEST WSF_PLATFORM
+
+    side blue
+    icon 4_rotor_good
+    category air
+
+    mover WSF_ROTORCRAFT_6DOF_MOVER
+
+        # Update at 100 Hz for physics stability
+        update_interval 0.01 sec
+
+        # ========================================================================
+        # MASS PROPERTIES
+        # ========================================================================
+        mass 100.0
+        inertia_xx 4.5
+        inertia_yy 4.5
+        inertia_zz 7.0
+
+        # ========================================================================
+        # ROTOR CONFIGURATION
+        # ========================================================================
+        rotor_configuration COAXIAL_OCTO
+        rotor_diameter 0.76
+        arm_length 0.90
+        coaxial_spacing 0.08
+        thrust_coefficient 0.10
+        torque_coefficient 0.008
+        max_rpm 6000
+        motor_time_constant 0.05
+
+        # ========================================================================
+        # AERODYNAMIC DRAG
+        # ========================================================================
+        drag_enabled true
+        drag_coefficient_x 1.0
+        drag_coefficient_y 1.2
+        drag_coefficient_z 1.5
+        frontal_area 0.30
+
+        # ========================================================================
+        # GROUND EFFECT
+        # ========================================================================
+        ground_effect_enabled true
+        ground_effect_height_factor 1.5
+        ground_effect_max_boost 1.25
+
+        # ========================================================================
+        # CONTROL MIXING GAINS
+        # ========================================================================
+        roll_mix_gain 0.15
+        pitch_mix_gain 0.15
+        yaw_mix_gain 0.08
+
+        # ========================================================================
+        # ALTITUDE HOLD CONTROLLER
+        # ========================================================================
+        altitude_hold true
+        altitude_kp 0.02
+        altitude_kd 0.15
+
+        # ========================================================================
+        # POSITION HOLD CONTROLLER
+        # ========================================================================
+        position_hold true
+        position_kp 1.0
+        position_kd 0.1
+        velocity_kp 3.0
+        max_vel_accel 8.0
+        max_tilt_angle 25.0
+        waypoint_arrival_radius 3.0
+        heading_hold true
+        heading_kp 1.5
+
+        # ========================================================================
+        # SPLINE NAVIGATION CONFIGURATION
+        # ========================================================================
+        spline_interpolation true
+        spline_tension 0.5
+        max_deceleration 2.0
+
+        # Default behavior for waypoints without explicit config
+        default_waypoint_behavior FLY_THROUGH
+        default_pass_speed 2.0
+        default_hover_duration 3.0
+
+        # Per-waypoint behavior configuration (0-indexed)
+        # WP0: start - no special behavior needed
+        # WP1: fly through normally
+        waypoint_behavior 1 FLY_THROUGH
+
+        # WP2: Stop and hover for 5 seconds, rotate to face 90 degrees (East)
+        waypoint_stop_heading 2 5.0 90.0
+
+        # WP3: fly through normally
+        waypoint_behavior 3 FLY_THROUGH
+
+        # WP4: Slow pass at 2 m/s
+        waypoint_slow 4 2.0
+
+        # WP5: final stop (handled by route)
+
+    end_mover
+
+end_platform_type
+
+# ==============================================================================
+# Scenario Settings
+# ==============================================================================
+
+# Simulation time
+end_time 120 sec
+
+# AER output for visual playback
+event_pipe
+    file /home/shepard/afsim_projects/project005_t150_uas/output/spline_behavior_test.aer
+    use_preset default
+end_event_pipe
+
+# ==============================================================================
+# Test Platform Instance
+# ==============================================================================
+# Test route forms a roughly rectangular pattern with the drone returning
+# close to the start point. All waypoints are at 50m altitude.
+#
+# Layout (approximate):
+#
+#   WP2 (stop/hover) -------- WP3
+#        |                     |
+#        |                     |
+#   WP1 -------- WP0 (start)   |
+#                |             |
+#                WP5 ------- WP4 (slow pass)
+#
+# ==============================================================================
+
+platform test_drone T150_SPLINE_TEST
+    route
+        # WP0: Start position
+        position 39.7000n 84.1000w altitude 50 m agl speed 8 m/s
+
+        # WP1: West of start
+        position 39.7000n 84.1010w altitude 50 m agl speed 8 m/s
+
+        # WP2: Northwest - STOP AND HOVER
+        position 39.7010n 84.1010w altitude 50 m agl speed 10 m/s
+
+        # WP3: Northeast
+        position 39.7010n 84.0990w altitude 50 m agl speed 10 m/s
+
+        # WP4: Southeast - SLOW PASS
+        position 39.6990n 84.0990w altitude 50 m agl speed 8 m/s
+
+        # WP5: Return near start, stop
+        position 39.6990n 84.1000w altitude 50 m agl speed 0 m/s stop
+
+    end_route
+end_platform

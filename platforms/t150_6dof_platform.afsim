@@ -1,0 +1,126 @@
+# ==============================================================================
+# T-150 / TRV-150 Heavy-Lift UAS Platform Type Definition (6DOF Version)
+# ==============================================================================
+# This platform uses the physics-based 6DOF mover instead of the kinematic
+# WSF_FULL_ROTORCRAFT_MOVER. It provides realistic rigid body dynamics with
+# actual rotor thrust/torque calculations.
+#
+# Plugin required: rotorcraft_6dof.so
+# ==============================================================================
+
+# ==============================================================================
+# T-150 RADAR CROSS SECTION (RCS) SIGNATURE
+# ==============================================================================
+# (Same as kinematic version)
+radar_signature T150_6DOF_RADAR_SIG
+   state default
+      inline_table dbsm 9 5
+               -90.0  -30.0    0.0   30.0   90.0
+      -180.0     3.0   -1.0   -3.0   -1.0    3.0
+      -135.0     3.0    1.0   -1.0    1.0    3.0
+       -90.0     3.0    2.0    0.0    2.0    3.0
+       -45.0     3.0    1.0   -1.0    1.0    3.0
+         0.0     3.0   -3.0   -5.0   -3.0    3.0
+        45.0     3.0    1.0   -1.0    1.0    3.0
+        90.0     3.0    2.0    0.0    2.0    3.0
+       135.0     3.0    1.0   -1.0    1.0    3.0
+       180.0     3.0   -1.0   -3.0   -1.0    3.0
+      end_inline_table
+end_radar_signature
+
+# ==============================================================================
+# T-150 6DOF Platform Type Definition
+# ==============================================================================
+platform_type T150_6DOF_UAS WSF_PLATFORM
+
+   side blue
+
+   # Using quadrotor 3D model for visualization
+   icon 4_rotor_good
+
+   # Category for identification
+   category air
+
+   # --------------------------------------------------------------------------
+   # MOVER - Uses the T150 6DOF physics-based mover
+   # --------------------------------------------------------------------------
+   mover WSF_ROTORCRAFT_6DOF_MOVER
+
+      # Update at 100 Hz for physics stability
+      update_interval 0.01 sec
+
+      # ========================================================================
+      # MASS PROPERTIES
+      # ========================================================================
+      # Note empty mass of UAS is 55.0 kg
+      # Total mass at MTOW (includes 68 kg payload)
+#      mass 123.0
+      mass 55.0 # empty mass (0 kg payload)
+#      mass 385 # 150lb payload
+      # Moments of inertia [kg*m^2]
+      inertia_xx 4.5
+      inertia_yy 4.5
+      inertia_zz 7.0
+
+      # ========================================================================
+      # ROTOR CONFIGURATION
+      # ========================================================================
+      rotor_configuration COAXIAL_QUAD
+      rotor_diameter 0.76
+      arm_length 0.90
+      coaxial_spacing 0.08
+      thrust_coefficient 0.10
+      torque_coefficient 0.008
+      max_rpm 6000
+      motor_time_constant 0.05
+
+      # ========================================================================
+      # AERODYNAMIC DRAG
+      # ========================================================================
+      drag_enabled true
+      drag_coefficient_x 1.0
+      drag_coefficient_y 1.2
+      drag_coefficient_z 1.5
+      frontal_area 0.30
+
+      # ========================================================================
+      # GROUND EFFECT
+      # ========================================================================
+      ground_effect_enabled true
+      ground_effect_height_factor 1.5
+      ground_effect_max_boost 1.25
+
+      # ========================================================================
+      # CONTROL MIXING GAINS
+      # ========================================================================
+      roll_mix_gain 0.15
+      pitch_mix_gain 0.15
+      yaw_mix_gain 0.08
+
+      # ========================================================================
+      # ALTITUDE HOLD CONTROLLER
+      # ========================================================================
+      altitude_hold true
+      altitude_kp 0.02
+      altitude_kd 0.15
+
+      # ========================================================================
+      # POSITION HOLD CONTROLLER
+      # ========================================================================
+      position_hold true
+      position_kp 1.0
+      position_kd 0.1
+      velocity_kp 3.0
+      max_vel_accel 8.0
+      max_tilt_angle 25.0
+      waypoint_arrival_radius 3.0
+
+      # Heading control - disabled for stability testing
+      heading_hold false
+
+   end_mover
+
+   # Reference the radar signature
+   radar_signature T150_6DOF_RADAR_SIG
+
+end_platform_type

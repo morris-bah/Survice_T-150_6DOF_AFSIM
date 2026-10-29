@@ -1,0 +1,255 @@
+# ==============================================================================
+# Battery Test: Cycloid/Orbit Pattern - TIME-BASED
+# ==============================================================================
+# Tests battery consumption for continuous circular orbits over a fixed 500
+# second cruise phase. This pattern maintains sustained banking throughout
+# each orbit, similar to a search pattern or loiter.
+#
+# Test Design:
+#   - Climb to 350m AGL (~70 seconds)
+#   - Fly continuous orbits for 500 seconds at 25 m/s
+#   - Descend and land (~60 seconds)
+#
+# Pattern: 150m radius orbits, 8 waypoints per orbit
+# At 25 m/s, circumference = 2*pi*150 = 942m = ~38s per orbit
+# 500s / 38s = ~13 orbits, but orbits progress northward
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME battery_test_cycloid
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+
+# Include the 6DOF mover definition
+include ../../platforms/t150_6dof_mover.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR
+# ==============================================================================
+platform_type T150_BATTERY_TEST_UAS WSF_PLATFORM
+
+   side blue
+   icon 4_rotor_good
+   category air
+
+   # 6DOF physics-based mover
+   mover T150_6DOF_MOVER
+   end_mover
+
+   # Battery processor - reads power from 6DOF mover
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/battery_test_cycloid_battery.csv
+      csv_log_interval 1.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE
+# ==============================================================================
+platform t150_battery_test T150_BATTERY_TEST_UAS
+
+   route
+      # =========================================
+      # PHASE 1: Takeoff and Climb to 350m
+      # =========================================
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+      position 35.0001n 120.0000w altitude 350 m agl speed 5 m/s
+
+      # =========================================
+      # PHASE 2: Continuous Orbits for 500 seconds
+      # Each orbit: 150m radius, 8 waypoints
+      # 150m = 0.00135 deg lat/lon
+      # Orbits progress north between each one
+      # Speed: 25 m/s for tighter turns
+      # =========================================
+
+      # Orbit 1 (centered at 35.0020n)
+      position 35.0020n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0030n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0034n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0030n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0020n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0010n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0006n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0010n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 2 (centered at 35.0060n)
+      position 35.0060n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0070n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0074n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0070n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0060n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0050n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0046n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0050n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 3 (centered at 35.0100n)
+      position 35.0100n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0110n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0114n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0110n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0100n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0090n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0086n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0090n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 4 (centered at 35.0140n)
+      position 35.0140n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0150n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0154n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0150n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0140n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0130n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0126n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0130n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 5 (centered at 35.0180n)
+      position 35.0180n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0190n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0194n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0190n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0180n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0170n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0166n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0170n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 6 (centered at 35.0220n)
+      position 35.0220n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0230n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0234n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0230n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0220n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0210n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0206n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0210n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 7 (centered at 35.0260n)
+      position 35.0260n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0270n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0274n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0270n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0260n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0250n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0246n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0250n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 8 (centered at 35.0300n)
+      position 35.0300n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0310n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0314n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0310n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0300n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0290n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0286n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0290n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 9 (centered at 35.0340n)
+      position 35.0340n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0350n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0354n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0350n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0340n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0330n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0326n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0330n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 10 (centered at 35.0380n)
+      position 35.0380n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0390n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0394n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0390n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0380n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0370n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0366n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0370n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 11 (centered at 35.0420n)
+      position 35.0420n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0430n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0434n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0430n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0420n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0410n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0406n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0410n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 12 (centered at 35.0460n)
+      position 35.0460n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0470n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0474n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0470n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0460n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0450n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0446n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0450n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Orbit 13 (centered at 35.0500n)
+      position 35.0500n 119.9987w altitude 350 m agl speed 25 m/s
+      position 35.0510n 119.9990w altitude 350 m agl speed 25 m/s
+      position 35.0514n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0510n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0500n 120.0013w altitude 350 m agl speed 25 m/s
+      position 35.0490n 120.0010w altitude 350 m agl speed 25 m/s
+      position 35.0486n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.0490n 119.9990w altitude 350 m agl speed 25 m/s
+
+      # Exit to landing zone
+      position 35.0520n 120.0000w altitude 350 m agl speed 25 m/s
+
+      # =========================================
+      # PHASE 3: Descent and Landing
+      # =========================================
+      position 35.0530n 120.0000w altitude 50 m agl speed 5 m/s
+      position 35.0535n 120.0000w altitude 0 m agl speed 2 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  BATTERY TEST: CYCLOID/ORBIT (TIMED)");
+   writeln("========================================");
+   writeln("Test Design: 500 second cruise phase");
+   writeln("Pattern: Continuous 150m radius orbits");
+   writeln("Speed: 25 m/s cruise (tighter turns)");
+   writeln("Expected: Elevated power from banking");
+   writeln("========================================");
+end_execute
+
+execute at_time 70 sec absolute
+   writeln(">>> T=70s - Reached cruise altitude, beginning 500s cruise phase");
+end_execute
+
+execute at_time 320 sec absolute
+   writeln(">>> T=320s - Mid-cruise (250s into cruise phase)");
+end_execute
+
+execute at_time 570 sec absolute
+   writeln(">>> T=570s - End of 500s cruise phase, beginning descent");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Total time: ~70s climb + 500s cruise + 60s descent + buffer
+end_time 700 sec

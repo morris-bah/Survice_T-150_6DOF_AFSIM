@@ -1,0 +1,37 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 6.2 VRS State Machine
+## Description: State machine for the Vortex Ring State (VRS) Processor.
+##   5 states: CLEAR, CAUTION, ONSET, DEVELOPED, RECOVERY. Transitions are
+##   driven by the VRS margin value (0-1, lower = closer to VRS). The cycle
+##   goes CLEAR -> CAUTION -> ONSET -> DEVELOPED -> RECOVERY -> CLEAR.
+##   Recovery requires sustained margin improvement over recovery_time.
+
+Statechart: VRSState
+
+    CLEAR --[margin < caution_threshold]--> CAUTION
+      ^                                       |
+      |                            [margin < onset_threshold]
+      |                                       v
+      |                                     ONSET
+      |                                       |
+      |                       [development_time elapsed]
+      |                                       v
+      +---[recovery_time elapsed]--- RECOVERY <--- DEVELOPED
+                                       ^               |
+                                       +---[exit VRS]--+
+
+## Suggested eraser.io prompt:
+## Create a state machine diagram for the VRS (Vortex Ring State) Processor.
+## States (5): CLEAR, CAUTION, ONSET, DEVELOPED, RECOVERY
+## Transitions:
+## - CLEAR -> CAUTION [margin < caution_threshold (0.8)]
+## - CAUTION -> ONSET [margin < onset_threshold (0.5)]
+## - ONSET -> DEVELOPED [margin < 0.2 sustained for development_time (2s)]
+## - DEVELOPED -> RECOVERY [exit VRS conditions / margin >= 0.5]
+## - RECOVERY -> CLEAR [recovery_time elapsed]
+## - CAUTION -> CLEAR [margin >= 1.0] (not shown but implied)
+## - ONSET -> RECOVERY [margin >= 0.8]
+## Show the cyclic nature: CLEAR -> CAUTION -> ONSET -> DEVELOPED -> RECOVERY -> CLEAR.
+## CLEAR is the initial/default state. Use color coding: CLEAR=green, CAUTION=yellow,
+## ONSET=orange, DEVELOPED=red, RECOVERY=blue.
+## Diagram type: State machine diagram

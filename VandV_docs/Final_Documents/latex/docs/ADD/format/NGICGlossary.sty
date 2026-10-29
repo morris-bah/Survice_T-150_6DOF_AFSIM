@@ -1,0 +1,505 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{NGICGlossary}
+
+\usepackage[nogroupskip]{glossaries} % used for acronym table
+\usepackage{arydshln}                % dashed line
+
+%%% - - -  T H E  -  G L O S S A R Y  -  S T Y L E  - - - %%%
+
+\setlength\dashlinedash{0.2pt}
+\setlength\dashlinegap{1.5pt}
+
+% Define the custom glossary style
+\newglossarystyle{doMyStyle}{
+    \setglossarystyle{list}
+    \renewenvironment{theglossary}{
+        \begin{longtable}{|>{\centering}m{.75in} >{\raggedright}m{4.5in}:>{\raggedleft\arraybackslash}m{1.25in}|}\hline
+            \multicolumn{3}{|l|}{\unclasslabel}\\\hline
+			\rowcolor{TableBlue}\multicolumn{1}{|c|}{\textcolor{white}{\textbf{Term}}} & \multicolumn{1}{|c|}{\textcolor{white}{\textbf{Description}}} & \multicolumn{1}{c|}{{\textcolor{white}{\textbf{Page}}}}\\\hline
+            \endhead
+			\multicolumn{3}{|r|}{\unclasslabel}\\\hline
+            \multicolumn{3}{c}{\textit{Continued on next page}} \\
+            \endfoot
+            \multicolumn{3}{|r|}{\unclasslabel}\\\hline
+            \endlastfoot
+    }{
+        \end{longtable}
+    }
+    \renewcommand*{\glossaryheader}{}
+    \renewcommand*{\glsgroupheading}[1]{}
+    \renewcommand*{\glossentry}[2]{
+        \glstarget{##1}{\small\glossentryname{##1}}&\textit{\small\glossentrydesc{##1}}&\tiny##2\\\hline
+    }
+}
+\setglossarystyle{doMyStyle}
+
+% just print the glossary with this
+\newcommand{\doPrintGloss}{
+	\pagebreak
+	\section{\unclass Acronyms}\label{acronyms}
+	\vspace{-.75in}
+	\printnoidxglossary[type=\acronymtype, title=]
+	\pagebreak
+}
+
+%%% - - -  T H E  -  A C R O N Y M  -  L I S T  - - - %%%
+
+\newacronym{1x}{1-x}{Quality Factor}
+\newacronym{2d}{2D}{Two Dimensional}
+\newacronym{3d}{3D}{Three Dimensional}
+\newacronym{2g}{2G}{Second Generation}
+\newacronym{3g}{3G}{Third Generation}
+\newacronym{3gpp}{3GPP}{Third Generation Partnership Program}
+\newacronym{4fsk}{4-FSK}{4-Level Frequency-Shift Keying}
+\newacronym{8fsk}{8-FSK}{8-Ary Frequency-Shift Keying}
+\newacronym{8psk}{8-PSK}{8-Ary Phase-Shift Keying}
+\newacronym{add}{ADD}{Architecture Description Document}
+\newacronym{adhoc}{AdHoc}{\textit{For This}}
+\newacronym{aff}{AFF}{Analog Fixed Frequency}
+\newacronym{afsim}{AFSIM}{Advanced Framework for Simulation, Integration, and Modeling}
+\newacronym{agc}{AGC}{Automatic Gain Control}
+\newacronym{arq}{ARQ}{Automatic Repeat Request}
+\newacronym{ascii}{ASCII}{American Standard Code for Information Interchange}
+\newacronym{ale}{ALE}{Automatic Link Establishment}
+\newacronym{am}{AM}{Amplitude Modulation}
+\newacronym{api}{API}{Application Programming Interface}
+\newacronym{apv}{APV}{Analog Voice}
+\newacronym{awgn}{AWGN}{Additive White Gaussian Noise}
+\newacronym{bah}{BAH}{Booz Allen Hamilton}
+\newacronym{ber}{BER}{Bit Error Rate}
+\newacronym{bps}{BPS}{Bits Per Second}
+\newacronym{bpsk}{BPSK}{Binary Phase-Shift Keying}
+\newacronym{bfsk}{BFSK}{Binary Frequency-Shift Keying}
+\newacronym{bw}{BW}{Bandwidth}
+\newacronym{bw0}{BW0}{Burst Waveform 0}
+\newacronym{bw1}{BW1}{Burst Waveform 1}
+\newacronym{dll}{DLL}{dynamic link library}
+\newacronym{c2}{C2}{Command and Control}
+\newacronym{cdr}{CDR}{Critical Design Review}
+\newacronym{cdma}{CDMA}{Code-Division Mutiple Access}
+\newacronym{cdma2000}{CDMA2000}{Code-Division Mutiple Access 2000}
+\newacronym{cnr}{CNR}{Combat-Net Radio}
+\newacronym{conop}{CONOP}{Concept of Operations}
+\newacronym{cor}{COR}{Contracting Officer Representative}
+\newacronym{csd}{CSD}{Circuit-Switched Data}
+\newacronym{csk}{CSK}{Code Shift Keying}
+\newacronym{ctc}{CTC}{Convolutional Turbo Code}
+\newacronym{cw}{CW}{Continuous Wave}
+\newacronym{cqi}{CQI}{Channel-Quality Indication}
+\newacronym{dch}{DCH}{Data Channel}
+\newacronym{dlq}{DLQ}{Data Link Quality}
+\newacronym{dd}{DD}{Digital Data}
+\newacronym{dff}{DFF}{Digital Fixed Frequency}
+\newacronym{dffs}{DFFS}{Digital Fixed Frequency Secure}
+\newacronym{die}{DIE}{Defense Intelligence Enterprise}
+\newacronym{dpv}{DPV}{Digital Voice}
+\newacronym{dsp}{DSP}{Digital Signal Processing}
+\newacronym{dted}{DTED}{Digital Terrain Elevation Data}
+\newacronym{dtx}{DTX}{Discontinuous Transmission}
+\newacronym{do}{DO}{Design Objective}
+\newacronym{dod}{DoD}{Department of Defense}
+\newacronym{dpsk}{DPSK}{Differential Phase-Shift Keying}
+\newacronym{dpdch}{DPDCH}{Dedicated Physical Data Channel}
+\newacronym{dpcch}{DPCCH}{Dedicated Physical Control Channel}
+\newacronym{dpch}{DPCH}{Dedicated Physical Channel}
+\newacronym{dscdma}{DS-CDMA}{Direct Sequence-Code Division Mutiple Access}
+\newacronym{dsss}{DSSS}{Direct Sequence Spread Spectrum}
+\newacronym{ea}{EA}{Electromagnetic Attack}
+\newacronym{ebn0}{$E_b/N_0$}{Energy per Bit to Noise Power Spectral Density Ratio}
+\newacronym{ecef}{ECEF}{Earth-Center, Earth-Fixed}
+\newacronym{edge}{EDGE}{Enhanced Data-rates for Global Evolution}
+\newacronym{efsm}{EFSM}{Extended Finite State Machine}
+\newacronym{eg}{\textit{e.g.}}{\textit{exempli gratia}}
+\newacronym{em}{EM}{Electromagnetic}
+\newacronym{ep}{EP}{Electromagnetic Protection}
+\newacronym{erfc}{ERFC}{Complementary Error Function}
+\newacronym{erp}{ERP}{Effective Radiated Power}
+\newacronym{ew}{EW}{Electronic Warfare}
+\newacronym{ewr}{EWR}{Early Warning Receiver}
+\newacronym{fbi}{FBI}{Frame Boundary Index}
+\newacronym{fcs}{FCS}{Free-Channel-Search}
+\newacronym{fdma}{FDMA}{Frequency Division Multiple Access}
+\newacronym{fdr}{FDR}{Final Design Review}
+\newacronym{fdx}{FDX}{Full-Duplex}
+\newacronym{fec}{FEC}{Forward Error Correction}
+\newacronym{fer}{FER}{Frame Error Rate}
+\newacronym{ff}{FF}{Fixed-frequency}
+\newacronym{fft}{FFT}{Fast Fourier Transform}
+\newacronym{fifo}{FIFO}{First-in-first-out}
+\newacronym{fh}{FH}{Frequency Hopping}
+\newacronym{fhs}{FHS}{Frequency Hopping Secure}
+\newacronym{fhss}{FHSS}{Frequency Hopping Spread Spectrum}
+\newacronym{fm}{FM}{Frequency Modulation}
+\newacronym{fme}{FME}{Foreign Material Exploitation}
+\newacronym{fmr}{FMR}{Frequency Modulated Radio}
+\newacronym{fmtr}{FMTR}{Foreign Material Technical Report}
+\newacronym{foma}{FOMA}{Freedom of Mobile Multimedia Access}
+\newacronym{for}{FOR}{Field of Regard}
+\newacronym{fpr}{FPR}{Frame Pass Rate}
+\newacronym{fsm}{FSM}{Finite State Machine}
+\newacronym{fsk}{FSK}{Frequency-Shift Keying}
+\newacronym{fspl}{FSPL}{Free Space Path Loss}
+\newacronym{g24}{G24}{Extended Binary Golay Code}
+\newacronym{g23}{G23}{Perfect Binary Golay Code}
+\newacronym{gfi}{GFI}{Government-Furnished Information}
+\newacronym{gui}{GUI}{Graphical User Interface}
+\newacronym{gsm}{GSM}{Global System for Mobile Communications}
+\newacronym{harqack}{HARQ-ACK}{Hybrid-ARQ Acknowledgement}
+\newacronym{hdx}{HDX}{Half-Duplex}
+\newacronym{hf}{HF}{High Frequency}
+\newacronym{hfale}{HF ALE}{High Frequency Automatic Link Establishment}
+\newacronym{hsdsch}{HS-DSCH}{High-Speed Downlink Shared Channel}
+\newacronym{hsdpcch}{HS-DPCCH}{High-Speed Dedicated Physical Control Channel}
+\newacronym{iac}{IAC}{Individual Address Call}
+\newacronym{icd}{ICD}{Interface Control Document}
+\newacronym{id}{ID}{Identity}
+\newacronym{ide}{IDE}{Integrated Development Environment}
+\newacronym{ie}{\textit{i.e.}}{\textit{id est}}
+\newacronym{imt}{IMT}{International Mobile Telecommunications}
+\newacronym{itase}{ITASE}{Integrated Threat Analysis and Simulation Environment}
+\newacronym{ip}{IP}{Internet Protocol}
+\newacronym{ipv4}{IPv4}{Internet Protocol version 4}
+\newacronym{iq}{I/Q}{In-Phase and Quadrature}
+\newacronym{js}{J/S}{Jamming-to-Signal Ratio}
+\newacronym{jwics}{JWICS}{Joint Worldwide Intelligence Communications System}
+\newacronym{kpi}{KPI}{Key Performance Indicator}
+\newacronym{lpda}{LPDA}{Log-Periodic Dipole Array}
+\newacronym{lf}{LF}{Low Frequency}
+\newacronym{lla}{LLA}{Latitude, Longitude, and Altitude}
+\newacronym{lo}{LO}{Local Oscillator}
+\newacronym{los}{LOS}{Line of Sight}
+\newacronym{lpf}{LPF}{Low Pass Filter}
+\newacronym{lsband}{LSB}{Lower Side Band}
+\newacronym{lsb}{LSB}{Least Significant Bit}
+\newacronym{lut}{LUT}{Look-Up Table}
+\newacronym{lqa}{LQA}{Link Quality Analysis}
+\newacronym{mands}{M\&S}{Modeling and Simulation}
+\newacronym{mac}{MAC}{Media Access Control}
+\newacronym{madd}{MADD}{Model Architecture Description Document}
+\newacronym{map}{MAP}{Mobile Application Part}
+\newacronym{matlab}{MATLAB}{MATrix LABoratory}
+\newacronym{mds}{MDS}{Minimum Detectable Signal}
+\newacronym{mf}{MF}{Medium Frequency}
+\newacronym{mfsk}{MFSK}{Multiple Frequency-Shift Keying}
+\newacronym{milstd}{MIL-STD}{Military Standard}
+\newacronym{mp}{MP}{Multi-Path}
+\newacronym{mpsk}{MPSK}{Multi-Level Phase-Shift Keying}
+\newacronym{msb}{MSB}{Most Significant Bit}
+\newacronym{ncs}{NCS}{Network Control Station}
+\newacronym{ngic}{NGIC}{National Ground Intelligence Center}
+\newacronym{nvis}{NVIS}{Near Vertical Incidence Skywave}
+\newacronym{oc}{OC}{Operator Controls}
+\newacronym{odessa}{ODESSA}{Overarching Dynamic Electronic-Warfare System Standard Architecture}
+\newacronym{oop}{OOP}{Object Oriented Programming}
+\newacronym{osi}{OSI}{Open System Interconnection}
+\newacronym{p2p}{P2P}{Point-to-Point}
+\newacronym{pa}{PA}{Power Amplifier}
+\newacronym{pam}{PAM}{Pulse-Amplitude Modulation}
+\newacronym{pcm}{PCM}{Pulse-Code Modulation}
+\newacronym{pdf}{PDF}{Probability Density Function}
+\newacronym{pdr}{PDR}{Preliminary Design Review}
+\newacronym{pdu}{PDU}{Protocol Data Unit}
+\newacronym{pdw}{PDW}{Pulse Descriptor Word}
+\newacronym{per}{PER}{Packet Error Rate}
+\newacronym{pfm}{PFM}{Pulse Frequency Modulation}
+\newacronym{pg}{PG}{Processing Gain}
+\newacronym{pmf}{PMF}{Probability Mass Function}
+\newacronym{pn}{PN}{Pseudo Noise}
+\newacronym{ppr}{PPR}{Pack Pass Ratio}
+\newacronym{pri}{PRI}{Pulse Repetition Interval}
+\newacronym{prn}{PRN}{Packet Radio Network}
+\newacronym{prr}{PRR}{Pulse Repetition Interval}
+\newacronym{psd}{PSD}{Packet-Switched Data}
+\newacronym{psk}{PSK}{Phase-Shift Keying}
+\newacronym{pstn}{PSTN}{Public Switch Telephone Network}
+\newacronym{ptop}{PTOP}{Point-to-Point}
+\newacronym{pi}{PI}{Protection Interval}
+\newacronym{ptt}{PTT}{Push to Talk}
+\newacronym{pw}{PW}{Pulse Width}
+\newacronym{qam}{QAM}{Quadrature Amplitude Modulation}
+\newacronym{qos}{QOS}{Quality of Service}
+\newacronym{qpsk}{QPSK}{Quadrature Phase-Shift Keying}
+\newacronym{qt}{Qt}{Quasar Toolkit}
+\newacronym{rgpo}{RGPO}{Range Gate Pull Off}
+\newacronym{rrc}{RRC}{Raised-Root Cosine}
+\newacronym{rif}{RIF}{RF Interactions Filter}
+\newacronym{rf}{RF}{Radio Frequency}
+\newacronym{rfc}{RFC}{Request For Commands}
+\newacronym{rms}{RMS}{Root Mean Square}
+\newacronym{sdk}{SDK}{Software Development Kit}
+\newacronym{sdr}{SDR}{System Design Review}
+\newacronym{sf}{SF}{Spreading Factor}
+\newacronym{sinad}{SINAD}{Signal-to-Noise and Distortion Ratio}
+\newacronym{sim}{SIM}{Subscriber Identity Module}
+\newacronym{sjr}{SJR}{Signal to Jammer Ratio}
+\newacronym{slip}{SLIP}{Serial Line Internet Protocol}
+\newacronym{sme}{SME}{Subject Matter Expert}
+\newacronym{smpp}{SMPP}{Short Message Peer to Peer}
+\newacronym{sms}{SMS}{Short Message Service}
+\newacronym{sn}{S/N}{Serial Number}
+\newacronym{snr}{SNR}{Signal-to-Noise Ratio}
+\newacronym{sp}{SP}{Spacing Between Adjacent Hop Channels}
+\newacronym{spdw}{SPDW}{Simulated Pulse Descriptor Word}
+\newacronym{ssb}{SSB}{Single Sideband}
+\newacronym{srr}{SRR}{System Requirements Review}
+\newacronym{tcp}{TCP}{Transmission Control Protocol}
+\newacronym{tdd}{TDD}{Test Description Document}
+\newacronym{tdma}{TDMA}{Time Division Multiple Access}
+\newacronym{tfci}{TFCI}{Transport-Format Combination Indicator}
+\newacronym{tirem}{TIREM}{Terrain Integrated Rough Earth Model}
+\newacronym{tlc}{TLC}{Transmit Level Control}
+\newacronym{tpc}{TPC}{Transmit Power-Control}
+\newacronym{tpoc}{TPOC}{Technical Point of Contact}
+\newacronym{ttl}{TTL}{Time to Live}
+\newacronym{tmap}{TMAP}{Threat Modeling and Analysis Program}
+\newacronym{trr}{TRR}{Test Readiness Review}
+\newacronym{uam}{UAM}{User and Analyst Manual}
+\newacronym{uama}{UAMA}{User and Analyst Manual Addendum}
+\newacronym{tsec}{TRANSEC}{Transmission Security}
+\newacronym{uci}{UCI}{Univerisal Command and Control Interface}
+\newacronym{ue}{UE}{User Equipment}
+\newacronym{ugoigo}{UGOIGO}{You-Go-I-Go}
+\newacronym{uhf}{UHF}{Ultra High Frequency}
+\newacronym{ui}{UI}{User Interface}
+\newacronym{usb}{USB}{Upper Side Band}
+\newacronym{uml}{UML}{Unified Modeling Language}
+\newacronym{umts}{UMTS}{Universal Mobile Telecommunication System}
+\newacronym{utdd}{UTDD}{Unit Tests Description Document}
+\newacronym{utran}{UTRAN}{Universal Terrestrial Radio Access Network}
+\newacronym{vv}{V and V}{Verification and Validation}
+\newacronym{vgpo}{VGPO}{Velocity Gate Pull Off}
+\newacronym{vhf}{VHF}{Very High Frequency}
+\newacronym{voacap}{VOACAP}{Voice of America Coverage Analysis Program}
+\newacronym{voip}{VoIP}{Voice Over Internet Protocol}
+\newacronym{wcdma}{WCDMA}{Wideband Code-Division Mutiple Access}
+\newacronym{xml}{XML}{Extensible Markup Language}
+\newacronym{xor}{XOR}{Exclusive Or}
+
+%%% - - -  D O  -  T H I S  -  G L O S S A R Y  - - - %%%
+
+\makenoidxglossaries
+
+%%% - - -  A C R O N Y M  -  S H O R T C U T S  - - - %%%
+
+%% special shortcuts 
+
+\newcommand{\eg}{\gls{eg}~}
+\newcommand{\ie}{\gls{ie}~}
+
+%% invalid shortcuts
+
+% \newcommand{\1x}{\gls{1x}}
+% \newcommand{\2d}{\gls{2d}}
+% \newcommand{\3d}{\gls{3d}}
+% \newcommand{\2g}{\gls{2g}}
+% \newcommand{\3g}{\gls{3g}}
+% \newcommand{\3gpp}{\gls{3gpp}}
+% \newcommand{\4fsk}{\gls{4fsk}}
+% \newcommand{\8fsk}{\gls{8fsk}}
+% \newcommand{\bw1}{\gls{bw1}}
+% \newcommand{\c2}{\gls{c2}}
+% \newcommand{\ebn0}{\gls{ebn0}}
+% \newcommand{\g24}{\gls{g24}}
+% \newcommand{\g23}{\gls{g23}}
+% \newcommand{\ipv4}{\gls{ipv4}}
+% \newcommand{\p2p}{\gls{p2p}}
+% \newcommand{\do}{\gls{do}}
+% \newcommand{\em}{\gls{em}}
+% \newcommand{\mp}{\gls{mp}}
+% \newcommand{\sf}{\gls{sf}}
+% \newcommand{\sim}{\gls{sim}}
+% \newcommand{\sp}{\gls{sp}}
+
+%% typical shortcuts
+
+\newcommand{\add}{\gls{add}}
+\newcommand{\adhoc}{\gls{adhoc}}
+\newcommand{\aff}{\gls{aff}}
+\newcommand{\afsim}{\gls{afsim}}
+\newcommand{\agc}{\gls{agc}}
+\newcommand{\arq}{\gls{arq}}
+\newcommand{\ascii}{\gls{ascii}}
+\newcommand{\ale}{\gls{ale}}
+\newcommand{\am}{\gls{am}}
+\newcommand{\api}{\gls{api}}
+\newcommand{\apv}{\gls{apv}}
+\newcommand{\awgn}{\gls{awgn}}
+\newcommand{\ber}{\gls{ber}}
+\newcommand{\bps}{\gls{bps}}
+\newcommand{\bpsk}{\gls{bpsk}}
+\newcommand{\bfsk}{\gls{bfsk}}
+\newcommand{\bw}{\gls{bw}}
+\newcommand{\dll}{\gls{dll}}
+\newcommand{\cdr}{\gls{cdr}}
+\newcommand{\cdma}{\gls{cdma}}
+\newcommand{\cnr}{\gls{cnr}}
+\newcommand{\cor}{\gls{cor}}
+\newcommand{\csd}{\gls{csd}}
+\newcommand{\csk}{\gls{csk}}
+\newcommand{\ctc}{\gls{ctc}}
+\newcommand{\cw}{\gls{cw}}
+\newcommand{\cqi}{\gls{cqi}}
+\newcommand{\dch}{\gls{dch}}
+\newcommand{\dlq}{\gls{dlq}}
+\newcommand{\dd}{\gls{dd}}
+\newcommand{\dff}{\gls{dff}}
+\newcommand{\dffs}{\gls{dffs}}
+\newcommand{\die}{\gls{die}}
+\newcommand{\dpv}{\gls{dpv}}
+\newcommand{\dsp}{\gls{dsp}}
+\newcommand{\dted}{\gls{dted}}
+\newcommand{\dtx}{\gls{dtx}}
+\newcommand{\dod}{\gls{dod}}
+\newcommand{\dpsk}{\gls{dpsk}}
+\newcommand{\dpdch}{\gls{dpdch}}
+\newcommand{\dpcch}{\gls{dpcch}}
+\newcommand{\dpch}{\gls{dpch}}
+\newcommand{\dscdma}{\gls{dscdma}}
+\newcommand{\dsss}{\gls{dsss}}
+\newcommand{\ecef}{\gls{ecef}}
+\newcommand{\edge}{\gls{edge}}
+\newcommand{\efsm}{\gls{efsm}}
+\newcommand{\erfc}{\gls{erfc}}
+\newcommand{\erp}{\gls{erp}}
+\newcommand{\ew}{\gls{ew}}
+\newcommand{\fbi}{\gls{fbi}}
+\newcommand{\fcs}{\gls{fcs}}
+\newcommand{\fdma}{\gls{fdma}}
+\newcommand{\fdr}{\gls{fdr}}
+\newcommand{\fdx}{\gls{fdx}}
+\newcommand{\fec}{\gls{fec}}
+\newcommand{\fer}{\gls{fer}}
+\newcommand{\ff}{\gls{ff}}
+\newcommand{\fft}{\gls{fft}}
+\newcommand{\fifo}{\gls{fifo}}
+\newcommand{\fh}{\gls{fh}}
+\newcommand{\fhs}{\gls{fhs}}
+\newcommand{\fhss}{\gls{fhss}}
+\newcommand{\fm}{\gls{fm}}
+\newcommand{\fme}{\gls{fme}}
+\newcommand{\fmr}{\gls{fmr}}
+\newcommand{\fmtr}{\gls{fmtr}}
+\newcommand{\foma}{\gls{foma}}
+\newcommand{\for}{\gls{for}}
+\newcommand{\fpr}{\gls{fpr}}
+\newcommand{\fsm}{\gls{fsm}}
+\newcommand{\fsk}{\gls{fsk}}
+\newcommand{\fspl}{\gls{fspl}}
+\newcommand{\gfi}{\gls{gfi}}
+\newcommand{\gui}{\gls{gui}}
+\newcommand{\gsm}{\gls{gsm}}
+\newcommand{\harqack}{\gls{harqack}}
+\newcommand{\hdx}{\gls{hdx}}
+\newcommand{\hf}{\gls{hf}}
+\newcommand{\hfale}{\gls{hfale}}
+\newcommand{\hsdsch}{\gls{hsdsch}}
+\newcommand{\hsdpcch}{\gls{hsdpcch}}
+\newcommand{\iac}{\gls{iac}}
+\newcommand{\icd}{\gls{icd}}
+\newcommand{\id}{\gls{id}}
+\newcommand{\ide}{\gls{ide}}
+\newcommand{\imt}{\gls{imt}}
+\newcommand{\itase}{\gls{itase}}
+\newcommand{\ip}{\gls{ip}}
+\newcommand{\iq}{\gls{iq}}
+\newcommand{\js}{\gls{js}}
+\newcommand{\kpi}{\gls{kpi}}
+\newcommand{\lpda}{\gls{lpda}}
+\newcommand{\lf}{\gls{lf}}
+\newcommand{\lla}{\gls{lla}}
+\newcommand{\lo}{\gls{lo}}
+\newcommand{\los}{\gls{los}}
+\newcommand{\lpf}{\gls{lpf}}
+\newcommand{\lsband}{\gls{lsband}}
+\newcommand{\lsb}{\gls{lsb}}
+\newcommand{\lut}{\gls{lut}}
+\newcommand{\lqa}{\gls{lqa}}
+\newcommand{\mands}{\gls{mands}}
+\newcommand{\mac}{\gls{mac}}
+\newcommand{\madd}{\gls{madd}}
+\newcommand{\map}{\gls{map}}
+\newcommand{\mds}{\gls{mds}}
+\newcommand{\mf}{\gls{mf}}
+\newcommand{\mfsk}{\gls{mfsk}}
+\newcommand{\milstd}{\gls{milstd}}
+\newcommand{\mpsk}{\gls{mpsk}}
+\newcommand{\msb}{\gls{msb}}
+\newcommand{\ncs}{\gls{ncs}}
+\newcommand{\ngic}{\gls{ngic}}
+\newcommand{\nvis}{\gls{nvis}}
+\newcommand{\oc}{\gls{oc}}
+\newcommand{\odessa}{\gls{odessa}}
+\newcommand{\oop}{\gls{oop}}
+\newcommand{\osi}{\gls{osi}}
+\newcommand{\pa}{\gls{pa}}
+\newcommand{\pam}{\gls{pam}}
+\newcommand{\pcm}{\gls{pcm}}
+\newcommand{\pdf}{\gls{pdf}}
+\newcommand{\pdr}{\gls{pdr}}
+\newcommand{\pdu}{\gls{pdu}}
+\newcommand{\pdw}{\gls{pdw}}
+\newcommand{\per}{\gls{per}}
+\newcommand{\pfm}{\gls{pfm}}
+\newcommand{\pg}{\gls{pg}}
+\newcommand{\pmf}{\gls{pmf}}
+\newcommand{\pn}{\gls{pn}}
+\newcommand{\ppr}{\gls{ppr}}
+\newcommand{\pri}{\gls{pri}}
+\newcommand{\prn}{\gls{prn}}
+\newcommand{\prr}{\gls{prr}}
+\newcommand{\psd}{\gls{psd}}
+\newcommand{\psk}{\gls{psk}}
+\newcommand{\pstn}{\gls{pstn}}
+\newcommand{\ptop}{\gls{ptop}}
+\newcommand{\ptt}{\gls{ptt}}
+\newcommand{\pw}{\gls{pw}}
+\newcommand{\qam}{\gls{qam}}
+\newcommand{\qos}{\gls{qos}}
+\newcommand{\qpsk}{\gls{qpsk}}
+\newcommand{\qt}{\gls{qt}}
+\newcommand{\rrc}{\gls{rrc}}
+\newcommand{\rif}{\gls{rif}}
+\newcommand{\rf}{\gls{rf}}
+\newcommand{\rfc}{\gls{rfc}}
+\newcommand{\rms}{\gls{rms}}
+\newcommand{\sdk}{\gls{sdk}}
+\newcommand{\sdr}{\gls{sdr}}
+\newcommand{\sinad}{\gls{sinad}}
+\newcommand{\sjr}{\gls{sjr}}
+\newcommand{\slip}{\gls{slip}}
+\newcommand{\sme}{\gls{sme}}
+\newcommand{\smpp}{\gls{smpp}}
+\newcommand{\sms}{\gls{sms}}
+\newcommand{\sn}{\gls{sn}}
+\newcommand{\snr}{\gls{snr}}
+\newcommand{\spdw}{\gls{spdw}}
+\newcommand{\ssb}{\gls{ssb}}
+\newcommand{\srr}{\gls{srr}}
+\newcommand{\tcp}{\gls{tcp}}
+\newcommand{\tdd}{\gls{tdd}}
+\newcommand{\tdma}{\gls{tdma}}
+\newcommand{\tfci}{\gls{tfci}}
+\newcommand{\tirem}{\gls{tirem}}
+\newcommand{\tlc}{\gls{tlc}}
+\newcommand{\tpc}{\gls{tpc}}
+\newcommand{\ttl}{\gls{ttl}}
+\newcommand{\tmap}{\gls{tmap}}
+\newcommand{\trr}{\gls{trr}}
+\newcommand{\uam}{\gls{uam}}
+\newcommand{\uama}{\gls{uama}}
+\newcommand{\tsec}{\gls{tsec}}
+\newcommand{\uci}{\gls{uci}}
+\newcommand{\ue}{\gls{ue}}
+\newcommand{\ugoigo}{\gls{ugoigo}}
+\newcommand{\uhf}{\gls{uhf}}
+\newcommand{\ui}{\gls{ui}}
+\newcommand{\usb}{\gls{usb}}
+\newcommand{\uml}{\gls{uml}}
+\newcommand{\umts}{\gls{umts}}
+\newcommand{\utran}{\gls{utran}}
+\newcommand{\vhf}{\gls{vhf}}
+\newcommand{\voacap}{\gls{voacap}}
+\newcommand{\voip}{\gls{voip}}
+\newcommand{\wcdma}{\gls{wcdma}}
+\newcommand{\xml}{\gls{xml}}
+\newcommand{\xor}{\gls{xor}}

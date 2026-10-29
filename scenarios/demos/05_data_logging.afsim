@@ -1,0 +1,188 @@
+# ==============================================================================
+# T-150 UAS Engineering Data Logging Scenario
+# ==============================================================================
+# This scenario logs engineering data to CSV for external plotting.
+# Output: output/t150_engineering_data.csv
+#
+# Columns logged:
+#   Time, SOC, Power, MaxTemp, AvgTemp, VRS_Margin, VRS_State,
+#   DescentRate, ForwardSpeed, MotorCount
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME t150_data_logging
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# ==============================================================================
+# INCLUDE PLATFORM DEFINITIONS
+# ==============================================================================
+include ../../platforms/t150_platform.afsim
+
+# ==============================================================================
+# ENGINEERING TEST PLATFORM TYPE
+# ==============================================================================
+platform_type T150_LOGGING_TEST T150_UAS
+
+   # Battery Processor
+   processor BATTERY_MONITOR T150_BATTERY_PROCESSOR
+      battery_capacity_wh    7000.0
+      initial_soc            1.0
+      hover_power_w          18000.0
+      low_battery_warning    0.20
+      update_interval        1.0 sec
+   end_processor
+
+   # VRS Processor
+   processor VRS_MONITOR T150_VRS_PROCESSOR
+      vrs_descent_threshold  4.0
+      vrs_speed_threshold    5.0
+      caution_margin         0.8
+      induced_velocity       8.0
+      coaxial_factor         0.85
+      update_interval        0.5 sec
+   end_processor
+
+   # Propulsion Processor
+   processor PROPULSION_MONITOR T150_PROPULSION_PROCESSOR
+      motor_count            8
+      kv_rating              100
+      max_power_per_motor    3500
+      propeller_diameter     0.76
+      coaxial_efficiency     0.85
+      motor_thermal_limit    150
+      nominal_voltage        46.8
+      peak_motor_efficiency  0.92
+      ambient_temperature    25
+      motor_time_constant    0.15
+      update_interval        1.0 sec
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE
+# ==============================================================================
+platform t150_test T150_LOGGING_TEST
+
+   # Mission with varied flight phases to show VRS behavior
+   route
+      # Phase 1: Start on ground (0-10 sec)
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Phase 2: Climb to hover altitude (10-60 sec)
+      position 35.0010n 120.0000w altitude 100 m agl speed 3 m/s
+
+      # Phase 3: Fast cruise north (60-180 sec)
+      position 35.0100n 120.0000w altitude 100 m agl speed 15 m/s
+
+      # Phase 4: Slow hover/loiter (180-400 sec)
+      position 35.0120n 120.0000w altitude 100 m agl speed 2 m/s
+      position 35.0140n 120.0000w altitude 100 m agl speed 2 m/s
+
+      # Phase 5: Descent (400-500 sec) - may trigger VRS warnings
+      position 35.0150n 120.0000w altitude 50 m agl speed 3 m/s
+
+      # Phase 6: Continue hover at lower altitude (500-800 sec)
+      position 35.0160n 120.0000w altitude 50 m agl speed 2 m/s
+      position 35.0170n 120.0000w altitude 50 m agl speed 2 m/s
+
+      # Phase 7: Final descent and land (800-900 sec)
+      position 35.0100n 120.0000w altitude 20 m agl speed 2 m/s
+      position 35.0000n 120.0000w altitude 0 m agl speed 1 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# DATA LOGGING SCRIPT
+# ==============================================================================
+script_variables
+   string csv_file = "$(OUTPUT_DIR)/t150_engineering_data.csv";
+   double log_interval = 5.0;   # Log every 5 seconds
+   double next_log_time = 0.0;
+   bool header_written = false;
+end_script_variables
+
+# Write CSV header at simulation start
+execute at_time 0 sec absolute
+   writeln("======================================================================");
+   writeln("  T-150 UAS ENGINEERING DATA LOGGING");
+   writeln("======================================================================");
+   writeln("");
+   writeln("Logging engineering data every 5 seconds to:");
+   writeln("  $(OUTPUT_DIR)/t150_engineering_data.csv");
+   writeln("");
+   writeln("Data columns:");
+   writeln("  Time(s), SOC(%), Power(kW), MaxTemp(C), AvgTemp(C),");
+   writeln("  VRS_Margin, VRS_State, DescentRate(m/s), FwdSpeed(m/s), Motors");
+   writeln("");
+   writeln("======================================================================");
+   writeln("");
+
+   # Print CSV header to log (we'll extract it)
+   writeln("=== CSV_DATA_START ===");
+   writeln("Time_s,SOC_pct,Power_kW,MaxTemp_C,AvgTemp_C,VRS_Margin,VRS_State,DescentRate_mps,FwdSpeed_mps,MotorCount");
+end_execute
+
+# Log data every 5 seconds throughout simulation
+execute at_interval_of 5 sec
+   platform t150_test pf
+
+   double soc = pf.aux_data.Double("BATTERY_SOC") * 100.0;
+   double power = pf.aux_data.Double("BATTERY_POWER_W") / 1000.0;
+   double max_temp = pf.aux_data.Double("PROP_MAX_TEMP");
+   double avg_temp = pf.aux_data.Double("PROP_AVG_TEMP");
+   double vrs_margin = pf.aux_data.Double("VRS_MARGIN");
+   int vrs_state = pf.aux_data.Int("VRS_STATE");
+   double descent_rate = pf.aux_data.Double("VRS_DESCENT_RATE");
+   double fwd_speed = pf.aux_data.Double("VRS_FORWARD_SPEED");
+   int motor_count = pf.aux_data.Int("PROP_MOTOR_COUNT");
+
+   # Format: Time,SOC,Power,MaxTemp,AvgTemp,VRS_Margin,VRS_State,DescentRate,FwdSpeed,Motors
+   write(TIME_NOW);
+   write(",");
+   write(soc);
+   write(",");
+   write(power);
+   write(",");
+   write(max_temp);
+   write(",");
+   write(avg_temp);
+   write(",");
+   write(vrs_margin);
+   write(",");
+   write(vrs_state);
+   write(",");
+   write(descent_rate);
+   write(",");
+   write(fwd_speed);
+   write(",");
+   writeln(motor_count);
+
+   end_platform
+end_execute
+
+# End marker
+execute at_time 900 sec absolute
+   writeln("=== CSV_DATA_END ===");
+   writeln("");
+   writeln("======================================================================");
+   writeln("  DATA LOGGING COMPLETE");
+   writeln("======================================================================");
+   writeln("");
+   writeln("To extract CSV data, run:");
+   writeln("  grep -A1000 'CSV_DATA_START' output/t150_data_logging.log | grep -B1000 'CSV_DATA_END' | grep -v '===' > output/t150_engineering_data.csv");
+   writeln("");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 900 sec

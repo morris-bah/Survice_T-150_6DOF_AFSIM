@@ -1,0 +1,77 @@
+# ==============================================================================
+# T-150 Heavy-Lift UAS - High-Fidelity Radar Cross Section (RCS) Signature
+# ==============================================================================
+#
+# Physical Characteristics Modeled:
+# ---------------------------------
+# - Airframe: Carbon fiber composite, ~1.8m rotor span
+# - Configuration: Coaxial octocopter (8 rotors in 4 coaxial pairs)
+# - MTOW: 123 kg (55 kg empty + 68 kg payload)
+# - Dimensions: ~1.8m x 1.8m x 0.5m
+#
+# RCS Characteristics:
+# --------------------
+# - Nose-on (0 deg az, 0 deg el): -3 dBsm (minimal profile)
+# - Broadside (90 deg): +7 dBsm (full body profile visible)
+# - From above (el -90): +12 dBsm (full rotor disk area ~2.5 m^2)
+# - From below (el +90): +10 dBsm (landing gear, payload bay)
+#
+# Notes:
+# ------
+# - Spinning rotors create micro-Doppler signature (enhances detection)
+# - Carbon fiber is moderately radar-reflective
+# - Metal motor housings and battery pack are primary contributors
+#
+# Reference: Based on measured/estimated RCS of similar heavy-lift UAS
+# ==============================================================================
+
+# ==============================================================================
+# HIGH-FIDELITY ANGULAR-DEPENDENT RCS
+# ==============================================================================
+radar_signature T150_HIGH_FIDELITY_RCS
+   interpolate_tables true
+   interpolation_type linear
+
+   state default
+      # Table: 9 azimuth angles x 5 elevation angles
+      # Azimuth: 0 = nose, 90 = right side, 180 = tail
+      # Elevation: -90 = from above, 0 = level, +90 = from below
+      # Values in dBsm
+      inline_table dbsm 9 5
+                   -90.0   -45.0     0.0    45.0    90.0
+         -180.0     10.0     4.0    -2.0     4.0     8.0
+         -135.0     11.0     5.0     2.0     5.0     9.0
+          -90.0     12.0     7.0     7.0     7.0    10.0
+          -45.0     11.0     5.0     2.0     5.0     9.0
+            0.0     10.0     3.0    -3.0     3.0     8.0
+           45.0     11.0     5.0     2.0     5.0     9.0
+           90.0     12.0     7.0     7.0     7.0    10.0
+          135.0     11.0     5.0     2.0     5.0     9.0
+          180.0     10.0     4.0    -2.0     4.0     8.0
+      end_inline_table
+
+end_radar_signature
+
+# ==============================================================================
+# SIMPLE CONSTANT RCS (for testing)
+# ==============================================================================
+radar_signature T150_SIMPLE_RCS
+   constant 1.0 m^2
+end_radar_signature
+
+# ==============================================================================
+# LOW OBSERVABLE VARIANT (comparison/what-if)
+# ==============================================================================
+radar_signature T150_LOW_OBSERVABLE_RCS
+   interpolate_tables true
+   interpolation_type linear
+   state default
+      inline_table dbsm 5 5
+                   -90.0   -45.0     0.0    45.0    90.0
+         -180.0      0.0    -5.0   -12.0    -5.0    -2.0
+          -90.0      4.0    -1.0    -3.0    -1.0     2.0
+            0.0      0.0    -5.0   -15.0    -5.0    -2.0
+           90.0      4.0    -1.0    -3.0    -1.0     2.0
+          180.0      0.0    -5.0   -12.0    -5.0    -2.0
+      end_inline_table
+end_radar_signature

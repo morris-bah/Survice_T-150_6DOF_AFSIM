@@ -1,0 +1,35 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 5.4 MotorState Machine
+## Description: State machine for individual motor state transitions in the
+##   PropulsionProcessor. States: OFF, STARTING, RUNNING, OVERTEMP, FAILED.
+##   Linear progression from OFF through STARTING to RUNNING. Temperature
+##   monitoring can transition RUNNING to OVERTEMP, and persistent overtemp
+##   leads to the terminal FAILED state.
+
+Statechart: MotorState
+
+    OFF --[power on]--> STARTING --[RPM > idle]--> RUNNING
+                                                     |
+                                          [temp > limit]
+                                                     v
+                                                  OVERTEMP
+                                                     |
+                                          [temp still high after timeout]
+                                                     v
+                                                   FAILED
+                                                  (terminal)
+
+## Suggested eraser.io prompt:
+## Create a state machine diagram for individual motor states in the
+## PropulsionProcessor.
+## States (5): OFF, STARTING, RUNNING, OVERTEMP, FAILED
+## Transitions:
+## - OFF -> STARTING [power on]
+## - STARTING -> RUNNING [RPM > idle threshold]
+## - RUNNING -> OVERTEMP [temperature > thermal limit]
+## - OVERTEMP -> FAILED [temperature still high after timeout]
+## FAILED is a terminal state (no outgoing transitions).
+## Show as a left-to-right flow: OFF -> STARTING -> RUNNING, then
+## downward: RUNNING -> OVERTEMP -> FAILED.
+## Use rounded rectangles for states, label FAILED as terminal (double border).
+## Diagram type: State machine diagram

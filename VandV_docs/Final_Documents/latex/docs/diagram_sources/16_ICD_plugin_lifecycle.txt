@@ -1,0 +1,44 @@
+## Source: ICD (Interface Control Document) - T150_ICD_Content.tex
+## Section: 2.2 Plugin Lifecycle
+## Description: The 5-stage lifecycle that every T-150 plugin follows when
+##   loaded by AFSIM: (1) Load - shared library loading and global constructors,
+##   (2) Version - WsfPluginVersion() API compatibility check, (3) Setup -
+##   WsfPluginSetup() feature and extension registration, (4) Scenario -
+##   ApplicationExtension::ScenarioCreated() scenario extension registration,
+##   (5) Registration - ScenarioExtension::AddedToScenario() type registration
+##   via AddCoreType.
+
+1. Load         AFSIM loads the shared library (.dll/.so)
+                Global constructors execute (PluginLoadVerifier)
+
+2. Version      AFSIM calls WsfPluginVersion()
+                Plugin returns compiled API major/minor/ABI string
+                AFSIM verifies compatibility before proceeding
+
+3. Setup        AFSIM calls WsfPluginSetup()
+                Plugin registers feature name and ApplicationExtension
+
+4. Scenario     AFSIM creates a scenario and calls
+                ApplicationExtension::ScenarioCreated()
+                Plugin registers ScenarioExtension with the scenario
+
+5. Registration ScenarioExtension::AddedToScenario() is called
+                Plugin registers its processor or mover type via
+                AddCoreType<>() so scenario files can instantiate it
+
+## Suggested eraser.io prompt:
+## Create a numbered step diagram or vertical timeline showing the AFSIM
+## plugin lifecycle (5 stages).
+## Stage 1 - Load: AFSIM loads the shared library (.dll/.so), global constructors
+##   execute (PluginLoadVerifier)
+## Stage 2 - Version: AFSIM calls WsfPluginVersion(), plugin returns API version
+##   info, AFSIM verifies compatibility
+## Stage 3 - Setup: AFSIM calls WsfPluginSetup(), plugin registers feature name
+##   and ApplicationExtension
+## Stage 4 - Scenario: AFSIM creates scenario, calls
+##   ApplicationExtension::ScenarioCreated(), plugin registers ScenarioExtension
+## Stage 5 - Registration: ScenarioExtension::AddedToScenario() is called,
+##   plugin registers its type via AddCoreType<>()
+## Show as a vertical timeline with AFSIM on the left and Plugin on the right,
+## with arrows showing the interaction at each stage.
+## Diagram type: Sequence diagram / Timeline

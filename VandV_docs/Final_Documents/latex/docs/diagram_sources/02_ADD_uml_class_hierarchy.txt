@@ -1,0 +1,98 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 3.2 UML Class Diagram
+## Description: UML class hierarchy showing the inheritance and composition
+##   relationships for the T-150 plugin classes. The mover side shows
+##   WsfMover -> WsfRouteMover -> Rotorcraft6DOF_Mover (which contains
+##   RigidBody6DOF and RotorModel). The processor side shows WsfProcessor
+##   as the base class for BatteryProc, PropulsionProc, VRSProc, and
+##   SlungLoadProc. Each class box shows key attributes and methods.
+
++-----------------------------+
+|      WsfMover (AFSIM)       |
++-----------------------------+
+              ^
+              |  inherits
++-----------------------------+
+|    WsfRouteMover (AFSIM)    |
+|-----------------------------|
+| + SetGuidanceFrom()         |
+| + SetGuidanceTo()           |
+| + AdvanceToNextWaypoint()   |
+| + UpdatePosition()          |
+| + Pause()                   |
++-----------------------------+
+              ^
+              |  inherits
++----------------------------------------------+
+|        Rotorcraft6DOF_Mover                  |
+|----------------------------------------------|
+| - mRigidBody : RigidBody6DOF                |
+| - mRotors : vector<RotorModel>              |
+| - mConfigType : RotorConfigType             |
+| - mDragConfig : DragConfig                  |
+| - mGroundEffectConfig : GroundEffectConfig   |
+| - mNavState : SplineNavState                |
+| - mWaypointCache : vector<CachedWaypoint>   |
+|----------------------------------------------|
+| + ProcessInput(UtInput&) : bool              |
+| + Initialize(double) : bool                 |
+| + UpdatePosition(double) : void             |
+| + Clone() : WsfMover*                       |
+| # ApplyControlMixer() : void                |
+| # UpdateAltitudeHold(double) : void          |
+| # UpdatePositionHold(double) : void          |
+| # PublishTelemetry() : void                  |
+| # SyncToAFSIM() : void                      |
+| # ReadExternalForces() : Vector3             |
+| # ReadExternalMoments() : Vector3            |
+| # UpdateSplineNavigation(double,double)      |
++----------------------------------------------+
+          |  contains            |  contains
+          v                      v
++-------------------+   +-------------------+
+| RigidBody6DOF     |   | RotorModel        |
+|-------------------|   |-------------------|
+| - mState :        |   | - mConfig :       |
+|   RigidBodyState  |   |   RotorConfig     |
+| - mMassProps :    |   | - mState :        |
+|   MassProperties  |   |   RotorState      |
+|-------------------|   |-------------------|
+| + Integrate(      |   | + Update(dt,      |
+|   force,moment,dt)|   |   rho, GE) : void |
+| + GetState()      |   | + GetThrustVec()  |
+| + SetMassProps()  |   | + GetMomentVec()  |
++-------------------+   +-------------------+
+
+
++--------------------------+
+|  WsfProcessor (AFSIM)    |
+|--------------------------|
+| + ProcessInput()         |
+| + Initialize()           |
+| + Update()               |
+| + Clone()                |
+| + GetPlatform()          |
++--------------------------+
+     ^          ^          ^          ^
+     |          |          |          |
++----------+ +----------+ +--------+ +-----------+
+| Battery  | | Propul-  | | VRS    | | SlungLoad |
+| Proc.    | | sionProc | | Proc.  | | Proc.     |
++----------+ +----------+ +--------+ +-----------+
+
+## Suggested eraser.io prompt:
+## Create a UML class diagram for the T-150 UAS AFSIM Plugin Suite.
+## Show two inheritance hierarchies:
+## 1) Mover hierarchy: WsfMover (AFSIM base) -> WsfRouteMover (AFSIM) ->
+##    Rotorcraft6DOF_Mover. Rotorcraft6DOF_Mover contains (composition)
+##    RigidBody6DOF and RotorModel. Show key attributes and methods for each class.
+##    Rotorcraft6DOF_Mover attributes: mRigidBody, mRotors, mConfigType, mDragConfig,
+##    mGroundEffectConfig, mNavState, mWaypointCache. Methods: ProcessInput, Initialize,
+##    UpdatePosition, Clone, ApplyControlMixer, UpdateAltitudeHold, PublishTelemetry,
+##    SyncToAFSIM, ReadExternalForces, ReadExternalMoments, UpdateSplineNavigation.
+## 2) Processor hierarchy: WsfProcessor (AFSIM base) -> 4 subclasses:
+##    BatteryProcessor, PropulsionProcessor, VRSProcessor, SlungLoadProcessor.
+##    WsfProcessor methods: ProcessInput, Initialize, Update, Clone, GetPlatform.
+## Use standard UML notation with inheritance arrows (hollow triangles) and
+## composition diamonds.
+## Diagram type: UML Class Diagram

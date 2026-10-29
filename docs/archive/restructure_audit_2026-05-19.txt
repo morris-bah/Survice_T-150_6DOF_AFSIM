@@ -1,0 +1,94 @@
+=== Pre-restructure audit: external references to current scenario names ===
+Generated: Tue May 19 13:35:54 EDT 2026
+
+Scenarios checked (29):
+  battery_processor_test
+  battery_range_test
+  battery_range_test_no_payload
+  battery_test_cycloid
+  battery_test_sawtooth
+  battery_test_sine
+  battery_test_square
+  battery_test_straight
+  circular_engagement_test
+  ground_effect_test
+  payload_dynamics_test
+  radar_tracking_demo
+  radar_vertical_detection
+  slung_load_test
+  spline_behavior_test
+  t150_6dof_basic_test
+  t150_6dof_flight_demo
+  t150_6dof_hover_test
+  t150_6dof_simple_test
+  t150_6dof_telemetry_test
+  t150_6dof_test
+  t150_attitude_extreme_test
+  t150_capability_demo
+  t150_data_logging
+  t150_engineering_test
+  t150_flight_demo
+  t150_validation_suite
+  weapon_payload_drop_test
+  weapon_recoil_test
+
+=== References found (excluding scenarios/ self-references and output/ artifacts) ===
+
+## battery_range_test.afsim
+  ./docs/6DOF_BATTERY_TROUBLESHOOTING.md
+  ./docs/PHASE6_POWER_MODEL_IMPLEMENTATION.md
+  ./README.md
+  ./T150_Plugin_Presentation_Outline.md
+
+## battery_range_test_no_payload.afsim
+  ./docs/6DOF_BATTERY_TROUBLESHOOTING.md
+
+## battery_test_cycloid.afsim
+  ./docs/PHASE6_POWER_MODEL_IMPLEMENTATION.md
+  ./VandV_docs/Version1and2/T150_UAS_UAM_v2.0.md
+
+## battery_test_sawtooth.afsim
+  ./docs/PHASE6_POWER_MODEL_IMPLEMENTATION.md
+
+## battery_test_sine.afsim
+  ./docs/PHASE6_POWER_MODEL_IMPLEMENTATION.md
+  ./VandV_docs/Version1and2/T150_UAS_UAM_v2.0.md
+
+## battery_test_square.afsim
+  ./docs/PHASE6_POWER_MODEL_IMPLEMENTATION.md
+
+## battery_test_straight.afsim
+  ./docs/PHASE6_POWER_MODEL_IMPLEMENTATION.md
+  ./VandV_docs/Version1and2/T150_UAS_UAM_v2.0.md
+
+## t150_6dof_flight_demo.afsim
+  ./docs/6DOF_MOVER_REFERENCE.md
+
+## t150_6dof_hover_test.afsim
+  ./docs/6DOF_MOVER_REFERENCE.md
+
+## t150_6dof_simple_test.afsim
+  ./docs/6DOF_MOVER_REFERENCE.md
+
+## t150_6dof_telemetry_test.afsim
+  ./docs/6DOF_SESSION_CONTEXT.md
+
+## t150_capability_demo.afsim
+  ./docs/ENHANCEMENT_ROADMAP.md
+  ./tools/plot_engineering_data.py
+
+## t150_engineering_test.afsim
+  ./install_plugins.bat
+  ./install_plugins.sh
+
+## t150_flight_demo.afsim
+  ./docs/architecture.md
+  ./docs/SESSION_REFERENCE.md
+  ./docs/uas_adaptation_guide.md
+  ./README.md
+  ./VandV_docs/Version1and2/create_uam_document.py
+  ./VandV_docs/Version1and2/create_uam_document_v2.py
+
+## t150_validation_suite.afsim
+  ./VandV_docs/Final_Documents/markdown/T150_TDD_v1.0.md
+  ./VandV_docs/Final_Documents/markdown/T150_VV_Report_v1.0.md

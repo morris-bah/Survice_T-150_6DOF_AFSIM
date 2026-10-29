@@ -1,0 +1,308 @@
+# ==============================================================================
+# Generic 6DOF Mover Example Configurations
+# ==============================================================================
+# The WSF_ROTORCRAFT_6DOF_MOVER is a GENERIC physics-based mover that works
+# with ANY multirotor UAS. Configuration is done entirely through parameters.
+#
+# This file provides example configurations for various UAS types.
+# Copy and modify these for your specific aircraft.
+#
+# Supported configurations:
+#   QUAD_X        - Standard X-configuration quadcopter (4 motors)
+#   QUAD_PLUS     - Plus-configuration quadcopter (4 motors)
+#   HEX_X         - 6-rotor hexacopter (6 motors)
+#   OCTO_X        - 8-rotor octocopter flat (8 motors on 8 arms)
+#   COAXIAL_QUAD  - 4-arm coaxial (8 motors on 4 arms) - T-150 style
+#   COAXIAL_OCTO  - 8-arm coaxial (16 motors on 8 arms) - future heavy-lift
+#   CUSTOM        - User-defined rotor positions
+# ==============================================================================
+
+
+# ==============================================================================
+# EXAMPLE 1: Small Racing Quadcopter (250mm class)
+# ==============================================================================
+# Typical FPV racing drone
+#   Mass: 0.5 kg
+#   Frame: 250mm (0.25m diagonal)
+#   Props: 5" (0.127m diameter)
+#   Max thrust: ~2 kg total
+# ==============================================================================
+
+mover RACING_QUAD_6DOF_MOVER WSF_ROTORCRAFT_6DOF_MOVER
+
+   update_interval 0.01 sec
+
+   # Mass properties - lightweight racing quad
+   mass 0.5
+   inertia_xx 0.003
+   inertia_yy 0.003
+   inertia_zz 0.005
+
+   # Rotor configuration
+   rotor_configuration QUAD_X
+   rotor_diameter 0.127          # 5" props
+   arm_length 0.125              # 250mm frame diagonal / 2
+
+   # High-performance motors
+   thrust_coefficient 0.015
+   torque_coefficient 0.001
+   max_rpm 25000
+   motor_time_constant 0.02      # Fast response
+
+   # Aerodynamics - small frontal area
+   drag_enabled true
+   drag_coefficient_x 0.8
+   drag_coefficient_y 1.0
+   drag_coefficient_z 1.2
+   frontal_area 0.01
+
+   # Ground effect
+   ground_effect_enabled true
+   ground_effect_height_factor 1.5
+   ground_effect_max_boost 1.2
+
+   # Aggressive control gains for racing
+   roll_mix_gain 0.4
+   pitch_mix_gain 0.4
+   yaw_mix_gain 0.3
+
+   # Flight controllers (gains scaled for m and m/s inputs)
+   altitude_hold true
+   altitude_kp 0.05              # Aggressive for racing
+   altitude_kd 0.08
+
+   position_hold true
+   position_kp 0.15              # More responsive
+   velocity_kp 0.35
+   max_tilt_angle 45.0           # Aggressive tilt for racing
+
+   telemetry_enabled true
+
+end_mover
+
+
+# ==============================================================================
+# EXAMPLE 2: Medium Hexacopter (Photography/Mapping)
+# ==============================================================================
+# Professional photography/mapping drone
+#   Mass: 5 kg (with payload)
+#   Frame: 650mm
+#   Props: 15" (0.38m diameter)
+#   Max thrust: ~15 kg total
+# ==============================================================================
+
+mover PHOTO_HEX_6DOF_MOVER WSF_ROTORCRAFT_6DOF_MOVER
+
+   update_interval 0.01 sec
+
+   # Mass properties - heavier with camera payload
+   mass 5.0
+   inertia_xx 0.15
+   inertia_yy 0.15
+   inertia_zz 0.25
+
+   # Rotor configuration
+   rotor_configuration HEX_X
+   rotor_diameter 0.38           # 15" props
+   arm_length 0.325              # 650mm frame
+
+   # Efficient motors
+   thrust_coefficient 0.012
+   torque_coefficient 0.0009
+   max_rpm 8000
+   motor_time_constant 0.08
+
+   # Aerodynamics
+   drag_enabled true
+   drag_coefficient_x 1.0
+   drag_coefficient_y 1.2
+   drag_coefficient_z 1.4
+   frontal_area 0.08
+
+   # Ground effect
+   ground_effect_enabled true
+   ground_effect_height_factor 1.5
+   ground_effect_max_boost 1.3
+
+   # Smooth control for photography
+   roll_mix_gain 0.2
+   pitch_mix_gain 0.2
+   yaw_mix_gain 0.15
+
+   # Stable flight controllers (gains scaled for m and m/s inputs)
+   altitude_hold true
+   altitude_kp 0.025             # Conservative for smooth flight
+   altitude_kd 0.05
+
+   position_hold true
+   position_kp 0.08              # Gentle position response
+   velocity_kp 0.2
+   max_tilt_angle 25.0           # Limited tilt for stability
+
+   telemetry_enabled true
+
+end_mover
+
+
+# ==============================================================================
+# EXAMPLE 3: Large Octocopter (Heavy Lift)
+# ==============================================================================
+# Heavy-lift industrial drone
+#   Mass: 25 kg (with 10 kg payload)
+#   Frame: 1000mm
+#   Props: 22" (0.56m diameter)
+#   Max thrust: ~80 kg total
+# ==============================================================================
+
+mover HEAVY_LIFT_OCTO_6DOF_MOVER WSF_ROTORCRAFT_6DOF_MOVER
+
+   update_interval 0.01 sec
+
+   # Mass properties - heavy lift configuration
+   mass 25.0
+   inertia_xx 1.5
+   inertia_yy 1.5
+   inertia_zz 2.5
+
+   # Rotor configuration
+   rotor_configuration OCTO_X
+   rotor_diameter 0.56           # 22" props
+   arm_length 0.50               # 1000mm frame
+
+   # High-torque motors
+   thrust_coefficient 0.011
+   torque_coefficient 0.0008
+   max_rpm 5500
+   motor_time_constant 0.12      # Slower large motors
+
+   # Aerodynamics - large bluff body
+   drag_enabled true
+   drag_coefficient_x 1.2
+   drag_coefficient_y 1.4
+   drag_coefficient_z 1.6
+   frontal_area 0.25
+
+   # Ground effect
+   ground_effect_enabled true
+   ground_effect_height_factor 2.0
+   ground_effect_max_boost 1.35
+
+   # Conservative control for heavy payload
+   roll_mix_gain 0.15
+   pitch_mix_gain 0.15
+   yaw_mix_gain 0.1
+
+   # Stable flight controllers (gains scaled for m and m/s inputs)
+   altitude_hold true
+   altitude_kp 0.02              # Very conservative for heavy lift
+   altitude_kd 0.04
+
+   position_hold true
+   position_kp 0.06              # Slow, steady movements
+   velocity_kp 0.15
+   max_tilt_angle 20.0           # Limited tilt for payload safety
+
+   telemetry_enabled true
+
+end_mover
+
+
+# ==============================================================================
+# EXAMPLE 4: Small Inspection Quadcopter
+# ==============================================================================
+# Compact inspection drone for indoor/confined spaces
+#   Mass: 1.2 kg
+#   Frame: 350mm
+#   Props: 8" (0.20m diameter)
+#   Max thrust: ~4 kg total
+# ==============================================================================
+
+mover INSPECTION_QUAD_6DOF_MOVER WSF_ROTORCRAFT_6DOF_MOVER
+
+   update_interval 0.01 sec
+
+   # Mass properties
+   mass 1.2
+   inertia_xx 0.015
+   inertia_yy 0.015
+   inertia_zz 0.025
+
+   # Rotor configuration
+   rotor_configuration QUAD_X
+   rotor_diameter 0.20           # 8" props
+   arm_length 0.175              # 350mm frame
+
+   # Balanced motors
+   thrust_coefficient 0.013
+   torque_coefficient 0.001
+   max_rpm 12000
+   motor_time_constant 0.04
+
+   # Aerodynamics
+   drag_enabled true
+   drag_coefficient_x 0.9
+   drag_coefficient_y 1.1
+   drag_coefficient_z 1.3
+   frontal_area 0.03
+
+   # Ground effect
+   ground_effect_enabled true
+   ground_effect_height_factor 1.5
+   ground_effect_max_boost 1.25
+
+   # Moderate control response
+   roll_mix_gain 0.3
+   pitch_mix_gain 0.3
+   yaw_mix_gain 0.2
+
+   # Flight controllers (gains scaled for m and m/s inputs)
+   altitude_hold true
+   altitude_kp 0.035             # Balanced response
+   altitude_kd 0.06
+
+   position_hold true
+   position_kp 0.12              # Good for inspection work
+   velocity_kp 0.28
+   max_tilt_angle 35.0
+
+   telemetry_enabled true
+
+end_mover
+
+
+# ==============================================================================
+# PLATFORM TYPE EXAMPLES
+# ==============================================================================
+# Example platform types using the movers above
+
+platform_type RACING_QUAD_UAS WSF_PLATFORM
+   side blue
+   icon 4_rotor_good
+   category air
+   mover RACING_QUAD_6DOF_MOVER
+   end_mover
+end_platform_type
+
+platform_type PHOTO_HEX_UAS WSF_PLATFORM
+   side blue
+   icon 4_rotor_good
+   category air
+   mover PHOTO_HEX_6DOF_MOVER
+   end_mover
+end_platform_type
+
+platform_type HEAVY_LIFT_OCTO_UAS WSF_PLATFORM
+   side blue
+   icon 4_rotor_good
+   category air
+   mover HEAVY_LIFT_OCTO_6DOF_MOVER
+   end_mover
+end_platform_type
+
+platform_type INSPECTION_QUAD_UAS WSF_PLATFORM
+   side blue
+   icon 4_rotor_good
+   category air
+   mover INSPECTION_QUAD_6DOF_MOVER
+   end_mover
+end_platform_type

@@ -1,0 +1,215 @@
+# ==============================================================================
+# Test 11: Endurance - Full Battery Depletion (with variable cruise speed)
+# ==============================================================================
+# Purpose: Full system integration test - cruise until battery depleted
+#
+# Method:
+#   - Start with 100% SOC (7000 Wh)
+#   - Climb to cruise altitude (350m)
+#   - Cruise at configurable speed until battery depleted
+#   - Monitor range achieved, flight time, discharge curve
+#
+# Expected Results:
+#   - Flight time: ~35-40 minutes (matching T-150 specs)
+#   - Range: ~35-40 km (loaded configuration)
+#   - Smooth discharge curve following Li-Ion chemistry
+#   - Low battery and voltage warnings trigger appropriately
+#
+# Key Metrics:
+#   - Total flight time: 35-40 minutes
+#   - Range: 35-40 km
+#   - Average cruise power: ~17 kW
+#   - Battery warnings: trigger at 20% SOC, 42V
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME test11_endurance
+##define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing
+define_path_variable OUTPUT_DIR output/phase1_tests
+
+# Script variable for cruise speed (m/s)
+script_variables
+   global double cruise_speed = 25.0;
+   global double distance_traveled_m = 0.0;
+   global double previous_latitude = 0.0;
+   global double previous_longitude = 0.0;
+   global double previous_altitude_m = 0.0;
+   global bool distance_sample_initialized = false;
+end_script_variables
+
+# Include the 6DOF platform with battery
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR FOR TELEMETRY
+# ==============================================================================
+platform_type T150_ENDURANCE_TEST_UAS T150_6DOF_UAS
+
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file output/phase1_tests/test11_endurance.csv
+      csv_log_interval 5.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE - Endurance Test
+# ==============================================================================
+platform t150_endurance_test T150_ENDURANCE_TEST_UAS
+
+   route
+      # Start on ground
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Climb to cruise altitude
+      position 35.0001n 120.0000w altitude 350 m agl speed 5 m/s
+
+      # Cruise until the battery depletion threshold is reached
+      position 35.9000n 120.0000w altitude 350 m agl speed 25 m/s
+   end_route
+
+   script void apply_cruise_speed()
+      extern double cruise_speed;
+      WsfRoute route = PLATFORM.Route().Copy();
+      route.SetSpeed(2, cruise_speed);
+      if (!PLATFORM.FollowRoute(route))
+      {
+         writeln("ERROR: Could not start endurance route");
+      }
+   end_script
+
+   execute at_time 0 sec absolute
+      extern double previous_latitude;
+      extern double previous_longitude;
+      extern double previous_altitude_m;
+      extern bool distance_sample_initialized;
+
+      apply_cruise_speed();
+      WsfGeoPoint initial_position = PLATFORM.Location();
+      previous_latitude = initial_position.Latitude();
+      previous_longitude = initial_position.Longitude();
+      previous_altitude_m = initial_position.Altitude();
+      distance_sample_initialized = true;
+   end_execute
+
+   execute at_interval_of 1 sec
+      extern double distance_traveled_m;
+      extern double previous_latitude;
+      extern double previous_longitude;
+      extern double previous_altitude_m;
+      extern bool distance_sample_initialized;
+
+      WsfGeoPoint current_position = PLATFORM.Location();
+      if (distance_sample_initialized)
+      {
+         WsfGeoPoint previous_position = WsfGeoPoint.Construct(
+            previous_latitude, previous_longitude, previous_altitude_m);
+         distance_traveled_m += previous_position.SlantRangeTo(current_position);
+      }
+      previous_latitude = current_position.Latitude();
+      previous_longitude = current_position.Longitude();
+      previous_altitude_m = current_position.Altitude();
+      distance_sample_initialized = true;
+   end_execute
+end_platform
+
+# ==============================================================================
+# BATTERY DEPLETION MONITOR
+# ==============================================================================
+# Check SOC every 30 seconds, terminate when depleted
+execute at_interval_of 30 sec
+   WsfPlatform pf = WsfSimulation.FindPlatform("t150_endurance_test");
+   if (pf.IsValid()) {
+      double soc = pf.AuxDataDouble("BATTERY_SOC");
+      double voltage = pf.AuxDataDouble("BATTERY_VOLTAGE");
+      if (soc <= 0.05) {
+         writeln("========================================");
+         writeln("  BATTERY DEPLETED - TEST COMPLETE");
+         writeln("========================================");
+         writeln("Final SOC: ", soc);
+         writeln("Final Voltage: ", voltage);
+         writeln("Cruise Speed: ", cruise_speed, " m/s");
+         writeln("Total distance traveled: ", distance_traveled_m / 1000.0, " km");
+         WsfSimulation.Terminate();
+      }
+   }
+end_execute
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  TEST 11: ENDURANCE TEST");
+   writeln("========================================");
+   writeln("Purpose: Full battery depletion test");
+   writeln("Method: Cruise at ", cruise_speed, " m/s until depleted");
+   writeln("Expected: 35-40 min, 35-40 km range");
+   writeln("========================================");
+end_execute
+
+execute at_time 60 sec absolute
+   writeln(">>> T=1min - At cruise altitude");
+end_execute
+
+execute at_time 300 sec absolute
+##   writeln(">>> T=5min - ~2.5km traveled");
+   writeln(">>> T=5min - ", distance_traveled_m / 1000.0, " km traveled");
+end_execute
+
+execute at_time 600 sec absolute
+##   writeln(">>> T=10min - ~5km traveled, check SOC");
+   writeln(">>> T=10min - ", distance_traveled_m / 1000.0, " km traveled");
+end_execute
+
+execute at_time 900 sec absolute
+##   writeln(">>> T=15min - ~7.5km traveled");
+   writeln(">>> T=15min - ", distance_traveled_m / 1000.0, " km traveled");
+end_execute
+
+execute at_time 1200 sec absolute
+##   writeln(">>> T=20min - ~10km traveled");
+   writeln(">>> T=20min - ", distance_traveled_m / 1000.0, " km traveled");
+end_execute
+
+execute at_time 1500 sec absolute
+##   writeln(">>> T=25min - ~12.5km traveled, SOC ~50%");
+   writeln(">>> T=25min - ", distance_traveled_m / 1000.0, " km traveled");
+end_execute
+
+execute at_time 1800 sec absolute
+##   writeln(">>> T=30min - ~15km traveled");
+   writeln(">>> T=30min - ", distance_traveled_m / 1000.0, " km traveled");
+end_execute
+
+execute at_time 2100 sec absolute
+##   writeln(">>> T=35min - Approaching range limit");
+   writeln(">>> T=35min - ", distance_traveled_m / 1000.0, " km traveled");
+end_execute
+
+execute at_time 2400 sec absolute
+##   writeln(">>> T=40min - Maximum expected endurance");
+   writeln(">>> T=40min - ", distance_traveled_m / 1000.0, " km traveled; max expected endurance");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Allow up to 50 minutes (battery should deplete before this)
+end_time 3000 sec

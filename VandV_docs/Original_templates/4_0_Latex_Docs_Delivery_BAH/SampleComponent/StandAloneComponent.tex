@@ -1,0 +1,107 @@
+%%% - - -   UNCLASSIFIED   - - - %%%
+
+\documentclass[11pt, letterpaper]{article}
+
+\usepackage{../DocumentTemplates/format/NGICStyle}    % does everything
+\usepackage{../DocumentTemplates/format/NGICGlossary} % contains glossary info
+\usepackage{../DocumentTemplates/values/ModelValues}      % sets classified values
+%\usepackage{../content/ChangeLog}      % sets classified values
+%%% document settings
+\usepackage{lineno}
+\usepackage{tikz}
+\linenumbers
+
+%% document paths
+\graphicspath{{images}}
+\newcommand\csvpath{csv}
+
+\makeatletter
+\def\input@path{{content}}
+\makeatother
+
+% header and footer
+\chead{\classlabel}
+\cfoot{\classlabel\ \\ \thepage}
+
+% uncommenting this line globally supresses guidance notes in the PDF
+%\presetkeys{todonotes}{disable}{}
+
+%%% document start
+\begin{document}
+
+%watermarks
+\draft
+%\confidential
+
+%% include sections
+
+% always
+
+%\input{../content/UAMchangelog}\pagebreak
+%\tableofcontents\pagebreak
+%\listoftables\pagebreak
+%\listoffigures\pagebreak
+%
+%
+%\input{../Content/UAM-Introduction}\pagebreak
+%
+%\input{../Content/UAM-SystemDescription}%\pagebreak
+%\input{../content/SourcesAssumptionsLimitationsGaps.tex}
+
+%\section{\classlabelshort\ Model Description}
+%\input{../content/ModelCapabilitiesAndIntendedUse.tex}
+%% fill component name here, so if documents are turned on or off, renew can be used as a command. 
+\newcommand\componentname{\textcolor{black}{\textbf{HOLD}}}  
+%%Indivdual component
+%\input{../content/ModelParameters.tex}
+%\input{component/Component_GUI}
+%%Indivdual component
+%\input{../content/UAM_TemplateComponent}
+\input{ComponentPythonTestFile}
+	********************************
+	EXAMPLE COMPONENT 1
+	********************************
+\input{Standalone_EWR}
+%\input{../content/UAM-Component_FrontEndFiltering}
+	********************************
+	EXAMPLE COMPONENT 2
+	********************************
+\input{Standalone_EWRAntenna}
+%\input{../content/UAM-Component_AngleMeasurement}
+%\input{../content/UAM-Component_EWRDopplerFiltering}
+%\input{../content/UAM-Component_Computer}
+%\input{../content/UAM-Component_Jammer}
+%\input{../content/UAM-Component_JammerAntenna}
+%\input{../content/UAM-Component_JammerDopplerFiltering}
+%\input{../content/UAM-Component_JammingSelection}
+%\input{../content/UAM-Component_JammingBarrage}
+%\input{../content/UAM-Component_JammingSpot}
+%\input{../content/UAM-Component_JammingResponsiveSpot}
+%\input{../content/UAM-Component_JammingFullHead2Tail}
+%\input{../content/UAM-Component_JammingVGPO}
+%\input{../content/UAM-Component_JammingRGPO}
+%%% Basic Setup and General Guide
+%\input{../Content/BasicSetupAndGeneralGuide}\pagebreak
+
+%% Analytic Outputs
+%\input{../Content/AnalyticOutputs}\pagebreak
+%\input{../Content/ModelLog}\pagebreak
+
+%\section{\classlabelshort\ Model Log} 
+
+% arabic numbering and footer update
+\pagenumbering{arabic} 
+\cfoot{\classlabel\ \\ {Page \thepage\ of \pageref{LastPage}}}
+
+% discretionary
+%\input{guide}
+
+%\input{guide}
+
+% glossary print function
+\doPrintGloss
+
+\newpage\label{mylastpage}
+\end{document}
+
+%%% - - -   UNCLASSIFIED   - - - %%%

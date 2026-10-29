@@ -1,0 +1,148 @@
+# ==============================================================================
+# T-150 6DOF Mover Test Scenario
+# ==============================================================================
+# Tests the physics-based 6DOF mover with a simple flight profile:
+#   1. Takeoff from ground level
+#   2. Climb to 50m altitude
+#   3. Fly a square pattern (100m x 100m)
+#   4. Return to start and land
+#
+# This scenario validates:
+#   - Rigid body dynamics integration
+#   - Rotor thrust/torque calculations
+#   - Altitude hold controller
+#   - Position hold controller
+#   - Ground effect near surface
+#
+# Plugin required: rotorcraft_6dof.so
+# ==============================================================================
+
+# Output configuration
+define_path_variable SCENARIO_NAME t150_6dof_test
+#define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+define_path_variable OUTPUT_DIR ./output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include the 6DOF platform definition
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# T-150 6DOF PLATFORM INSTANCE
+# ==============================================================================
+# Starting position: 35.0N, 120.0W (same as main demo)
+# Flight altitude: 50m AGL (lower for testing)
+# Pattern: Simple square, 100m sides
+# ==============================================================================
+
+platform t150_6dof_drone T150_6DOF_UAS
+
+   # Flight route using waypoints
+   # The 6DOF mover's position hold controller will navigate between them
+   route
+
+      # =========================================
+      # Start: Ground level
+      # =========================================
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # =========================================
+      # Waypoint 1: Climb to 50m, hover
+      # =========================================
+      position 35.0000n 120.0000w altitude 50 m agl speed 2 m/s
+
+      # =========================================
+      # Waypoint 2: North 100m
+      # =========================================
+      position 35.0009n 120.0000w altitude 50 m agl speed 5 m/s
+
+      # =========================================
+      # Waypoint 3: East 100m (NE corner)
+      # =========================================
+      position 35.0009n 119.9988w altitude 50 m agl speed 5 m/s
+
+      # =========================================
+      # Waypoint 4: South 100m (SE corner)
+      # =========================================
+      position 35.0000n 119.9988w altitude 50 m agl speed 5 m/s
+
+      # =========================================
+      # Waypoint 5: West 100m (back to start, SW corner)
+      # =========================================
+      position 35.0000n 120.0000w altitude 50 m agl speed 5 m/s
+
+      # =========================================
+      # Waypoint 6: Second lap - faster
+      # =========================================
+      position 35.0009n 120.0000w altitude 50 m agl speed 8 m/s
+      position 35.0009n 119.9988w altitude 50 m agl speed 8 m/s
+      position 35.0000n 119.9988w altitude 50 m agl speed 8 m/s
+      position 35.0000n 120.0000w altitude 50 m agl speed 8 m/s
+
+      # =========================================
+      # Waypoint 7: Descend and land
+      # =========================================
+      position 35.0000n 120.0000w altitude 10 m agl speed 2 m/s
+      position 35.0000n 120.0000w altitude 0 m agl speed 1 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  T-150 6DOF MOVER TEST");
+   writeln("========================================");
+   writeln("Testing physics-based 6DOF mover:");
+   writeln("  - Rigid body dynamics");
+   writeln("  - 8-rotor thrust/torque model");
+   writeln("  - Position hold controller");
+   writeln("  - Altitude hold controller");
+   writeln("");
+   writeln("Flight profile:");
+   writeln("  1. Takeoff to 50m");
+   writeln("  2. Fly 100m square pattern (2 laps)");
+   writeln("  3. Return and land");
+   writeln("========================================");
+end_execute
+
+execute at_time 30 sec absolute
+   writeln("");
+   writeln(">>> 30s: Should be at or near hover altitude (50m)");
+end_execute
+
+execute at_time 60 sec absolute
+   writeln("");
+   writeln(">>> 60s: First square lap in progress");
+end_execute
+
+execute at_time 120 sec absolute
+   writeln("");
+   writeln(">>> 120s: Second square lap (faster)");
+end_execute
+
+execute at_time 180 sec absolute
+   writeln("");
+   writeln(">>> 180s: Beginning descent sequence");
+end_execute
+
+execute at_time 240 sec absolute
+   writeln("");
+   writeln("========================================");
+   writeln("  6DOF TEST COMPLETE");
+   writeln("========================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Simulation end time (4 minutes for the test)
+end_time 300 sec

@@ -1,0 +1,35 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 7.3 SlungLoad State Machine
+## Description: State machine for the Slung Load Processor. States: DETACHED,
+##   ATTACHED, SWINGING, RESONANCE, RELEASED. Load attachment starts dynamics,
+##   increasing swing transitions through warning states, and ReleaseLoad()
+##   can transition from any attached state to RELEASED.
+
+Statechart: SlungLoadState
+
+    DETACHED --[AttachLoad(mass)]--> ATTACHED
+                                      |
+                              [swing > threshold]
+                                      v
+                                   SWINGING
+                                      |
+                              [resonance detected]
+                                      v
+                                   RESONANCE
+                                      |
+    RELEASED <--[ReleaseLoad()]-- any attached state
+
+## Suggested eraser.io prompt:
+## Create a state machine diagram for the Slung Load Processor.
+## States (5): DETACHED, ATTACHED, SWINGING, RESONANCE, RELEASED
+## Transitions:
+## - DETACHED -> ATTACHED [AttachLoad(mass) called]
+## - ATTACHED -> SWINGING [swing angle > threshold]
+## - SWINGING -> RESONANCE [resonance frequency detected]
+## - ATTACHED/SWINGING/RESONANCE -> RELEASED [ReleaseLoad() called]
+## DETACHED is the initial state. RELEASED is effectively terminal (forces zeroed).
+## Show a linear progression: DETACHED -> ATTACHED -> SWINGING -> RESONANCE
+## with a lateral transition from any of (ATTACHED, SWINGING, RESONANCE) to RELEASED.
+## Use color coding: DETACHED=gray, ATTACHED=green, SWINGING=yellow,
+## RESONANCE=red, RELEASED=gray.
+## Diagram type: State machine diagram

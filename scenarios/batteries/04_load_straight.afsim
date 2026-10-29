@@ -1,0 +1,110 @@
+# ==============================================================================
+# Battery Test: Straight Line Flight (Baseline) - TIME-BASED
+# ==============================================================================
+# Tests battery consumption for straight-line cruise over a fixed 500 second
+# cruise phase. This is the baseline for comparing pattern efficiency.
+#
+# Test Design:
+#   - Climb to 350m AGL (~70 seconds)
+#   - Cruise straight north for 500 seconds at 30 m/s (~15 km)
+#   - Descend and land (~60 seconds)
+#
+# This measures pure cruise power consumption with minimal maneuvering.
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME battery_test_straight
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+
+# Include the 6DOF platform definition
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# PLATFORM TYPE WITH BATTERY PROCESSOR
+# ==============================================================================
+platform_type T150_BATTERY_TEST_UAS T150_6DOF_UAS
+
+   # Battery processor - reads power from 6DOF mover
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      nominal_voltage 46.8
+      full_charge_voltage 54.6
+      cutoff_voltage 39.0
+      internal_resistance 0.025
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      hover_power_w 18000
+      low_battery_warning 0.20
+      voltage_sag_warning 42.0
+      csv_output_file /home/shepard/afsim_projects/project005_t150_uas/output/battery_test_straight_battery.csv
+      csv_log_interval 1.0
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCE
+# ==============================================================================
+platform t150_battery_test T150_BATTERY_TEST_UAS
+
+   route
+      # =========================================
+      # PHASE 1: Takeoff and Climb to 350m (~70s)
+      # =========================================
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+      position 35.0001n 120.0000w altitude 350 m agl speed 5 m/s
+
+      # =========================================
+      # PHASE 2: Straight Cruise for 500 seconds
+      # At 30 m/s for 500s = 15,000m = 15km north
+      # 15km = 0.135 degrees latitude
+      # =========================================
+      position 35.1350n 120.0000w altitude 350 m agl speed 30 m/s
+
+      # =========================================
+      # PHASE 3: Descent and Landing (~60s)
+      # =========================================
+      position 35.1360n 120.0000w altitude 50 m agl speed 5 m/s
+      position 35.1365n 120.0000w altitude 0 m agl speed 2 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  BATTERY TEST: STRAIGHT LINE (TIMED)");
+   writeln("========================================");
+   writeln("Test Design: 500 second cruise phase");
+   writeln("Pattern: Straight line north");
+   writeln("Speed: 30 m/s cruise");
+   writeln("This is the BASELINE for comparison.");
+   writeln("========================================");
+end_execute
+
+execute at_time 70 sec absolute
+   writeln(">>> T=70s - Reached cruise altitude, beginning 500s cruise phase");
+end_execute
+
+execute at_time 320 sec absolute
+   writeln(">>> T=320s - Mid-cruise (250s into cruise phase)");
+end_execute
+
+execute at_time 570 sec absolute
+   writeln(">>> T=570s - End of 500s cruise phase, beginning descent");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+# Total time: ~70s climb + 500s cruise + 60s descent + buffer = 650s
+end_time 680 sec

@@ -1,0 +1,109 @@
+# ==============================================================================
+# T-150 / TRV-150 Heavy-Lift UAS 6DOF Mover Definition
+# ==============================================================================
+# Physics-based 6DOF mover using the rotorcraft_6dof plugin.
+# This replaces the kinematic WSF_FULL_ROTORCRAFT_MOVER with actual
+# Newton-Euler rigid body dynamics.
+#
+# Configuration: Coaxial Octocopter (8 rotors on 4 arms)
+# Propulsion: 8x T-Motor U15II KV100 motors
+# MTOW: 123 kg
+#
+# Plugin: rotorcraft_6dof.so
+# ==============================================================================
+
+mover T150_6DOF_MOVER WSF_ROTORCRAFT_6DOF_MOVER
+
+   # Update at 100 Hz for physics stability
+   update_interval 0.01 sec
+
+   # ==========================================================================
+   # MASS PROPERTIES
+   # ==========================================================================
+   # Total mass at MTOW (includes 68 kg payload)
+   mass 123.0
+
+   # Moments of inertia [kg*m^2]
+   # Estimated for coaxial octocopter with ~1.8m arm span
+   # Roll/pitch inertia dominated by arm + motor mass distribution
+   # Yaw inertia larger due to planar mass distribution
+   inertia_xx 4.5
+   inertia_yy 4.5
+   inertia_zz 7.0
+
+   # ==========================================================================
+   # ROTOR CONFIGURATION
+   # ==========================================================================
+   # COAXIAL_QUAD: 4 arms with 2 counter-rotating rotors each (8 total)
+   rotor_configuration COAXIAL_QUAD
+
+   # Rotor geometry
+   rotor_diameter 0.76          # [m] 30" propellers
+   arm_length 0.90              # [m] Motor arm length from CG
+   coaxial_spacing 0.08         # [m] Vertical spacing between coaxial rotors
+
+   # Rotor aerodynamic coefficients (momentum theory)
+   # CT and CQ tuned to produce required hover thrust at achievable RPM
+   # For 123kg MTOW with 8 rotors: ~150N/rotor hover thrust needed
+   # Using momentum theory: T = CT * rho * n^2 * D^4
+   thrust_coefficient 0.10      # CT - higher value for realistic hover
+   torque_coefficient 0.008     # CQ - torque coefficient (~10% of CT)
+
+   # Motor performance
+   max_rpm 6000                 # Maximum rotor RPM (U15II can achieve this)
+   motor_time_constant 0.05     # [s] First-order motor response lag - fast response
+
+   # ==========================================================================
+   # AERODYNAMIC DRAG
+   # ==========================================================================
+   drag_enabled true
+   drag_coefficient_x 1.0       # Forward drag (bluff body)
+   drag_coefficient_y 1.2       # Lateral drag (slightly higher)
+   drag_coefficient_z 1.5       # Vertical drag (highest - flat plate area)
+   frontal_area 0.30            # [m^2] Reference area
+
+   # ==========================================================================
+   # GROUND EFFECT
+   # ==========================================================================
+   ground_effect_enabled true
+   ground_effect_height_factor 1.5   # GE active within 1.5 rotor diameters
+   ground_effect_max_boost 1.25      # Up to 25% thrust increase near ground
+
+   # ==========================================================================
+   # CONTROL MIXING GAINS
+   # ==========================================================================
+   # How much roll/pitch/yaw commands affect individual rotor speeds
+   # These must be high enough to provide strong attitude correction authority
+   roll_mix_gain 0.15
+   pitch_mix_gain 0.15
+   yaw_mix_gain 0.08
+
+   # ==========================================================================
+   # ALTITUDE HOLD CONTROLLER
+   # ==========================================================================
+   # PD controller: throttle_adj = kp * alt_error - kd * climb_rate
+   # Gains scaled for meters and m/s inputs, throttle output ~[-0.3, 0.3]
+   altitude_hold true
+   altitude_kp 0.02             # Proportional gain [throttle/m] - gentler response
+   altitude_kd 0.15             # Derivative gain [throttle/(m/s)] - strong damping
+
+   # ==========================================================================
+   # POSITION HOLD CONTROLLER
+   # ==========================================================================
+   # PD-P cascaded controller:
+   #   position_kp: position error (m) -> desired velocity (m/s)
+   #   position_kd: velocity damping to prevent oscillations
+   #   velocity_kp: velocity error (m/s) -> tilt command (normalized)
+   # Tuned for aggressive waypoint tracking
+   position_hold true
+   position_kp 1.0              # Position error to velocity [1/s]
+   position_kd 0.1              # Velocity damping [s] - minimal damping
+   velocity_kp 3.0              # Velocity error to attitude [-] - strong response
+   max_vel_accel 8.0            # [m/s²] Fast acceleration
+   max_tilt_angle 25.0          # [deg] Allow significant tilt
+   waypoint_arrival_radius 3.0  # [m] Very tight waypoint tracking
+
+   # Heading control - disabled for stability testing
+   heading_hold false
+
+end_mover

@@ -1,0 +1,82 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{values/T150ModelValues}
+
+\colorlet{ModelValueColor}{black}
+
+\newcommand{\newModelValue}[2]{%
+	\newcommand{#1}{\textcolor{ModelValueColor}{#2}}%
+}%
+
+%% Allow line breaks after underscores in AFSIM variable names
+%% Redefines \_ to include a \discretionary break point
+\let\SavedUnderscore\_
+\protected\def\_{\SavedUnderscore\discretionary{}{}{}}
+
+%% Classification
+\newcommand{\classlabel}{\unclasslabel}
+\newcommand{\classlabelshort}{\unclass }
+\newcommand{\classlabelacro}{\natolabelacro}
+\newcommand{\documentlabel}{\textcolor{green5}{\textbf{UNCLASSIFIED}}}
+\newcommand{\ngicemail}{[PLACEHOLDER]@mail.mil}
+
+%% Model Identity
+\newModelValue{\modelname}{T-150/TRV-150 Heavy-Lift UAS}
+\newModelValue{\modelcodename}{T150\_UAS}
+\newModelValue{\countryname}{[PLACEHOLDER]}
+\newModelValue{\countryadjective}{[PLACEHOLDER]}
+
+%% Platform Parameters
+\newModelValue{\platformConfig}{Coaxial Octocopter (8 rotors, 4 arms)}
+\newModelValue{\motorType}{T-Motor U15II KV100}
+\newModelValue{\motorCount}{8}
+\newModelValue{\totalThrust}{240 kg}
+\newModelValue{\mtow}{123 kg}
+\newModelValue{\maxPayload}{68 kg (150 lbs)}
+\newModelValue{\emptyWeight}{55 kg (estimated)}
+\newModelValue{\cruiseSpeed}{30 m/s (108 km/h)}
+\newModelValue{\maxAirspeed}{40+ m/s}
+\newModelValue{\maxClimbRate}{8 m/s}
+\newModelValue{\maxDescentRate}{4 m/s}
+\newModelValue{\propDiameter}{0.76 m (30 in)}
+\newModelValue{\armLength}{0.5 m}
+
+%% Battery Parameters
+\newModelValue{\batteryConfig}{13S Li-Ion}
+\newModelValue{\nominalVoltage}{46.8 V}
+\newModelValue{\fullChargeVoltage}{54.6 V}
+\newModelValue{\cutoffVoltage}{39.0 V}
+\newModelValue{\batteryCapacity}{7000 Wh}
+\newModelValue{\batteryCapacityAh}{148.75 Ah}
+\newModelValue{\internalResistance}{0.025 $\Omega$}
+\newModelValue{\flightTime}{36 min (nominal)}
+
+%% Propulsion Parameters
+\newModelValue{\kvRating}{100 RPM/V}
+\newModelValue{\maxPowerPerMotor}{3500 W}
+\newModelValue{\coaxialEfficiency}{0.85}
+\newModelValue{\motorThermalLimit}{120$^\circ$C}
+\newModelValue{\motorThermalMass}{1500 J/K}
+\newModelValue{\motorCoolingRate}{20 W/K}
+\newModelValue{\motorTimeConstant}{0.15 s}
+\newModelValue{\thrustCoefficient}{0.10}
+\newModelValue{\torqueCoefficient}{0.008}
+
+%% VRS Parameters
+\newModelValue{\vrsDescentThreshold}{4.0 m/s}
+\newModelValue{\vrsSpeedThreshold}{5.0 m/s}
+\newModelValue{\vrsCautionMargin}{0.8}
+\newModelValue{\vrsCoaxialFactor}{0.85}
+
+%% 6DOF Parameters
+\newModelValue{\inertiaXX}{2.5 kg$\cdot$m$^2$}
+\newModelValue{\inertiaYY}{2.5 kg$\cdot$m$^2$}
+\newModelValue{\inertiaZZ}{4.5 kg$\cdot$m$^2$}
+\newModelValue{\maxTiltAngle}{25$^\circ$}
+
+%% Software Configuration
+\newModelValue{\afsimVersion}{2.2505}
+\newModelValue{\compilerVersion}{GCC 13.3 / MSVC}
+\newModelValue{\buildSystem}{CMake 3.16+}
+\newModelValue{\cppStandard}{C++17}
+\newModelValue{\totalLOC}{7,736}
+\newModelValue{\sourceFiles}{26}

@@ -1,0 +1,208 @@
+# ==============================================================================
+# Radar Detection and Tracking Demonstration Scenario
+# ==============================================================================
+#
+# This scenario demonstrates a ground-based radar system detecting and
+# tracking the T-150 UAS as it flies a mission profile.
+#
+# Setup:
+# ------
+# - Ground radar site at origin (35.0N, 120.0W)
+# - T-150 starts 20 km south, flies north past the radar site
+# - Flight profile includes approach, overhead pass, and departure
+#
+# Demonstrates:
+# -------------
+# - Realistic RCS-based detection ranges
+# - Track establishment and maintenance
+# - Doppler filtering (rejects ground clutter)
+# - Detection probability vs aspect angle
+#
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME radar_tracking_demo
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+
+# Include dependencies
+include ../../signatures/t150_radar_signature.afsim
+include ../../sensors/ground_surveillance_radar.afsim
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# RADAR SITE PLATFORM
+# ==============================================================================
+platform_type RADAR_SITE WSF_PLATFORM
+   side blue
+   icon radar_site
+   category ground
+
+   # Surveillance radar - primary detection
+   sensor surveillance GROUND_SURVEILLANCE_RADAR
+      on
+      processor track_proc
+   end_sensor
+
+   # Track processor to manage detections
+   processor track_proc WSF_TRACK_PROCESSOR
+   end_processor
+
+   # Script processor to monitor tracks
+   processor monitor_proc WSF_SCRIPT_PROCESSOR
+      update_interval 5 sec
+
+      script_variables
+         int mDetectionCount = 0;
+         double mFirstDetectionTime = -1.0;
+         double mFirstDetectionRange = 0.0;
+      end_script_variables
+
+      on_update
+         WsfLocalTrackList trackList = PLATFORM.MasterTrackList();
+         int trackCount = trackList.TrackCount();
+
+         if (trackCount > 0)
+         {
+            if (mFirstDetectionTime < 0.0)
+            {
+               mFirstDetectionTime = TIME_NOW;
+               # Get range from first track
+               foreach (WsfTrack track in trackList)
+               {
+                  if (track.RangeValid())
+                  {
+                     mFirstDetectionRange = track.Range() / 1000.0;
+                  }
+                  break;  # Just get first track
+               }
+               writeln(">>> FIRST DETECTION at T=", mFirstDetectionTime, " sec");
+               writeln("    Range: ", mFirstDetectionRange, " km");
+            }
+            mDetectionCount = mDetectionCount + 1;
+         }
+
+         # Print track details every update
+         foreach (WsfTrack track in trackList)
+         {
+            double range_km = 0.0;
+            double bearing = 0.0;
+            double elevation = 0.0;
+
+            if (track.RangeValid())
+            {
+               range_km = track.Range() / 1000.0;
+            }
+            if (track.BearingValid())
+            {
+               bearing = track.Bearing();
+            }
+            if (track.ElevationValid())
+            {
+               elevation = track.Elevation();
+            }
+
+            writeln("T=", TIME_NOW, "s | Track: ", track.TrackId().Name(),
+                    " | Range: ", range_km, " km | Brg: ", bearing, " deg | El: ", elevation, " deg");
+         }
+      end_on_update
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# T-150 WITH HIGH-FIDELITY RCS
+# ==============================================================================
+platform_type T150_RADAR_TARGET T150_6DOF_UAS
+
+   # Override with high-fidelity RCS signature
+   radar_signature T150_HIGH_FIDELITY_RCS
+
+   # Battery processor for realistic flight duration
+   processor battery_monitor T150_BATTERY_PROCESSOR
+      battery_capacity_wh 7000
+      initial_soc 1.0
+      use_dynamic_power true
+      power_source_key "6dof_total_power"
+      motor_efficiency 0.37
+      auxiliary_power_w 4000
+      use_velocity_power_model false
+   end_processor
+
+end_platform_type
+
+# ==============================================================================
+# PLATFORM INSTANCES
+# ==============================================================================
+
+# Ground radar site at origin
+platform radar_site_1 RADAR_SITE
+   position 35.0n 120.0w altitude 50 m msl
+end_platform
+
+# T-150 starting 20 km south, flying north (red side so radar detects it)
+platform t150_target T150_RADAR_TARGET
+   side red
+   route
+      # Start position - 20 km south of radar at 100m AGL
+      position 34.82n 120.0w altitude 100 m agl speed 0 m/s
+
+      # Climb and accelerate northbound
+      position 34.83n 120.0w altitude 200 m agl speed 15 m/s
+
+      # Cruise altitude, approaching radar
+      position 34.90n 120.0w altitude 300 m agl speed 25 m/s
+
+      # Pass west of radar site (offset for safety)
+      position 35.00n 120.02w altitude 300 m agl speed 25 m/s
+
+      # Continue north past radar
+      position 35.10n 120.02w altitude 300 m agl speed 25 m/s
+
+      # Turn east
+      position 35.15n 119.95w altitude 350 m agl speed 25 m/s
+
+      # Circle back south (demonstrating different aspects)
+      position 35.10n 119.90w altitude 350 m agl speed 20 m/s
+
+      # Approach from east
+      position 35.00n 119.90w altitude 300 m agl speed 20 m/s
+
+      # Final departure south
+      position 34.85n 119.95w altitude 200 m agl speed 15 m/s
+
+   end_route
+end_platform
+
+# ==============================================================================
+# SCRIPT - Report simulation start and end
+# ==============================================================================
+
+# Report simulation start
+execute at_time 0 sec absolute
+   writeln("============================================================");
+   writeln("  RADAR TRACKING DEMONSTRATION");
+   writeln("============================================================");
+   writeln("Radar Site: 35.0N, 120.0W");
+   writeln("T-150 Start: 20 km south, flying north");
+   writeln("T-150 RCS: High-fidelity angular-dependent signature");
+   writeln("           ~-3 dBsm nose-on, ~+7 dBsm broadside, ~+12 dBsm from above");
+   writeln("============================================================");
+   writeln("");
+end_execute
+
+# Final summary at end
+execute at_time 600 sec absolute
+   writeln("");
+   writeln("============================================================");
+   writeln("  SIMULATION COMPLETE");
+   writeln("============================================================");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 600 sec

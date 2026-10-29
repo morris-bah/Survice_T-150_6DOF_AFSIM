@@ -1,0 +1,78 @@
+
+\section{\unclass  Model Fidelity Log}  
+\guidance{
+\unclass TIMELINE: Initial draft with sections laid out should be delivered by \gls{srr} and finalized by \gls{cdr}.
+
+\unclass The model log should be a plan for model and component fidelity, derived from clear conversations with \gls{ngic} at each milestone, intel for the corresponding system, and from understanding of technical functionality of the chosen architecture.  The definitions of each fidelity level are relatively static and will be provided as needed, and any changes to component fidelity levels should be in agreement with \gls{ngic}.
+}
+
+\subsection{\unclass General Model Fidelity}
+
+\begin{table}[H]
+	\begin{center}
+		\caption{\unclass Overall Model Notes}
+		\bigskip
+		\begin{tblr}[
+			caption={\unclass Overall Model Notes},
+			label={tab:overallmodelnotes},
+			]{
+				cell{1}{1} = {r=1,c=3}{halign = l},
+				cell{Z}{1} = {r=1,c=3}{halign = r},
+				cell{2}{1} = {r=1,c=3}{bg = TableBlue, fg=white, halign = c, font=\bfseries},
+				column{1} = {3-5}{0.8in,p},
+				column{3} = {3-5}{4.5in,p},
+				hlines, vlines,
+			}
+			\unclasslabel \\
+			%%%%% BEGIN USER CONTENT %%%%%
+			General Model Fidelity \\
+			% edit only the second column
+			Parametric & \checkmark & Developed model is a system representation that includes system-specific data to drive generic algorithms or parametric equations, generating semi-empirically derived system outputs given inputs.\\
+			Engineering &  & Developed model is a system representation that includes system-specific data to drive system-specific tailored algorithms, generating representative system outputs given inputs.  \\
+			Emulative &  & Developed model is a faithful representation (identical or near-identical) of the system software and hardware, generating equivalent system outputs given inputs. \\
+			%%%% END USER CONTENT %%%%%%
+			\unclasslabel \\
+		\end{tblr}
+	\end{center}
+\end{table}
+
+
+
+\guidance{\unclass For subsystem tables the definitions of parametric, engineering, and emulative are specific to the subsystem type and should clearly explain technical differences in fidelity at the subsystem level.}
+%
+%%%%%% BEGIN USER CONTENT %%%%%
+\newcommand{\fidelitysubsystemname}{Model Log: Sub-System Name}
+\newcommand{\fidelitysubsystemlabel}{tab:modellogSUBSYSTEMNAME}
+%%%%% END USER CONTENT %%%%%%
+%
+\subsection{\unclass \fidelitysubsystemname}
+
+\begin{table}[H]
+	\begin{center}
+		\caption{\unclass \fidelitysubsystemname}
+		\bigskip
+		\begin{tblr}[
+			caption={\unclass \fidelitysubsystemname},
+			label={\fidelitysubsystemlabel},
+			]{
+				cell{1}{1} = {r=1,c=3}{halign = l},
+				cell{Z}{1} = {r=1,c=3}{halign = r},
+				cell{2}{1} = {r=1,c=3}{bg = TableBlue, fg=white, halign = c, font=\bfseries},
+				column{1} = {3-6}{0.8in, p},
+				column{3} = {3-6}{4.5in, p},
+				cell{6}{2} = {r=1,c=2}{p},
+				hlines, vlines,
+			}
+			\unclasslabel \\
+			Model Log: Sub-System Name \\
+			%%%%% BEGIN USER CONTENT %%%%%
+			% edit only the rightmost column and move the checkmark as needed
+			Parametric &  &  WHAT PARAMETRIC FIDELITY LOOKS LIKE FOR THIS SUBSYSTEM \\
+			Engineering & \checkmark & WHAT ENGINEERING FIDELITY LOOKS LIKE FOR THIS SUBSYSTEM  \\
+			Emulative &  & WHAT EMULATIVE FIDELITY LOOKS LIKE FOR THIS SUBSYSTEM \\
+			Description & DESCRIPTION OF THE SUBSYSTEM \\\
+			%%%% END USER CONTENT %%%%%%
+			\unclasslabel \\
+		\end{tblr}
+	\end{center}
+\end{table}

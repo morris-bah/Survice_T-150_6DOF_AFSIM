@@ -1,0 +1,105 @@
+# ==============================================================================
+# T-150 6DOF Mover Telemetry Test
+# ==============================================================================
+# Tests the 6DOF mover with full physics and telemetry.
+# AuxData telemetry is published via the R6DOF_* channels.
+#
+# Plugin required: rotorcraft_6dof.so
+# ==============================================================================
+
+define_path_variable SCENARIO_NAME t150_6dof_telemetry_test
+define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output
+log_file $(OUTPUT_DIR)/$(SCENARIO_NAME).log
+
+# Include the 6DOF platform definition
+include ../../platforms/t150_6dof_platform.afsim
+
+# ==============================================================================
+# T-150 6DOF PLATFORM INSTANCE
+# ==============================================================================
+
+platform t150_6dof_drone T150_6DOF_UAS
+
+   route
+
+      # Start: Ground level
+      position 35.0000n 120.0000w altitude 0 m agl speed 0 m/s
+
+      # Climb to 50m
+      position 35.0000n 120.0000w altitude 50 m agl speed 2 m/s
+
+      # Square pattern - 100m sides
+      position 35.0009n 120.0000w altitude 50 m agl speed 5 m/s
+      position 35.0009n 119.9988w altitude 50 m agl speed 5 m/s
+      position 35.0000n 119.9988w altitude 50 m agl speed 5 m/s
+      position 35.0000n 120.0000w altitude 50 m agl speed 5 m/s
+
+      # Second lap - faster
+      position 35.0009n 120.0000w altitude 50 m agl speed 8 m/s
+      position 35.0009n 119.9988w altitude 50 m agl speed 8 m/s
+      position 35.0000n 119.9988w altitude 50 m agl speed 8 m/s
+      position 35.0000n 120.0000w altitude 50 m agl speed 8 m/s
+
+      # Descend and land
+      position 35.0000n 120.0000w altitude 10 m agl speed 2 m/s
+      position 35.0000n 120.0000w altitude 0 m agl speed 1 m/s stop
+
+   end_route
+
+end_platform
+
+# ==============================================================================
+# STATUS MESSAGES
+# ==============================================================================
+
+execute at_time 0 sec absolute
+   writeln("========================================");
+   writeln("  T-150 6DOF TELEMETRY TEST");
+   writeln("========================================");
+   writeln("Flight profile:");
+   writeln("  1. Takeoff to 50m");
+   writeln("  2. Fly 100m square pattern (2 laps)");
+   writeln("  3. Descend and land");
+   writeln("");
+   writeln("Telemetry channels published via AuxData:");
+   writeln("  R6DOF_LAT_DEG, R6DOF_LON_DEG, R6DOF_ALT_M");
+   writeln("  R6DOF_GROUNDSPEED_MPS, R6DOF_CLIMB_RATE_MPS");
+   writeln("  R6DOF_ROLL_DEG, R6DOF_PITCH_DEG, R6DOF_YAW_DEG");
+   writeln("  R6DOF_TOTAL_THRUST_KG, R6DOF_TOTAL_POWER_KW");
+   writeln("  R6DOF_AVG_RPM, R6DOF_WAYPOINT_INDEX");
+   writeln("========================================");
+end_execute
+
+execute at_time 30 sec absolute
+   writeln(">>> T=30s: Climb phase");
+end_execute
+
+execute at_time 60 sec absolute
+   writeln(">>> T=60s: Pattern flight - Lap 1");
+end_execute
+
+execute at_time 120 sec absolute
+   writeln(">>> T=120s: Pattern flight - Lap 2");
+end_execute
+
+execute at_time 200 sec absolute
+   writeln(">>> T=200s: Descent phase");
+end_execute
+
+execute at_time 300 sec absolute
+   writeln("");
+   writeln("========================================");
+   writeln("  TELEMETRY TEST COMPLETE");
+   writeln("========================================");
+   writeln("Check AuxData in event file for trajectory data.");
+end_execute
+
+# ==============================================================================
+# OUTPUT CONFIGURATION
+# ==============================================================================
+event_pipe
+   file $(OUTPUT_DIR)/$(SCENARIO_NAME).aer
+   use_preset default
+end_event_pipe
+
+end_time 320 sec

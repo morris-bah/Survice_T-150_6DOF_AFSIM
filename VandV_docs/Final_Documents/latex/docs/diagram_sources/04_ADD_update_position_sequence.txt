@@ -1,0 +1,75 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 3.7 UpdatePosition Sequence
+## Description: Detailed per-timestep execution sequence for the Rotorcraft6DOF_Mover's
+##   UpdatePosition() method. This is the core physics loop showing: dt computation,
+##   air density update, navigation (spline or waypoint), control mixing, per-rotor
+##   update with motor lag, force aggregation (thrust, drag, external forces, gravity),
+##   rigid body integration (Newton-Euler), and state synchronization back to AFSIM.
+
+UpdatePosition(simTime)
+  |
+  +--> Compute dt = simTime - mLastSimTime
+  |
+  +--> Update air density from altitude (ISA model)
+  |
+  +--> IF spline navigation enabled:
+  |      UpdateSplineNavigation(dt, simTime)
+  |    ELSE:
+  |      UpdatePositionHold(dt)   -- waypoint tracking
+  |      UpdateAltitudeHold(dt)   -- altitude PID
+  |
+  +--> ApplyControlMixer()
+  |      Maps throttle/roll/pitch/yaw commands to per-rotor RPM
+  |      RPM_i = hover_RPM * (throttle + roll*mix_i + pitch*mix_i
+  |              + yaw*mix_i)
+  |
+  +--> FOR EACH rotor:
+  |      rotor.Update(dt, airDensity, groundEffectFactor)
+  |        Motor first-order lag:
+  |          actualRPM += (cmdRPM - actualRPM) * dt / tau
+  |        Compute thrust, torque, power from actualRPM
+  |
+  +--> ComputeTotalThrustForce()    -- sum rotor thrust vectors
+  +--> ComputeTotalRotorMoment()    -- sum rotor moments
+  +--> ComputeDragForce(bodyVel)    -- aerodynamic drag
+  +--> ReadExternalForces()         -- slung load + weapon forces
+  +--> ReadExternalMoments()        -- weapon moments from AuxData
+  |
+  +--> Add gravity in world frame, rotate to body frame
+  +--> Sum all forces and moments
+  |
+  +--> mRigidBody.Integrate(totalForce, totalMoment, dt)
+  |      Compute linear acceleration: a = F / m
+  |      Compute angular acceleration:
+  |        alpha = I^{-1} (M - omega x I*omega)
+  |      Integrate velocity, position (Euler method)
+  |      Integrate quaternion: q_dot = 0.5 * q * omega
+  |      Normalize quaternion, update Euler angles
+  |
+  +--> UpdateDynamicMass()   -- weapon ammo + slung load mass
+  +--> SyncToAFSIM()         -- copy 6DOF state to WsfPlatform
+  +--> PublishTelemetry()    -- write state to AuxData
+
+## Suggested eraser.io prompt:
+## Create a detailed flowchart for the Rotorcraft6DOF_Mover UpdatePosition() method,
+## which is the core physics loop executed each simulation timestep.
+## Steps in order:
+## 1. Compute dt (delta time)
+## 2. Update air density from altitude (ISA model)
+## 3. Decision: Spline navigation enabled?
+##    - Yes: UpdateSplineNavigation(dt, simTime)
+##    - No: UpdatePositionHold(dt) then UpdateAltitudeHold(dt)
+## 4. ApplyControlMixer() - maps throttle/roll/pitch/yaw to per-rotor RPM
+## 5. Loop: FOR EACH rotor - Update with motor lag, compute thrust/torque/power
+## 6. ComputeTotalThrustForce() - sum all rotor thrusts
+## 7. ComputeTotalRotorMoment() - sum all rotor moments
+## 8. ComputeDragForce() - aerodynamic drag
+## 9. ReadExternalForces() - slung load + weapon forces from AuxData
+## 10. ReadExternalMoments() - weapon moments from AuxData
+## 11. Add gravity, rotate forces to body frame, sum all forces/moments
+## 12. mRigidBody.Integrate() - Newton-Euler integration (linear + angular + quaternion)
+## 13. UpdateDynamicMass() - weapon ammo + slung load
+## 14. SyncToAFSIM() - copy 6DOF state back to WsfPlatform
+## 15. PublishTelemetry() - write state to AuxData
+## Use a vertical flowchart layout with decision diamond for spline navigation.
+## Diagram type: Flowchart / Activity diagram

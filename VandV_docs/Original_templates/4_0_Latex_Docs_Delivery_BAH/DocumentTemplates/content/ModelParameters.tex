@@ -1,0 +1,41 @@
+\subsection{\unclass  Model Parameters}  
+\guidance{
+	\unclass TIMELINE: This section should be filled in for \gls{pdr} and finalized for \gls{cdr}.
+	
+\unclass The purpose of this section is to provide a consolidated location for all of the input parameters used to make this a system-specific model, whether hard-coded or set by the user.
+
+\unclass The Component column should show which component is most directly affected by the setting.
+
+\unclass Refer to sources by reference number from the References Table.
+
+\unclass Options for user-tunable column are no (it's hard-coded), \gls{gui}, or super user input. 
+
+\unclass Also include settings that may need to be set to specific values such as the time step in the \gls{gui}. 
+
+}
+
+\unclass Parameters used or available for the model are listed in \tref{ParameterTable}. The user-tunable column has three options: No, \gls{gui} input, or super-user input (SUI).  
+
+\begin{center}
+	\begin{longtblr}
+		[
+		caption={\unclass Model Parameters},
+		label={tab:ParameterTable},
+		]{
+			colspec={|Q[valign=m,l,1in]|Q[valign=m,l,1.5in]|Q[valign=m,l,1in]|Q[valign=m,c,0.75in]|Q[valign=m,c,0.625in]|Q[valign=m,c,0.7in]|},
+			cell{1}{1}={c=6}{halign=l,bg=white,fg=black},
+			cell{Z}{1}={c=6}{halign=r,bg=white,fg=black},
+			row{2}={bg=TableBlue,fg=white,halign=c},
+			hline{3}={.5pt},
+			hline{Y}={.5pt},
+			rowhead=2,
+			rowfoot=1,
+		}   \hline
+		\unclasslabel \\\hline
+		Variable & Description & Default and Classification & Component & User Tunable? & Source Number \\
+		OperationalBW & Frequency range the system operates over & \unclass 100-200MHz & Receiver & No & 2 \\ \hline
+		Frequency & Center frequency of the system & \unclass 110MHz & Receiver & \gls{gui} & 1 \\
+		\unclasslabel \\\hline
+	\end{longtblr}
+\end{center}
+

@@ -1,0 +1,35 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 5.2 Motor State Array
+## Description: Data structure definition for the PropulsionProcessor's motor
+##   state array. Shows the fixed-size array of 8 MotorData structs, each
+##   containing state (enum: OFF/STARTING/RUNNING/OVERTEMP/FAILED), rpm,
+##   current, temperature, efficiency, thrust, torque, and throttle fields.
+
+  std::array<MotorData, NUM_MOTORS> mMotors    (NUM_MOTORS = 8)
+
+  MotorData contains:
+    state       : MotorState {OFF, STARTING, RUNNING, OVERTEMP, FAILED}
+    rpm         : double     -- current RPM
+    current     : double     -- current draw [A]
+    temperature : double     -- winding temperature [C]
+    efficiency  : double     -- operating efficiency [0-1]
+    thrust      : double     -- thrust output [N]
+    torque      : double     -- torque output [Nm]
+    throttle    : double     -- commanded throttle [0-1]
+
+## Suggested eraser.io prompt:
+## Create a data structure diagram showing the PropulsionProcessor's motor array.
+## Show a container "PropulsionProcessor" containing:
+##   std::array<MotorData, 8> mMotors
+## Show a "MotorData" struct with fields:
+##   - state: MotorState enum {OFF, STARTING, RUNNING, OVERTEMP, FAILED}
+##   - rpm: double (current RPM)
+##   - current: double (current draw in Amps)
+##   - temperature: double (winding temperature in Celsius)
+##   - efficiency: double (operating efficiency, 0-1)
+##   - thrust: double (thrust output in Newtons)
+##   - torque: double (torque output in Nm)
+##   - throttle: double (commanded throttle, 0-1)
+## Show 8 instances of MotorData inside the array.
+## Also show the MotorState enum values in a separate box.
+## Diagram type: UML class diagram / Data structure diagram

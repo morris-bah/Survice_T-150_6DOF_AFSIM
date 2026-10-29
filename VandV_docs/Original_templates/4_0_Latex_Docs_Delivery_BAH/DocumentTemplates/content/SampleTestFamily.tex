@@ -1,0 +1,56 @@
+%% BEGIN USER CONTENT HERE
+\subsection{\unclass Test Family X: Descriptive Name}
+%% END USER CONTENT HERE
+\guidance{
+\unclass TIMELINE: Should be started by PDR and finalized at CDR.
+
+\unclass REQUIREMENTS
+
+\unclass \textbf{Hierarchy} Test Families are comprised of Test Cases.
+EXAMPLE: Test Family X consists of Test Cases X.1, X.2, and X.2a.
+
+\unclass \textbf{Representative, not Exhaustive} The test family needs to be thoroughly tested in the code, but the TDD need not have a separate Test Case for every coded test. \\
+
+\unclass This overarching section should be a brief description of the purpose and function of the test family.  Defer discussion of shared characteristics and default inputs to the subsections below.\\
+
+\unclass EXAMPLE: Scenario X.2b also belongs in this Test Family, but is not significantly different from Scenario X.2a, and so is only briefly included in further detail in a similar test case.
+
+
+}
+
+
+
+\subsubsection{\unclass Test Cases' Shared Characteristics}
+
+\guidance{
+
+\unclass TIMELINE: Should be started by PDR and finalized at CDR.
+
+\unclass REQUIREMENT \textbf{Shared Characteristics} Each Test Family is defined by some shared similarity.  For instance, all tests in this family attempt to jam a search radar, or all test in this family share the same geometry. \\
+\unclass EXAMPLE: These tests all disable the TER, and focus on TAR functionality. \\
+\unclass EXAMPLE: These tests all focus on varying jamming modes, and keep the rest of the model parameters relatively static. \\
+\unclass EXAMPLE: These tests all use a geometry of interest provided by \gls{ngic}. \\
+}
+	
+\subsubsection{\unclass Test Family Default Inputs}
+
+\guidance{REQUIREMENT
+
+\unclass TIMELINE: Should be started by CDR and finalized at CDR.
+	
+\unclass \textbf{Parameters} Each Family has in its introductory section a table of parameters that define its base parameters, which are used by its Cases.  This table lists default values.  Each Case has a similar table listing that Case's unique values.	
+	
+\unclass \textbf{Scope} This table lists all parameters that \emph{both} differ from the Table of Default Parameters in the UAM \emph{and} are the same for every test case in this family.  
+
+\unclass \textbf{Content} List that parameter's default value for Cases in this Family.  Each individual Case will have its own table of values unique to that test.}
+
+%%%%% BEGIN USER CONTENT %%%%%
+\classlabelshort \tref{samplefamilyparams} shows those parameter settings which differ from the defaults in Table \# of the \modelname{} Users and Analyst's Manual and are also identical for all tests in this test family.  Each Test Case has a table of parameters for which that test case uses a unique value.
+
+\tableThrNow{\classlabel}{\unclass Sample Test Family: Family-Wide Parameter Settings}{samplefamilyparams}
+{l,4cm}{l,6cm}{1,5cm}
+{
+	Input Name & Description & Value(s) \\
+	Simulation Start Date & Start Date for the Simulation & 07/10/2024  \\	
+}
+%%%% END USER CONTENT %%%%%%

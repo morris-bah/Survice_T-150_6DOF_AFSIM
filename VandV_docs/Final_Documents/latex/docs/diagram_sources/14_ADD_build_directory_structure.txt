@@ -1,0 +1,50 @@
+## Source: ADD (Architecture Description Document) - T150_ADD_Content.tex
+## Section: 9.1 Build System
+## Description: Directory tree structure for the T-150 plugin suite's CMake
+##   build system. Shows the top-level plugins/ directory containing
+##   CMakeLists.txt and 5 plugin subdirectories, each with their own
+##   CMakeLists.txt, source/, and grammar/ subdirectories.
+
+  plugins/
+    CMakeLists.txt              <-- Top-level: finds AFSIM, adds subdirectories
+    rotorcraft_6dof/
+      CMakeLists.txt            <-- Builds rotorcraft_6dof.so / .dll
+      source/                   <-- 5 .hpp + 4 .cpp files
+      grammar/                  <-- AFSIM grammar file (.ag)
+    t150_battery/
+      CMakeLists.txt            <-- Builds t150_battery_processor.so / .dll
+      source/                   <-- 3 .hpp + 2 .cpp files
+      grammar/
+    t150_propulsion/
+      CMakeLists.txt
+      source/                   <-- 2 .hpp + 2 .cpp files
+      grammar/
+    t150_vrs/
+      CMakeLists.txt
+      source/                   <-- 2 .hpp + 2 .cpp files
+      grammar/
+    t150_slung_load/
+      CMakeLists.txt
+      source/                   <-- 2 .hpp + 2 .cpp files
+      grammar/
+
+## Suggested eraser.io prompt:
+## Create a directory tree diagram for the T-150 Plugin Suite build system.
+## Root: plugins/
+##   - CMakeLists.txt (top-level: finds AFSIM, adds subdirectories)
+##   - rotorcraft_6dof/
+##     - CMakeLists.txt (builds rotorcraft_6dof.so/.dll)
+##     - source/ (5 .hpp + 4 .cpp files)
+##     - grammar/ (AFSIM grammar file)
+##   - t150_battery/
+##     - CMakeLists.txt (builds t150_battery_processor.so/.dll)
+##     - source/ (3 .hpp + 2 .cpp files)
+##     - grammar/
+##   - t150_propulsion/
+##     - CMakeLists.txt, source/ (2 .hpp + 2 .cpp), grammar/
+##   - t150_vrs/
+##     - CMakeLists.txt, source/ (2 .hpp + 2 .cpp), grammar/
+##   - t150_slung_load/
+##     - CMakeLists.txt, source/ (2 .hpp + 2 .cpp), grammar/
+## Use a standard file tree layout with folder icons.
+## Diagram type: Directory tree / File structure diagram

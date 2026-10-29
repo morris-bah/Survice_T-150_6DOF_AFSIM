@@ -1,0 +1,111 @@
+# ****************************************************************************
+# Rotorcraft 6DOF Plugin Grammar
+#
+# Grammar definition for WSF_ROTORCRAFT_6DOF_MOVER
+# Physics-based 6DOF mover with Newton-Euler dynamics
+# ****************************************************************************
+
+# === WSF_ROTORCRAFT_6DOF_MOVER ===
+(struct WSF_ROTORCRAFT_6DOF_MOVER :symbol (type moverType WSF_ROTORCRAFT_6DOF_MOVER)
+                                   :base_type WSF_ROUTE_MOVER
+{
+   # Update interval
+   update_interval <Time>
+
+   # ========================================================================
+   # MASS PROPERTIES
+   # ========================================================================
+ | mass <real>
+ | inertia_xx <real>
+ | inertia_yy <real>
+ | inertia_zz <real>
+
+   # ========================================================================
+   # ROTOR CONFIGURATION
+   # ========================================================================
+ | rotor_configuration <string>
+ | rotor_diameter <real>
+ | arm_length <real>
+ | coaxial_spacing <real>
+ | thrust_coefficient <real>
+ | torque_coefficient <real>
+ | max_rpm <real>
+ | motor_time_constant <real>
+
+   # ========================================================================
+   # AERODYNAMIC DRAG
+   # ========================================================================
+ | drag_enabled <Bool>
+ | drag_coefficient_x <real>
+ | drag_coefficient_y <real>
+ | drag_coefficient_z <real>
+ | frontal_area <real>
+
+   # ========================================================================
+   # GROUND EFFECT
+   # ========================================================================
+ | ground_effect_enabled <Bool>
+ | ground_effect_height_factor <real>
+ | ground_effect_max_boost <real>
+
+   # ========================================================================
+   # CONTROL MIXING GAINS
+   # ========================================================================
+ | roll_mix_gain <real>
+ | pitch_mix_gain <real>
+ | yaw_mix_gain <real>
+
+   # ========================================================================
+   # ALTITUDE HOLD CONTROLLER (PID)
+   # ========================================================================
+ | altitude_hold <Bool>
+ | altitude_kp <real>
+ | altitude_ki <real>
+ | altitude_kd <real>
+
+   # ========================================================================
+   # POSITION HOLD CONTROLLER (Cascaded PD-P)
+   # ========================================================================
+ | position_hold <Bool>
+ | position_kp <real>
+ | position_kd <real>
+ | velocity_kp <real>
+ | max_vel_accel <real>
+ | max_tilt_angle <real>
+ | waypoint_arrival_radius <real>
+
+   # ========================================================================
+   # HEADING CONTROL
+   # ========================================================================
+ | heading_hold <Bool>
+ | heading_kp <real>
+
+   # ========================================================================
+   # SPLINE NAVIGATION CONFIGURATION
+   # ========================================================================
+ | spline_interpolation <Bool>
+ | spline_tension <real>
+ | max_deceleration <real>
+ | default_waypoint_behavior <string>
+ | default_pass_speed <real>
+ | default_hover_duration <real>
+   # waypoint_behavior <index> <mode>
+ | waypoint_behavior <integer> <string>
+   # waypoint_stop <index> <hover_duration>
+ | waypoint_stop <integer> <real>
+   # waypoint_stop_heading <index> <hover_duration> <departure_heading>
+ | waypoint_stop_heading <integer> <real> <real>
+   # waypoint_slow <index> <pass_speed>
+ | waypoint_slow <integer> <real>
+
+   # ========================================================================
+   # TELEMETRY CONFIGURATION
+   # ========================================================================
+ | telemetry_enabled <Bool>
+ | enable_telemetry <Bool>
+
+   # ========================================================================
+   # BASE MOVER COMMANDS
+   # ========================================================================
+ | <WSF_ROUTE_MOVER>
+})

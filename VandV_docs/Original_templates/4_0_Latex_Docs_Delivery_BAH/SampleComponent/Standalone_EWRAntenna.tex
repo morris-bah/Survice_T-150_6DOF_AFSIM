@@ -1,0 +1,56 @@
+%[BOTH]
+\renewcommand\componentname{\textcolor{black}{\textbf{EWR Antenna }}}
+
+\subsection{\unclass \componentname Overview}
+\guidance{
+	THIS IS INCLUDED IN BOTH UAM AND ADD.
+}
+%%%%% BEGIN USER CONTENT %%%%%
+\classlabelshort The \modelname \gls{ewr} has a \antennaType that provides an azimuth beamwidth of \azimuthBeamwidthDeg and elevation beamwidth of \elevationBeamwidthDeg .
+
+
+\doMyFigure{4in}{\unclasslabel}{../images/PlaceholderText}{\unclass \modelname \gls{ewr} Antenna Pattern}{EWRAntenna}
+
+%[/BOTH]
+
+
+%[UAM]
+\subsubsection{\unclass \componentname Functional Behavior}
+%%%%% BEGIN USER CONTENT %%%%%
+\guidance{
+	THIS IS INCLUDED IN ONLY UAM.
+}
+\classlabelshort In order to support the decisions outlined in the Early Warning Component Overview section, the antenna is being captured as a psuedo-omni pattern shown in \pic{EWRAntenna}. This allows the antenna pattern to capture roll off in the elevation limiting it to the \elevationBeamwidthDeg. However, all azimuth angles will have the peak gain of \PeakGaindBi.
+
+\classlabelshort The \modelname has multiple elements which allow for monopulse processing in the azimuth plane to provide more refined measurements using monopulse processing. More details are contained within the monopulse error section on how this is handled.
+
+\classlabelshort Antenna patterns were generated every gigahertz across the \frequency range of the \modelname model. The antenna patterns are normalized to the CSV super user input, JammerPeakGainDbi, allowing users the ability to adjust the capabilities of the \gls{odessa} jammer model. Between this aspect and having a pattern every gigahertz, we can capture the realistic variability of peak gain while providing a user with the power to experiment with model performance.
+%[/UAM]
+
+%[ADD]
+
+\subsubsection{\unclass \componentname Code Structure}
+\guidance{
+	THIS IS INCLUDED IN ONLY ADD.
+}
+%%%%% BEGIN USER CONTENT %%%%%
+\classlabelshort The antenna is using the antenna lookup 3d base class and is called within the \modelname code within the EarlyWarning\_Listening function. Antenna patterns are normalized to the CSV super user input, JammerPeakGainDbi, allowing users the ability to adjust the capabilities of the \gls{odessa} jammer model.
+
+\unclass Using \gls{spdw}s that have passed the \gls{rif}, the model will first apply Doppler filtering to the pulses and determine a frequency bin. The model will then capture the receive time (spdw\_received\_pulse\_start) and end time of the pulse (spdw\_received\_pulse\_end) as well as the true direction of the emission using GetSpdwDirectionOfArrival. Then a dwell angle is calculated based on the current time using the GetDwellAzimuthCenter function. This will also take into account the pointing angle of the system itself to use as the starting angle of the \gls{ewr} rotation (often listed as initial\_angle within the source code). A boresight error calculation will be performed with the CalculateMonopulseBSE function within the EarlyWarningListening class and this error will be applied to the truth direction of arrival information. Then the direction of arrival information with boresight error is passed to the IsPulseIntercepted function to verify that the antenna would be pointed in the direction of the target when the emission was received. If so, then the detection is added to the track box. This is performed for all \gls{spdw}s that have been received within a full $360^o$ scan.
+
+%\doMyCode{C++}{\unclasslabel}{EWR Code Snippet}{true}{58}{66}{ConfigStructureBuilder_BuildOJ12.cpp}
+%%%% END USER CONTENT %%%%%%
+%[/ADD]
+
+%[BOTH]
+\subsubsection{\unclass \componentname Unique Design Characteristics and Decisions}
+\guidance{
+	THIS IS INCLUDED IN ONLY UAM and is now "Assumptions, Limitations, and Gaps
+}
+%%%%% BEGIN USER CONTENT %%%%%
+\unclass Decisions outlined in Early Warning Component Overview drove representing the antenna pattern this way. This means that emissions in the sidelobe, while the \gls{ewr} is pointed at another target, will not interfere with the mainbeam received signal. Each signal will be received and processed independently.
+%%%% END USER CONTENT %%%%%%
+
+%[/BOTH]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
