@@ -26,9 +26,11 @@ define_path_variable SCENARIO_NAME test11_endurance
 ##define_path_variable OUTPUT_DIR /home/shepard/afsim_projects/project005_t150_uas/output/phase1_testing
 define_path_variable OUTPUT_DIR output/phase1_tests
 
-# Script variable for cruise speed (m/s)
+$define CRUISE_SPEED 25.0
+
+# Script variable for reporting the configured cruise speed (m/s)
 script_variables
-   global double cruise_speed = 25.0;
+   global double cruise_speed = $<CRUISE_SPEED:25.0>$;
    global double distance_traveled_m = 0.0;
    global double previous_latitude = 0.0;
    global double previous_longitude = 0.0;
@@ -75,18 +77,8 @@ platform t150_endurance_test T150_ENDURANCE_TEST_UAS
       position 35.0001n 120.0000w altitude 350 m agl speed 5 m/s
 
       # Cruise until the battery depletion threshold is reached
-      position 35.9000n 120.0000w altitude 350 m agl speed 25 m/s
+      position 35.9000n 120.0000w altitude 350 m agl speed $<CRUISE_SPEED:25.0>$ m/s
    end_route
-
-   script void apply_cruise_speed()
-      extern double cruise_speed;
-      WsfRoute route = PLATFORM.Route().Copy();
-      route.SetSpeed(2, cruise_speed);
-      if (!PLATFORM.FollowRoute(route))
-      {
-         writeln("ERROR: Could not start endurance route");
-      }
-   end_script
 
    execute at_time 0 sec absolute
       extern double previous_latitude;
@@ -94,7 +86,6 @@ platform t150_endurance_test T150_ENDURANCE_TEST_UAS
       extern double previous_altitude_m;
       extern bool distance_sample_initialized;
 
-      apply_cruise_speed();
       WsfGeoPoint initial_position = PLATFORM.Location();
       previous_latitude = initial_position.Latitude();
       previous_longitude = initial_position.Longitude();
